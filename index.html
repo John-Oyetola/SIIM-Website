@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hey Service | Monitoring Dashboard</title>
+    <title>SIM | Intelligent Monitoring</title>
     <meta name="description"
-        content="Hey Service - Ensure your systems are running smoothly with our monitoring dashboard">
+        content="SIM — real-time wastewater, grease and safety monitoring.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css?v=14">
 </head>
@@ -17,7 +17,7 @@
     <header class="main-header">
         <div class="container nav-container">
             <a href="index.html" class="logo">
-                <img src="Images/logo.png" alt="Hey Service Logo" class="header-logo">
+                <img src="Images/logo.png" alt="SIM — Stratton Innovation Monitoring" class="header-logo">
             </a>
             <input type="checkbox" id="navToggleIndex" class="hamburger-toggle">
             <label for="navToggleIndex" class="hamburger-btn" aria-label="Toggle navigation">
@@ -47,13 +47,40 @@
         </div>
     </header>
 
-    <section class="hero-section">
-        <video src="Images/Logo%20Animation.mp4" class="hero-video" autoplay loop muted playsinline></video>
-        <div class="hero-overlay"></div>
-        <div class="container hero-content">
-            <h1>Advanced Service Monitoring</h1>
-            <p class="hero-text">Real-time data, instant alerts, and
-                comprehensive site performance reports—all in one intelligent dashboard.</p>
+    <section class="hero-section sim-hero">
+        <div class="sim-hero-glow sim-hero-glow-one"></div>
+        <div class="sim-hero-glow sim-hero-glow-two"></div>
+        <div class="container sim-hero-layout">
+            <div class="sim-hero-copy">
+                <p class="sim-eyebrow"><span></span> Stratton Innovation Monitoring</p>
+                <h1>Operational visibility,<br><em>in real time.</em></h1>
+                <p class="sim-hero-text">Real-time wastewater, grease, and safety diagnostics—all in one intelligent dashboard.</p>
+                <p class="sim-hero-support">Turn live site data into earlier warnings, faster responses and better-protected operations.</p>
+                <div class="sim-hero-actions">
+                    <a href="login.html" class="btn sim-btn-primary">Access dashboard <span aria-hidden="true">→</span></a>
+                    <a href="#quote" class="sim-btn-secondary">Talk to an expert</a>
+                </div>
+            </div>
+
+            <div class="sim-telemetry" aria-label="Animated monitoring telemetry illustration">
+                <div class="sim-telemetry-top">
+                    <span class="sim-live-dot"></span><span>LIVE SITE DATA</span><span class="sim-telemetry-time">12:48:02</span>
+                </div>
+                <div class="sim-chart-grid">
+                    <div class="sim-chart-line sim-chart-line-one"></div>
+                    <div class="sim-chart-line sim-chart-line-two"></div>
+                    <div class="sim-chart-line sim-chart-line-three"></div>
+                    <span class="sim-chart-node sim-node-one"></span>
+                    <span class="sim-chart-node sim-node-two"></span>
+                    <span class="sim-chart-node sim-node-three"></span>
+                </div>
+                <div class="sim-metrics">
+                    <div><span>GREASE</span><strong>24<span>%</span></strong><small class="sim-safe">● Normal</small></div>
+                    <div><span>AIRFLOW</span><strong>98<span>%</span></strong><small class="sim-info">● Stable</small></div>
+                    <div><span>ALERTS</span><strong>02</strong><small class="sim-warn">● Review</small></div>
+                </div>
+                <div class="sim-scan-ring"><i></i><i></i><i></i></div>
+            </div>
         </div>
     </section>
 
