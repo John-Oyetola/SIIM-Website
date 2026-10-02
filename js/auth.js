@@ -229,6 +229,19 @@ window.signUpWithEmail = async function(email, password, fullName = '', company 
         throw new Error(error.message || 'Registration failed.');
     }
 
+    // Ensure an active session is established for subsequent MFA enrollment
+    const client = getSupabase();
+    if (client && (!data || !data.session)) {
+        try {
+            const loginRes = await client.auth.signInWithPassword({ email, password });
+            if (loginRes.data && loginRes.data.session) {
+                data = loginRes.data;
+            }
+        } catch (e) {
+            console.warn('Post-signup session login attempt:', e);
+        }
+    }
+
     const displayName = fullName || email.split('@')[0] || 'User';
     localStorage.setItem('heyServiceUser', email);
     localStorage.setItem('heyServiceFullName', displayName);
@@ -244,52 +257,44 @@ window.signUpWithEmail = async function(email, password, fullName = '', company 
 // 4. Supabase MFA TOTP Enrollment (Step 2 of Signup)
 window.enrollMfaTotp = async function(email) {
     const client = getSupabase();
-    try {
-        const { data, error } = await client.auth.mfa.enroll({
-            factorType: 'totp',
-            issuer: 'SIIM Telemetry',
-            friendlyName: email
-        });
-        if (error) throw error;
-        return data;
-    } catch (err) {
-        // Provide seamless fallback for offline/demo if Supabase MFA is unconfigured
-        const fallbackSecret = 'SIIM' + Math.random().toString(36).substring(2, 10).toUpperCase();
-        const fallbackId = 'factor_' + Date.now();
-        const fallbackQr = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%230b0f19"/><rect x="20" y="20" width="60" height="60" fill="%2300e5ff"/><rect x="120" y="20" width="60" height="60" fill="%2300e5ff"/><rect x="20" y="120" width="60" height="60" fill="%2300e5ff"/><rect x="100" y="100" width="80" height="80" fill="%2300e5ff"/><text x="100" y="105" fill="%23ffffff" font-size="10" text-anchor="middle">SCAN TOTP</text></svg>`;
-        return {
-            id: fallbackId,
-            type: 'totp',
-            totp: {
-                qr_code: fallbackQr,
-                secret: fallbackSecret,
-                uri: `otpauth://totp/SIIM%20Telemetry:${encodeURIComponent(email)}?secret=${fallbackSecret}&issuer=SIIM%20Telemetry`
-            }
-        };
+    const { data, error } = await client.auth.mfa.enroll({
+        factorType: 'totp',
+        issuer: 'SIIM Telemetry',
+        friendlyName: email
+    });
+
+    if (error) {
+        throw new Error(error.message || 'MFA enrollment failed.');
     }
+
+    return data;
 };
 
 // 5. Supabase MFA TOTP Challenge & Verification (Step 4 of Signup)
 window.verifyMfaTotp = async function(factorId, code) {
     const client = getSupabase();
-    try {
-        const challengeRes = await client.auth.mfa.challenge({ factorId });
-        if (challengeRes.error) throw challengeRes.error;
 
-        const verifyRes = await client.auth.mfa.verify({
-            factorId,
-            challengeId: challengeRes.data.id,
-            code
-        });
-        if (verifyRes.error) throw verifyRes.error;
-        return verifyRes.data;
-    } catch (err) {
-        // If 6-digit code is numeric and 6 digits, accept for demo fallback
-        if (code && code.trim().length === 6 && /^\d+$/.test(code.trim())) {
-            return { verified: true };
-        }
-        throw new Error(err.message || 'Invalid 6-digit MFA verification code.');
+    if (!factorId) {
+        throw new Error('MFA factor ID is missing.');
     }
+
+    const challengeRes = await client.auth.mfa.challenge({ factorId });
+    if (challengeRes.error) {
+        throw new Error('MFA challenge failed: ' + challengeRes.error.message);
+    }
+
+    const challengeId = challengeRes.data.id;
+    const verifyRes = await client.auth.mfa.verify({
+        factorId,
+        challengeId,
+        code: code.trim()
+    });
+
+    if (verifyRes.error) {
+        throw new Error('Invalid MFA verification code: ' + verifyRes.error.message);
+    }
+
+    return verifyRes.data;
 };
 
 // 6. Supabase Password Reset Email Dispatch
