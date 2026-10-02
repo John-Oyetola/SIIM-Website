@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Demo Dashboard | SIIM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=22">
+    <style>
+        /* Pulse Animation for Critical Badge */
+        @keyframes badge-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .pulse-critical {
+            animation: badge-pulse 2s infinite;
+            background-color: #ef4444 !important;
+            color: #FFFFFF !important;
+        }
+
+        /* Demo Card Styling */
+        .demo-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .demo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .camera-feed-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #000;
+        }
+        .camera-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.85;
+        }
+        .camera-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 17, 31, 0.75);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #FFFFFF;
+            letter-spacing: 0.5px;
+        }
+        .camera-rec-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: rec-blink 1s infinite alternate;
+        }
+        @keyframes rec-blink {
+            from { opacity: 0.3; }
+            to { opacity: 1; }
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: fit-content;
+        }
+        .badge-optimal {
+            background-color: #10b981;
+            color: #FFFFFF;
+        }
+        .badge-warning {
+            background-color: #f59e0b;
+            color: #FFFFFF;
+        }
+
+        /* Lead Capture Modal styling */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 17, 31, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-backdrop.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .demo-modal {
+            background-color: #00111F;
+            border: 2px solid #FF5A00;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 460px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(255, 90, 0, 0.2);
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            color: #FFFFFF;
+        }
+        .modal-backdrop.active .demo-modal {
+            transform: scale(1);
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 2rem;
+            color: #888;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .modal-close:hover {
+            color: #FFFFFF;
+        }
+        .modal-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.6rem;
+            color: #FFFFFF;
+            margin-bottom: 1rem;
+        }
+        .modal-text {
+            color: #CCCCCC;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            border: 1px solid #4D4D4D;
+            background-color: #1B2430;
+            color: #FFFFFF;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .modal-input:focus {
+            border-color: #FF5A00;
+        }
+        .modal-submit {
+            background-color: #FF5A00;
+            color: #FFFFFF;
+            border: none;
+            padding: 0.85rem 1.5rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .modal-submit:hover {
+            background-color: #FF7733;
+        }
+
+        .success-checkmark {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 1rem;
+        }
+        .checkmark-icon {
+            font-size: 4rem;
+            color: #10b981;
+        }
+    </style>
+</head>
+
+<body class="dashboard-theme">
+
+    <!-- Top Banner -->
+    <div class="demo-banner">
+        <span>SIIM Live Preview — Read-Only Demo Mode</span>
+        <a href="index.html" onclick="window.exitDemo(event)">Exit Demo</a>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="main-header">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <!-- Inline SVG Emblem & SIIM text logo (Horizontal) -->
+                <svg viewBox="0 0 710 240" fill="none" xmlns="http://www.w3.org/2000/svg" class="header-logo-img" style="height: 48px; width: auto;">
+                    <path d="M180 20C91.6 20 20 91.6 20 180C20 207.4 26.9 233.2 39 255.8" stroke="#FF5A00" stroke-width="8" stroke-linecap="round"/>
+                    <path d="M48 270C80.3 312.6 131.9 340 180 340C268.4 340 340 268.4 340 180C340 119.5 306.4 66.8 256.7 39.5" stroke="#1E4E96" stroke-width="8" stroke-linecap="round"/>
+                    <circle cx="180" cy="180" r="140" stroke="#00111F" stroke-width="12"/>
+                    <path d="M110 180C110 141.3 141.3 110 180 110C218.7 110 250 141.3 250 180C250 218.7 218.7 250 180 250" stroke="#3A8A33" stroke-width="6"/>
+                    <text x="380" y="210" fill="currentColor" font-family="'Montserrat', sans-serif" font-weight="900" font-size="120" letter-spacing="10">SIIM</text>
+                </svg>
+            </a>
+            
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html#quote">Contact</a></li>
+                </ul>
+            </nav>
+
+            <div class="header-actions">
+                <select id="langToggle" class="lang-toggle-btn" aria-label="Select Language" title="Select Language">
+                    <option value="en">EN</option>
+                    <option value="fr">FR</option>
+                    <option value="es">ES</option>
+                </select>
+                <button id="themeToggleBtn" class="theme-toggle-switch" aria-label="Toggle theme">
+                    <span class="switch-label">Night Mode</span>
+                    <div class="switch-knob">
+                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </div>
+                </button>
+                <a href="index.html" class="client-login-btn" onclick="window.exitDemo(event)">Exit Demo</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 3rem; padding-bottom: 5rem;">
+        
+        <!-- Welcome Block -->
+        <div style="margin-bottom: 3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 2rem; position: relative;">
+            <span style="color: #FF5A00; text-transform: uppercase; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px;">
+                Live Compliance Audit Preview
+            </span>
+            <h1 style="font-family: 'Montserrat'; font-weight: 800; font-size: 2.5rem; margin-top: 0.5rem; margin-bottom: 1rem; color: var(--text-main);">
+                Interactive Demo Dashboard
+            </h1>
+            
+            <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 1rem 1.5rem; display: inline-flex; align-items: center; gap: 10px; font-weight: 600;">
+                <span style="color: var(--text-muted);">Monitored Client:</span>
+                <span id="companyName" style="color: #FF5A00; font-weight: 700;">Apex Culinary Systems</span>
+                <button onclick="regenerateClient()" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; margin-left: 10px; transition: color 0.2s;" title="Regenerate Random Client">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="transform: scaleX(-1);">
+                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3 Scenario Zones Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin-bottom: 4rem;">
+            
+            <!-- Zone 1 - Optimal -->
+            <div class="demo-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--text-main);">Zone 1 - Main Hood</h3>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Exhaust Telemetry CAM 01</span>
+                    </div>
+                    <span class="badge-status badge-optimal">4% - Optimal</span>
+                </div>
+                
+                <div class="camera-feed-container">
+                    <div class="camera-overlay">
+                        <span class="camera-rec-dot"></span>LIVE
+                    </div>
+                    <video src="Images/Clean Vent.mp4" autoplay loop muted playsinline class="camera-video"></video>
+                </div>
+
+                <div style="background-color: rgba(0,0,0,0.15); border-radius: 4px; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Ambient Temp:</span>
+                        <strong style="color: var(--text-main);">22.4°C</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Sensor Latency:</span>
+                        <strong style="color: var(--text-main);">12ms</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Compliance:</span>
+                        <strong style="color: #10b981;">Fully Compliant</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone 2 - Warning -->
+            <div class="demo-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--text-main);">Zone 2 - Charbroiler Hood</h3>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Exhaust Telemetry CAM 02</span>
+                    </div>
+                    <span class="badge-status badge-warning">52% - Warning</span>
+                </div>
+                
+                <div class="camera-feed-container">
+                    <div class="camera-overlay">
+                        <span class="camera-rec-dot"></span>LIVE
+                    </div>
+                    <video src="Images/Midlevel Vent.mp4" autoplay loop muted playsinline class="camera-video"></video>
+                </div>
+
+                <div style="background-color: rgba(0,0,0,0.15); border-radius: 4px; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Ambient Temp:</span>
+                        <strong style="color: var(--text-main);">48.1°C</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Sensor Latency:</span>
+                        <strong style="color: var(--text-main);">14ms</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Compliance:</span>
+                        <strong style="color: #f59e0b;">Action Recommended</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone 3 - Critical -->
+            <div class="demo-card" style="border-color: rgba(239, 68, 68, 0.4);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--text-main);">Zone 3 - Deep Fryer Hood</h3>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Exhaust Telemetry CAM 03</span>
+                    </div>
+                    <span class="badge-status pulse-critical">89% - CRITICAL</span>
+                </div>
+                
+                <div class="camera-feed-container">
+                    <div class="camera-overlay" style="background-color: rgba(239, 68, 68, 0.2);">
+                        <span class="camera-rec-dot" style="background-color: #ef4444;"></span>WARNING FEED
+                    </div>
+                    <video src="Images/Dirty Vent.mp4" autoplay loop muted playsinline class="camera-video"></video>
+                </div>
+
+                <div style="background-color: rgba(0,0,0,0.15); border-radius: 4px; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Ambient Temp:</span>
+                        <strong style="color: var(--text-main);">78.5°C</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Sensor Latency:</span>
+                        <strong style="color: var(--text-main);">18ms</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Compliance:</span>
+                        <strong style="color: #ef4444;">Action Required</strong>
+                    </div>
+                </div>
+
+                <button onclick="openLeadModal()" class="btn btn-primary" style="background-color: #FF5A00; border-color: #FF5A00; width: 100%; padding: 0.75rem; font-weight: 700; border-radius: 4px; box-shadow: 0 4px 10px rgba(255, 90, 0, 0.3);">
+                    Schedule Cleaning
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Ready to Deploy CTA Box -->
+        <div style="background-color: var(--bg-card); border: 2px solid var(--border-color); border-radius: var(--border-radius); padding: 3rem; text-align: center; max-width: 800px; margin: 0 auto;">
+            <h2 style="font-family: 'Montserrat'; font-weight: 800; font-size: 2rem; margin-bottom: 1rem; color: var(--text-main);">
+                Eliminate Fire Risks & Exhaust Failures
+            </h2>
+            <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                Integrate Stratton Innovation Intelligent Monitoring (SIIM) sensors inside your commercial exhaust tracks, ambient temp paths, and wastewater channels.
+            </p>
+            <a href="index.html#quote" class="btn btn-primary" style="background-color: #FF5A00; border-color: #FF5A00; color: #FFFFFF; font-weight: 700; padding: 0.9rem 2.5rem; border-radius: var(--border-radius); box-shadow: 0 4px 14px rgba(255, 90, 0, 0.35);">
+                Book Stratton Consultation
+            </a>
+        </div>
+
+    </main>
+
+    <!-- Lead Capture Modal Backdrop -->
+    <div id="leadModalBackdrop" class="modal-backdrop">
+        <div class="demo-modal">
+            <span class="modal-close" onclick="closeLeadModal()">&times;</span>
+            
+            <!-- Form State -->
+            <div id="modalFormState">
+                <h3 class="modal-title">Schedule Compliance Cleaning</h3>
+                <p class="modal-text">
+                    You are scheduling cleaning for <strong>Zone 3 - Deep Fryer Hood (89% grease deposit)</strong>. Enter your professional email below to instantly receive a mock compliance cleaning dispatch ticket.
+                </p>
+                <form class="modal-form" onsubmit="handleLeadSubmit(event)">
+                    <input type="email" id="prospectEmail" class="modal-input" placeholder="name@company.com" required>
+                    <button type="submit" class="modal-submit">Confirm Schedule Request</button>
+                </form>
+            </div>
+
+            <!-- Success State -->
+            <div id="modalSuccessState" class="success-checkmark">
+                <div class="checkmark-icon">✓</div>
+                <h3 class="modal-title" style="margin-bottom: 0.5rem;">Cleaning Request Logged</h3>
+                <p class="modal-text" style="margin-bottom: 0;">
+                    SIIM compliance systems have registered your cleaning booking for Zone 3. Check your email for verification.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js?v=22"></script>
+    <script>
+        // Array of mock customer names
+        const mockCompanies = [
+            "Apex Culinary Systems",
+            "Metropolitan Bistro Group",
+            "Summit Kitchens",
+            "Vanguard Dining Corp",
+            "Horizon Foods",
+            "Grand Star Restaurant Syndicate",
+            "Pinnacle Foodservice Labs"
+        ];
+
+        // Randomly select and display customer on page-load
+        function regenerateClient() {
+            const el = document.getElementById("companyName");
+            if (el) {
+                // Loop to make sure we change
+                let current = el.textContent;
+                let next = current;
+                while (next === current) {
+                    next = mockCompanies[Math.floor(Math.random() * mockCompanies.length)];
+                }
+                el.textContent = next;
+            }
+        }
+
+        // Run once on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const el = document.getElementById("companyName");
+            if (el) {
+                el.textContent = mockCompanies[Math.floor(Math.random() * mockCompanies.length)];
+            }
+        });
+
+        // Modal Controls
+        function openLeadModal() {
+            document.getElementById('leadModalBackdrop').classList.add('active');
+            document.getElementById('modalFormState').style.display = 'block';
+            document.getElementById('modalSuccessState').style.display = 'none';
+        }
+
+        function closeLeadModal() {
+            document.getElementById('leadModalBackdrop').classList.remove('active');
+        }
+
+        // Form Submit Handler
+        function handleLeadSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('prospectEmail').value;
+            if (!email) return;
+
+            // Animate transition to success mark
+            document.getElementById('modalFormState').style.display = 'none';
+            document.getElementById('modalSuccessState').style.display = 'flex';
+            
+            // Auto close after 3.5 seconds
+            setTimeout(() => {
+                closeLeadModal();
+            }, 3500);
+        }
+    </script>
+</body>
+
+</html>

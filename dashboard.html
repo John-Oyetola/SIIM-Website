@@ -4,89 +4,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sites Overview | Hey Service Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=12">
+    <title>Sites Overview | SIIM Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=22">
 </head>
 
-<body data-role="user">
+<body data-role="user" class="dashboard-theme">
 
-    <header class="main-header">
-        <div class="container nav-container">
-            <a href="dashboard.html" class="logo">
-                <img src="Images/logo.png" alt="Hey Service Logo" class="header-logo">
-            </a>
+    <header class="main-header site-header">
+        <div class="container nav-container" style="display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;">
+            <div class="nav-brand">
+                <a href="systems.html" class="logo">
+                    <div class="logo-container">
+                        <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="header-logo-img">
+                    </div>
+                </a>
+            </div>
             <input type="checkbox" id="navToggleDash" class="hamburger-toggle">
             <label for="navToggleDash" class="hamburger-btn" aria-label="Toggle navigation">
                 <span></span><span></span><span></span>
             </label>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="dashboard.html" class="active">Dashboard</a></li>
-                    <li><a href="dashboard.html">Sites</a></li>
-                    <li><a href="index.html#quote" class="client-only">Contact</a></li>
-
-                    <!-- Engineer Only Links -->
-                </ul>
+            <nav class="main-header-nav">
+                <ul id="dynamicNavLinks" class="nav-links"></ul>
             </nav>
-            <div class="nav-button-group">
-                <span class="role-badge" id="roleBadge">Mode</span>
-                <button onclick="logout()" class="btn btn-outline btn-logout">Logout</button>
-            </div>
-            <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle Dark Mode" title="Toggle Dark Mode">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-            </button>
+            <div class="nav-right-controls" id="navRightControls"></div>
         </div>
     </header>
 
-    <main class="container animation-container dashboard-main">
+    <main class="container dashboard-main">
         <div class="dashboard-content">
 
-            <!-- Dashboard Toolbar -->
-            <div class="dashboard-toolbar">
-
-                <!-- Navigation Wing -->
+            <!-- Top Utility Bar (Back link, Alarm, Profile Avatar) -->
+            <div class="dashboard-toolbar" style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
                 <div class="toolbar-nav">
-                    <!-- Explicit Back Arrow -->
-                    <a href="login.html" class="back-link">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <a href="systems.html" class="back-link" style="display: inline-flex; align-items: center; gap: 0.4rem; color: #f97316; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M19 12H5"></path>
                             <path d="M12 19l-7-7 7-7"></path>
                         </svg>
-                        Back to Login
+                        Back to Systems Gateway
                     </a>
-
-                    <!-- Breadcrumbs -->
-                    <nav aria-label="breadcrumb">
-                        <ol id="dashBreadcrumb" class="breadcrumb-list">
-                            <li><a href="login.html" class="breadcrumb-link">Login</a></li>
-                            <li class="breadcrumb-sep">/</li>
-                            <li class="breadcrumb-current" aria-current="page">Dashboard</li>
-                            <!-- Add New Site breadcrumb injected dynamically by JS for engineers -->
-                        </ol>
-                    </nav>
                 </div>
 
-                <!-- Toolbar Tools -->
-                <div class="toolbar-tools">
-                    <button id="alarmToggle" class="engineer-only alarm-toggle"
-                        title="Daily Site Summary">
-                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-teal">
+                <div class="toolbar-tools" style="display: flex; align-items: center; gap: 1rem;">
+                    <button id="alarmToggle" class="engineer-only alarm-toggle" title="Daily Site Summary">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-teal">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                         </svg>
                         <span class="alarm-dot"></span>
                     </button>
 
-                    <!-- Profile Avatar Widget -->
-                    <div class="profile-widget profile-avatar" title="View Profile">
-                        <!-- Circle User SVG -->
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-teal">
+                    <div class="profile-widget profile-avatar" title="View Profile" style="cursor: pointer;">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-teal">
                             <circle cx="12" cy="12" r="10"></circle>
                             <circle cx="12" cy="10" r="3"></circle>
                             <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"></path>
@@ -95,16 +65,89 @@
                 </div>
             </div>
 
-            <!-- Login welcome banner — populated and shown by JS on first load -->
+            <!-- Login welcome banner -->
             <div id="loginWelcomeBanner" class="login-welcome-banner" style="display:none;"></div>
 
-            <div class="dashboard-header-row">
-                <div>
-                    <h1>Monitored Sites</h1>
-                    <p class="text-muted">Overview of all registered facilities and system statuses.</p>
+            <!-- Header & Breadcrumb Hierarchy -->
+            <div class="dashboard-header-section" style="margin-bottom: 2rem;">
+                <div class="breadcrumb-container" style="margin-bottom: 0.5rem;">
+                    <span class="breadcrumb-sub" style="color: #f97316; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">Portal / Extraction Vent &amp; Grease Telemetry</span>
                 </div>
-                <div class="engineer-only" style="display: none;">
-                    <button class="btn btn-primary" onclick="openAddSiteModal()">Add New Site</button>
+                <h1 style="color: #ffffff; font-size: 2.2rem; font-weight: 800; margin: 0 0 0.5rem 0; letter-spacing: -0.01em;">Monitored Sites — Extraction Vent &amp; Grease Telemetry</h1>
+                <p class="section-subtitle" style="color: #94a3b8; font-size: 1rem; margin: 0; max-width: 850px; line-height: 1.5;">
+                    Real-time BESA TR19 duct grease saturation analysis, ventilation airflow velocity, and automated fire risk classification.
+                </p>
+            </div>
+
+            <!-- 7-Metric Executive Status Bar -->
+            <div class="stats-overview-bar" style="margin-bottom: 2rem;">
+                <div class="stat-card active" data-filter="all">
+                    <span class="stat-label">TOTAL SITES</span>
+                    <span class="stat-value" id="statTotalSites">40</span>
+                    <span class="stat-icon icon-building">🏢</span>
+                </div>
+                <div class="stat-card stat-compliant" data-filter="compliant">
+                    <span class="stat-label"><span class="dot dot-green"></span> COMPLIANT</span>
+                    <span class="stat-value" id="statCompliant">12</span>
+                    <span class="stat-icon">✓</span>
+                </div>
+                <div class="stat-card stat-monitor" data-filter="monitor">
+                    <span class="stat-label"><span class="dot dot-amber"></span> MONITOR</span>
+                    <span class="stat-value" id="statMonitor">5</span>
+                    <span class="stat-icon">⏱</span>
+                </div>
+                <div class="stat-card stat-action" data-filter="action-due">
+                    <span class="stat-label"><span class="dot dot-orange"></span> ACTION DUE</span>
+                    <span class="stat-value" id="statActionDue">15</span>
+                    <span class="stat-icon">⚠</span>
+                </div>
+                <div class="stat-card stat-high-risk" data-filter="high-risk">
+                    <span class="stat-label"><span class="dot dot-red"></span> HIGH RISK</span>
+                    <span class="stat-value" id="statHighRisk">8</span>
+                    <span class="stat-icon">✕</span>
+                </div>
+                <div class="stat-card stat-offline" data-filter="offline">
+                    <span class="stat-label"><span class="dot dot-gray"></span> OFFLINE</span>
+                    <span class="stat-value" id="statOffline">0</span>
+                    <span class="stat-icon">⊘</span>
+                </div>
+                <div class="stat-card stat-estate" data-filter="all">
+                    <span class="stat-label">ESTATE COMPLIANCE</span>
+                    <span class="stat-value stat-value-teal" id="statCompliancePct">61.5%</span>
+                    <span class="stat-icon">📈</span>
+                </div>
+            </div>
+
+            <!-- Toolbar Controls -->
+            <div class="grease-toolbar" style="background: rgba(15, 23, 42, 0.8); border: 1px solid #1e293b; border-radius: 14px; padding: 1.1rem 1.4rem; margin-bottom: 2.25rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem;">
+                <div style="flex: 1; min-width: 280px;">
+                    <input type="text" id="greaseSearchInput" placeholder="Search facilities, locations..." style="width: 100%; background: rgba(11, 15, 25, 0.8); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0.65rem 1rem; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    <select id="greaseClientFilter" style="background: rgba(11, 15, 25, 0.8); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0.65rem 0.9rem; border-radius: 8px; font-size: 0.88rem; cursor: pointer; min-width: 200px;">
+                        <option value="all">All Corporate Clients</option>
+                        <option value="Wagamama">Wagamama</option>
+                        <option value="Five Guys">Five Guys</option>
+                        <option value="Zaap">Zaap</option>
+                        <option value="Premier Inn">Premier Inn</option>
+                        <option value="Bar+Block">Bar+Block</option>
+                        <option value="G.O.O.D.M.A.N">G.O.O.D.M.A.N</option>
+                        <option value="Thai Express">Thai Express</option>
+                        <option value="Cote">Cote</option>
+                    </select>
+
+                    <select id="greaseRegionFilter" style="background: rgba(11, 15, 25, 0.8); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0.65rem 0.9rem; border-radius: 8px; font-size: 0.88rem; cursor: pointer; min-width: 220px;">
+                        <option value="all">All Regions (40)</option>
+                        <option value="west-yorkshire">West Yorkshire (Leeds, Bradford, Wakefield)</option>
+                        <option value="north-yorkshire">North Yorkshire (York, Harrogate)</option>
+                        <option value="south-yorkshire">South Yorkshire (Sheffield)</option>
+                        <option value="greater-manchester">Greater Manchester</option>
+                    </select>
+
+                    <div class="engineer-only" style="display: none;">
+                        <button class="btn btn-primary" onclick="openAddSiteModal()">Add New Site</button>
+                    </div>
                 </div>
             </div>
 
@@ -147,7 +190,7 @@
             </div>
             <div id="dropdownUsernameText" class="profile-name">Demo User
             </div>
-            <div class="profile-subtitle">Hey Service Member</div>
+            <div class="profile-subtitle">SIIM Staff Member</div>
             <button class="btn btn-primary profile-signout" onclick="logout()">Secure Sign
                 Out</button>
         </div>
@@ -193,7 +236,9 @@
             <div class="footer-grid">
                 <!-- First Half: Big Sized Logo -->
                 <div class="footer-logo-container">
-                    <img src="Images/logo.png" alt="Hey Service Logo" class="footer-logo">
+                    <div class="footer-logo-container-rebranded">
+                            <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="footer-logo-img">
+                        </div>
                 </div>
 
                 <!-- Second Half: Contact & Address -->
@@ -273,8 +318,11 @@
         </div>
     </section>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/site-data.js"></script>
-    <script src="js/main.js?v=15"></script>
+    <script src="js/main.js?v=22"></script>
     <script src="js/dashboard.js"></script>
 </body>
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | SIIM Telemetry Portal</title>
+    <title>Create Account | SIIM Telemetry Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css?v=23">
 </head>
@@ -24,44 +24,61 @@
                 <span></span><span></span><span></span>
             </label>
             <nav>
-                <ul class="nav-links" id="dynamicNavLinks">
-                    <li><a href="index.html" class="nav-link">Home</a></li>
-                    <li><a href="tel:+441924856390" class="nav-link" style="color: #ff9800 !important;">Emergency Support</a></li>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="tel:+441924856390" style="color: #ff9800 !important;">Emergency Support</a></li>
                 </ul>
             </nav>
-            <div class="nav-right-controls" id="navRightControls">
-                <button id="themeToggleBtn" class="btn-theme-toggle">NIGHT MODE</button>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <a href="login.html" class="btn btn-outline" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Sign In</a>
+                <button id="themeToggleBtn" class="theme-toggle-switch" aria-label="Toggle theme">
+                    <span class="switch-label">Night Mode</span>
+                    <div class="switch-knob">
+                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"></circle>
+                        </svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </div>
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- Login Main Container -->
+    <!-- SignUp Main Container -->
     <main class="container" style="display: flex; align-items: center; justify-content: center; flex: 1; min-height: calc(100vh - 180px); padding: 4rem 1rem;">
-        <div id="loginCard" class="card auth-card-container">
+        <div class="card auth-card-container">
             
             <div style="text-align: center;">
-                <h1 class="auth-title">SIIM Sign In</h1>
-                <p class="auth-subtitle">Intelligent Monitoring &amp; Telemetry Gateway</p>
+                <h1 class="auth-title">Register Facility Account</h1>
+                <p class="auth-subtitle">Create your SIIM Telemetry credentials</p>
             </div>
 
-            <!-- Error Feedback Banner -->
-            <div id="loginErrorMessage" class="protocol-banner banner-danger" style="display: none; padding: 0.85rem; font-size: 0.92rem; margin-bottom: 1.5rem; border-radius: 8px;"></div>
+            <div id="signupMsg" class="protocol-banner banner-danger" style="display: none; padding: 0.85rem; font-size: 0.92rem; margin-bottom: 1.5rem; border-radius: 8px;"></div>
 
-            <!-- Login Form -->
-            <form id="emailLoginForm">
-                <div class="auth-form-group">
-                    <label class="auth-label">Work Email Address</label>
-                    <input type="email" id="loginEmail" name="email" autocomplete="username webauthn" class="auth-input-field" required placeholder="name@company.com">
+            <form id="signupForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" class="auth-form-group">
+                    <div>
+                        <label class="auth-label">Full Name</label>
+                        <input type="text" id="signupName" name="name" autocomplete="name" class="auth-input-field" required placeholder="John Doe">
+                    </div>
+                    <div>
+                        <label class="auth-label">Work Email</label>
+                        <input type="email" id="signupEmail" name="email" autocomplete="username webauthn" class="auth-input-field" required placeholder="name@brand.com">
+                    </div>
                 </div>
 
                 <div class="auth-form-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <label class="auth-label" style="margin-bottom: 0;">Password</label>
-                        <a href="forgot-password.html" class="auth-link">Forgot password?</a>
-                    </div>
+                    <label class="auth-label">Company / Brand</label>
+                    <input type="text" id="signupCompany" name="organization" autocomplete="organization" class="auth-input-field" required placeholder="e.g. Wagamama">
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-label">Password</label>
                     <div style="position: relative; display: flex; align-items: center;">
-                        <input type="password" id="loginPassword" name="password" autocomplete="current-password" class="auth-input-field has-eye" required placeholder="••••••••">
-                        <button type="button" id="togglePasswordBtn" class="password-toggle-btn" aria-label="Toggle password visibility" style="position: absolute; right: 14px; background: none; border: none; cursor: pointer; color: #b0bec5; padding: 4px; display: flex; align-items: center; justify-content: center;">
+                        <input type="password" id="signupPassword" name="password" autocomplete="new-password" class="auth-input-field has-eye" required placeholder="Minimum 6 characters">
+                        <button type="button" id="toggleRegPasswordBtn" class="password-toggle-btn" aria-label="Toggle password visibility" style="position: absolute; right: 14px; background: none; border: none; cursor: pointer; color: #b0bec5; padding: 4px; display: flex; align-items: center; justify-content: center;">
                             <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                 <circle cx="12" cy="12" r="3"></circle>
@@ -74,20 +91,14 @@
                     </div>
                 </div>
 
-                <div class="auth-form-group" style="display: flex; align-items: center; gap: 0.65rem;">
-                    <input type="checkbox" id="rememberMe" checked class="auth-checkbox" style="width: 18px; height: 18px;">
-                    <label for="rememberMe" class="auth-meta-text" style="cursor: pointer;">Keep me signed in on this device</label>
-                </div>
-
-                <button type="submit" id="loginSubmitBtn" class="btn btn-primary auth-submit-btn">
-                    Sign In to Portal &rarr;
+                <button type="submit" class="btn btn-primary auth-submit-btn" style="margin-top: 0.5rem;">
+                    Complete Registration &rarr;
                 </button>
             </form>
 
-            <p style="text-align: center; margin-top: 2rem;" class="auth-meta-text">
-                Don't have an account? <a href="signup.html" class="auth-link">Create Account</a>
+            <p style="text-align: center; margin-top: 2rem; font-size: 15px; color: #94a3b8;">
+                Already have an account? <a href="login.html" class="auth-link">Sign In</a>
             </p>
-
         </div>
     </main>
 
@@ -146,43 +157,49 @@
     <script src="js/main.js?v=22"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Strictly clear input fields on page load so fields are clean
-            const emailInput = document.getElementById('loginEmail');
-            const passwordInput = document.getElementById('loginPassword');
-            if (emailInput) emailInput.value = '';
-            if (passwordInput) passwordInput.value = '';
+            const form = document.getElementById('signupForm');
+            const msgBanner = document.getElementById('signupMsg');
 
-            const form = document.getElementById('emailLoginForm');
-            const errBanner = document.getElementById('loginErrorMessage');
-
-            // Check if user was redirected after signup
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('pending') === 'true' && errBanner) {
-                errBanner.style.display = 'block';
-                errBanner.className = 'protocol-banner banner-warn';
-                errBanner.textContent = '⚠️ Account Registration Received: Your account is currently pending administrative approval. An automated email will be sent once an administrator reviews your application.';
+            // Toggle password eye icon listener
+            const toggleRegBtn = document.getElementById('toggleRegPasswordBtn');
+            const passInput = document.getElementById('signupPassword');
+            if (toggleRegBtn && passInput) {
+                toggleRegBtn.addEventListener('click', () => {
+                    const isPass = passInput.type === 'password';
+                    passInput.type = isPass ? 'text' : 'password';
+                    const eyeOpen = toggleRegBtn.querySelector('.eye-icon');
+                    const eyeOff = toggleRegBtn.querySelector('.eye-off-icon');
+                    if (eyeOpen) eyeOpen.style.display = isPass ? 'none' : 'block';
+                    if (eyeOff) eyeOff.style.display = isPass ? 'block' : 'none';
+                });
             }
 
             if (form) {
                 form.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const email = document.getElementById('loginEmail').value.trim();
-                    const password = document.getElementById('loginPassword').value.trim();
+                    const nameInput = document.getElementById('signupName') || document.getElementById('regFullName');
+                    const emailInput = document.getElementById('signupEmail') || document.getElementById('regEmail');
+                    const companyInput = document.getElementById('signupCompany') || document.getElementById('regCompany');
+                    const passwordInput = document.getElementById('signupPassword') || document.getElementById('regPassword');
+
+                    const fullName = nameInput ? nameInput.value.trim() : '';
+                    const email = emailInput ? emailInput.value.trim() : '';
+                    const company = companyInput ? companyInput.value.trim() : '';
+                    const password = passwordInput ? passwordInput.value.trim() : '';
+
                     const btn = form.querySelector('button[type="submit"]');
-                    
                     btn.disabled = true;
-                    btn.textContent = 'Authenticating...';
-                    if (errBanner) errBanner.style.display = 'none';
+                    btn.textContent = 'Creating Account...';
 
                     try {
-                        await signInWithEmail(email, password);
+                        await signUpWithEmail(email, password, fullName, company);
                     } catch (err) {
                         btn.disabled = false;
-                        btn.textContent = 'Sign In to Portal →';
-                        if (errBanner) {
-                            errBanner.style.display = 'block';
-                            errBanner.className = 'protocol-banner banner-danger';
-                            errBanner.textContent = err.message || 'Invalid login credentials.';
+                        btn.textContent = 'Complete Registration →';
+                        if (msgBanner) {
+                            msgBanner.style.display = 'block';
+                            msgBanner.className = 'protocol-banner banner-danger';
+                            msgBanner.textContent = 'Registration error: ' + err.message;
                         }
                     }
                 });

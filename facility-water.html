@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grease & Extraction Telemetry Diagnostics | SIIM Dashboard</title>
+    <title>Facility Water & Drainage Diagnostics | SIIM Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css?v=23">
 </head>
@@ -37,17 +37,17 @@
         <!-- Dashboard Toolbar -->
         <div class="dashboard-toolbar">
             <div class="toolbar-nav">
-                <a href="dashboard.html" class="back-link">
-                    &larr; Back to Sites
+                <a href="water-dashboard.html" class="back-link">
+                    &larr; Back to Water Facilities
                 </a>
 
                 <nav aria-label="breadcrumb">
                     <ol id="customBreadcrumb" class="breadcrumb-list">
                         <li><a href="login.html" class="breadcrumb-link">Login</a></li>
                         <li class="breadcrumb-sep">/</li>
-                        <li><a href="dashboard.html" class="breadcrumb-link">Dashboard</a></li>
+                        <li><a href="water-dashboard.html" class="breadcrumb-link">Water Facilities</a></li>
                         <li class="breadcrumb-sep">/</li>
-                        <li id="breadcrumbSiteName" class="breadcrumb-current" aria-current="page">Wagamama &mdash; Leeds</li>
+                        <li id="breadcrumbSiteName" class="breadcrumb-current" aria-current="page">Wagamama Drainage &mdash; Leeds</li>
                     </ol>
                 </nav>
             </div>
@@ -80,7 +80,7 @@
                     onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%231a56db\' stroke-width=\'2\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><circle cx=\'12\' cy=\'10\' r=\'3\'/><path d=\'M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662\'/></svg>'">
             </div>
             <div id="dropdownUsernameText" class="profile-name">Demo User</div>
-            <div class="profile-subtitle">SIIM Telemetry Engineer</div>
+            <div class="profile-subtitle">Hydraulic &amp; Drainage Engineer</div>
             <button class="btn btn-primary profile-signout" onclick="logout()">Secure Sign Out</button>
         </div>
 
@@ -89,38 +89,37 @@
             <!-- Sticky Left Sidebar -->
             <div class="side-panel sticky-sidebar">
                 <div class="sidebar-header-box">
-                    <h1 class="site-title-heading"><span id="siteTitle">Wagamama</span></h1>
-                    <p class="site-location-sub">📍 <span id="siteLocation">Leeds, West Yorkshire</span></p>
+                    <h1 class="site-title-heading"><span id="waterSiteTitle">Wagamama Drainage</span></h1>
+                    <p class="site-location-sub">📍 <span id="waterSiteLocation">Leeds, West Yorkshire</span></p>
                     <div style="margin-top: 0.5rem;">
-                        <span id="siteStatusBadge" class="badge badge-success">🟢 Safe / Compliant</span>
-                    </div>
-                    <!-- Hidden element compatibility for status badge dot/label -->
-                    <div id="statusBadge" class="status-indicator status-safe" style="display:none;">
-                        <span id="statusDot" class="status-dot"></span>
-                        <span id="statusLabel">Safe State</span>
+                        <span id="waterSiteStatusBadge" class="badge badge-success">🟢 Optimal Flow</span>
                     </div>
                 </div>
 
-                <!-- Semi-circular Gauge -->
+                <!-- Semi-Circular Hydraulic Load Gauge -->
                 <div class="gauge-wrapper" style="margin-top: 1.25rem;">
-                    <div class="gauge-label">Optical Grease Saturation</div>
-                    <div class="gauge-container">
-                        <div class="gauge-bg"></div>
+                    <div class="gauge-label">Hydraulic Drain Capacity Load</div>
+                    <div class="gauge-container" style="position: relative;">
+                        <div id="waterGaugeBg" class="gauge-bg"></div>
                         <div class="gauge-inner"></div>
-                        <div id="gaugeNeedle" class="gauge-needle" style="transform: rotate(-72deg);"></div>
+                        <svg width="150" height="75" viewBox="0 0 150 75" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 2;">
+                            <path d="M 12 70 A 63 63 0 0 1 138 70" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" stroke-linecap="round"/>
+                            <path id="waterGaugeArc" d="M 12 70 A 63 63 0 0 1 138 70" fill="none" stroke="#22c55e" stroke-width="12" stroke-linecap="round" stroke-dasharray="197.9" stroke-dashoffset="166.2" style="transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;"/>
+                        </svg>
+                        <div id="waterGaugeNeedle" class="gauge-needle" style="transform: rotate(-61.2deg); z-index: 3;"></div>
                     </div>
-                    <div id="gaugeValue" class="gauge-value">10%</div>
+                    <div id="waterGaugeVal" class="gauge-value" style="color: #22c55e;">16%</div>
                 </div>
 
-                <!-- Specs Indicators -->
+                <!-- System Specs -->
                 <div class="indicator-section" style="margin-top: 1.25rem;">
                     <div class="indicator-row">
-                        <span class="indicator-label">Demister Status</span>
-                        <span id="demisterBadge" class="badge badge-success">YES</span>
+                        <span class="indicator-label">Valve Status</span>
+                        <span id="waterValveBadge" class="badge badge-success">ACTIVE</span>
                     </div>
                     <div class="indicator-row">
-                        <span class="indicator-label">Airflow</span>
-                        <span id="airflowBadge" class="badge badge-info">GOOD</span>
+                        <span class="indicator-label">Flow Continuity</span>
+                        <span id="waterFlowBadge" class="badge badge-info">OPTIMAL</span>
                     </div>
                 </div>
 
@@ -128,23 +127,20 @@
                 <div class="card iot-card">
                     <div class="iot-card-header">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
-                            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
-                            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
-                            <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
                         </svg>
-                        <strong>Live IoT Telemetry Node</strong>
+                        <strong>Live Acoustic Hydro-Node</strong>
                     </div>
                     <div class="iot-details-grid">
                         <div class="iot-item"><span class="iot-lbl">Device ID:</span> <span id="iotDevId" class="iot-val">device001</span></div>
                         <div class="iot-item"><span class="iot-lbl">Material:</span> <span id="iotMat" class="iot-val">PVC</span></div>
                         <div class="iot-item"><span class="iot-lbl">Duct Size:</span> <span id="iotSize" class="iot-val">40mm</span></div>
-                        <div class="iot-item"><span class="iot-lbl">Signal:</span> <span id="iotState" class="iot-val badge badge-success">GOOD</span></div>
+                        <div class="iot-item"><span class="iot-lbl">Status:</span> <span id="iotState" class="iot-val badge badge-success">GOOD</span></div>
                         <div class="iot-item" style="grid-column: span 2;"><span class="iot-lbl">RSSI / Latency:</span> <span id="iotRssi" class="iot-val">-56 dBm (12ms)</span></div>
                     </div>
                 </div>
 
-                <!-- Red Emergency Panel -->
+                <!-- Red Emergency Box -->
                 <div class="emergency-section red-emergency-panel">
                     <h3 class="emergency-heading">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -152,179 +148,158 @@
                             <line x1="12" y1="9" x2="12" y2="13"/>
                             <line x1="12" y1="17" x2="12.01" y2="17"/>
                         </svg>
-                        Emergency Dispatch
+                        Emergency Drainage Dispatch
                     </h3>
-                    <button id="sendReportBtn" class="btn btn-emergency" style="width: 100%; border: none; cursor: pointer; text-transform: uppercase;">
-                        ⚡ Send Report Now
+                    <button id="sendWaterReportBtn" class="btn btn-emergency" style="width: 100%; border: none; cursor: pointer; text-transform: uppercase;">
+                        ⚡ Send Urgent Drainage Report
                     </button>
-                    <p class="emergency-note" style="margin-top: 0.5rem; font-size: 0.75rem;">Triggers manual SMS &amp; email alert to on-call duty engineers.</p>
+                    <p class="emergency-note" style="margin-top: 0.5rem; font-size: 0.75rem;">Triggers manual SMS &amp; email alert to specialist drainage engineers.</p>
                 </div>
             </div>
 
             <!-- Main Diagnostics Section -->
             <div class="main-content-panel">
-                
-                <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem;">Grease &amp; Extraction Telemetry Diagnostics</h2>
-                <p class="text-muted" style="margin-bottom: 1.25rem;">Real-time BESA TR19 compliance analysis &amp; multi-point sensor stream.</p>
+
+                <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem;">Facility Water &amp; Drainage Telemetry Diagnostics</h2>
+                <p class="text-muted" style="margin-bottom: 1.25rem;">Acoustic wave propagation &amp; hydraulic impedance monitoring system.</p>
 
                 <!-- Protocol Banner -->
-                <div id="protocolBanner" class="protocol-banner banner-safe">
-                    <span id="nextActionText">⚡ Action: Monitor / No action required</span>
+                <div id="waterActionProtocolHeader" class="protocol-banner banner-safe" style="display: block;">
+                    <span style="font-size: 0.75rem; letter-spacing: 1px; opacity: 0.85; text-transform: uppercase; display: block; margin-bottom: 0.25rem;">STANDARDISED DRAINAGE INTEGRITY PROTOCOL</span>
+                    <h4 id="waterActionText" style="margin: 0; font-size: 1.1rem; font-weight: 800;">✔ Normal Hydraulic Flow: Routine Monitoring Cycle</h4>
                 </div>
 
                 <!-- Off-Peak Booking Action Banner -->
-                <div style="margin-top: 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; background: rgba(0, 17, 31, 0.75); padding: 1.25rem 1.5rem; border: 1px solid rgba(255, 90, 0, 0.3); border-radius: 14px; box-shadow: 0 8px 25px rgba(0,0,0,0.3);">
+                <div style="margin-top: 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; background: rgba(0, 24, 44, 0.75); padding: 1.25rem 1.5rem; border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 14px; box-shadow: 0 8px 25px rgba(0,0,0,0.3);">
                     <div>
                         <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 0.5rem;">
-                            <span>🗓️ Proactive Off-Peak Duct Servicing &amp; Clean</span>
+                            <span>🗓️ Off-Peak Hydraulic Descaling Booking</span>
                         </h4>
                         <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #94a3b8;">
-                            Schedule BESA TR19 duct extraction cleaning during non-operational kitchen hours.
+                            Schedule proactive acoustic wave descaling during non-operational kitchen shutdown hours.
                         </p>
                     </div>
-                    <button onclick="openBookingModal()" class="btn btn-primary" style="background: linear-gradient(135deg, #FF5A00, #ff7733); border: none; font-weight: 700; padding: 0.65rem 1.25rem;">
+                    <button onclick="openBookingModal()" class="btn btn-primary" style="background: linear-gradient(135deg, #00838f, #00acc1); border: none; font-weight: 700; padding: 0.65rem 1.25rem;">
                         Request Proactive Descaling / Clean &rarr;
                     </button>
                 </div>
 
-                <!-- 6 KPI Cards -->
+                <!-- 6 Hydraulic KPI Cards -->
                 <div class="kpi-grid">
                     <div class="kpi-card">
-                        <div class="kpi-title">MAX GREASE LEVEL</div>
-                        <div class="kpi-value" id="maxGreaseMmVal">0.21 mm / 210 µm</div>
-                        <div class="kpi-sub">Optical sensor reading</div>
+                        <div class="kpi-title">PEAK FLOW CAPACITY</div>
+                        <div class="kpi-value"><span id="pipeCapacityVal">18%</span></div>
+                        <div class="kpi-sub">Flow Rate: <strong id="flowRateVal" style="color: var(--text-main);">42 L/min</strong></div>
                     </div>
 
                     <div class="kpi-card">
-                        <div class="kpi-title">WEEKLY GROWTH RATE</div>
-                        <div class="kpi-value" id="growthRateVal">46 µm/wk</div>
-                        <div class="kpi-sub">7-day rolling average</div>
+                        <div class="kpi-title">ACOUSTIC TRANSMISSION RATIO</div>
+                        <div class="kpi-value" id="transmissionRatioVal">0.984</div>
+                        <div class="kpi-sub">A1/A0 Acoustic Energy Ratio</div>
                     </div>
 
                     <div class="kpi-card">
-                        <div class="kpi-title">MAX DUCT TEMPERATURE</div>
-                        <div class="kpi-value" id="maxTempVal">72°C</div>
-                        <div class="kpi-sub">Peak operating temp</div>
+                        <div class="kpi-title">FLUID TEMPERATURE</div>
+                        <div class="kpi-value" id="fluidTempVal">38°C</div>
+                        <div class="kpi-sub">Effluent stream thermal sensor</div>
                     </div>
 
                     <div class="kpi-card">
-                        <div class="kpi-title">ESTIMATED DAYS TO CLEAN</div>
-                        <div class="kpi-value" id="daysToCleanVal">272 Days</div>
-                        <div class="kpi-sub">Until 1.0mm TR19 limit</div>
+                        <div class="kpi-title">ESTIMATED DAYS TO DESCALE</div>
+                        <div class="kpi-value" id="daysToDescaleVal">180 Days</div>
+                        <div class="kpi-sub">Until 0.70 transmission limit</div>
                     </div>
 
                     <div class="kpi-card">
-                        <div class="kpi-title">TR19 COMPLIANCE SCORE</div>
-                        <div class="kpi-value" id="tr19Val">94%</div>
-                        <div class="kpi-sub">BESA Specification Score</div>
+                        <div class="kpi-title">DRAIN HEALTH SCORE</div>
+                        <div class="kpi-value" id="drainHealthVal">96/100</div>
+                        <div class="kpi-sub">BESA Hydro-Integrity Index</div>
                     </div>
 
                     <div class="kpi-card">
-                        <div class="kpi-title">FIRE RISK CLASSIFICATION</div>
-                        <div class="kpi-value" id="fireRiskVal">Low Risk</div>
-                        <div class="kpi-sub">Combustion likelihood</div>
+                        <div class="kpi-title">HYDRAULIC IMPEDANCE RISK</div>
+                        <div class="kpi-value" id="impedanceRiskVal">Low Risk</div>
+                        <div class="kpi-sub">Sedimentation likelihood</div>
                     </div>
                 </div>
 
-                <!-- 5-Point Duct Telemetry Sensor Array Table -->
+                <!-- 2-Point Acoustic Sensor Array Table -->
                 <div class="card sensor-array-card">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; font-weight: 700;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-teal">
-                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                                <line x1="8" y1="21" x2="16" y2="21"/>
-                                <line x1="12" y1="17" x2="12" y2="21"/>
+                                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
                             </svg>
-                            5-Point Duct Telemetry Sensor Array
+                            2-Point Acoustic Sensor Array (Piezoelectric Stream)
                         </h3>
-                        <span class="badge badge-success" style="letter-spacing: 0.5px;">ARRAY ONLINE</span>
+                        <span class="badge badge-success" style="letter-spacing: 0.5px;">PIEZO ARRAY ONLINE</span>
                     </div>
 
                     <div style="overflow-x: auto; margin-top: 1rem;">
-                        <table class="telemetry-table" id="sensorArrayTable">
+                        <table class="telemetry-table">
                             <thead>
                                 <tr>
-                                    <th>SENSOR ZONE</th>
-                                    <th>GREASE LEVEL</th>
-                                    <th>GROWTH RATE</th>
-                                    <th>ZONE TEMP</th>
+                                    <th>SENSOR POSITION</th>
+                                    <th>RAW ACOUSTIC ENERGY</th>
+                                    <th>TRANSMISSION RATIO</th>
+                                    <th>PEAK STEP</th>
                                     <th>STATUS</th>
                                 </tr>
                             </thead>
-                            <tbody id="sensorTableBody">
+                            <tbody>
                                 <tr>
-                                    <td><strong>Canopy (Zone A)</strong></td>
-                                    <td><span id="zoneAGrease" class="sens-grease">0.21 mm (210 µm)</span></td>
-                                    <td><span id="zoneAGrowth">46 µm/wk</span></td>
-                                    <td><span id="zoneATemp">72°C</span></td>
-                                    <td><span id="zoneAStatus" class="badge badge-success">OPTIMAL</span></td>
+                                    <td><strong>Inlet / Before U-Bend (A0)</strong></td>
+                                    <td><span id="a0EnergyVal">281.2</span></td>
+                                    <td>Baseline</td>
+                                    <td>Step 5</td>
+                                    <td><span id="a0Status" class="badge badge-success">Optimal</span></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Duct Run (Zone B)</strong></td>
-                                    <td><span id="zoneBGrease" class="sens-grease">0.18 mm (180 µm)</span></td>
-                                    <td><span id="zoneBGrowth">38 µm/wk</span></td>
-                                    <td><span id="zoneBTemp">65°C</span></td>
-                                    <td><span id="zoneBStatus" class="badge badge-success">OPTIMAL</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Riser (Zone C)</strong></td>
-                                    <td><span id="zoneCGrease" class="sens-grease">0.15 mm (150 µm)</span></td>
-                                    <td><span id="zoneCGrowth">30 µm/wk</span></td>
-                                    <td><span id="zoneCTemp">58°C</span></td>
-                                    <td><span id="zoneCStatus" class="badge badge-success">OPTIMAL</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Fan Inlet (Zone D)</strong></td>
-                                    <td><span id="zoneDGrease" class="sens-grease">0.12 mm (120 µm)</span></td>
-                                    <td><span id="zoneDGrowth">25 µm/wk</span></td>
-                                    <td><span id="zoneDTemp">52°C</span></td>
-                                    <td><span id="zoneDStatus" class="badge badge-success">OPTIMAL</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Discharge Cowl (Zone E)</strong></td>
-                                    <td><span id="zoneEGrease" class="sens-grease">0.08 mm (80 µm)</span></td>
-                                    <td><span id="zoneEGrowth">18 µm/wk</span></td>
-                                    <td><span id="zoneETemp">45°C</span></td>
-                                    <td><span id="zoneEStatus" class="badge badge-success">OPTIMAL</span></td>
+                                    <td><strong>Downpipe Vertical +500mm (A1)</strong></td>
+                                    <td><span id="a1EnergyVal">276.8</span></td>
+                                    <td><span id="ratioPercentVal">98.4%</span></td>
+                                    <td>Step 4</td>
+                                    <td><span id="a1Status" class="badge badge-success">Optimal</span></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Live Airflow Graph -->
+                <!-- Live Rolling Acoustic Energy Graph -->
                 <div class="card airflow-card" style="margin-top: 1.5rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <h3 class="airflow-title" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; font-weight: 700;">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2">
                                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                             </svg>
-                            Live Airflow Graph &amp; Telemetry Stream
+                            Live Rolling Acoustic Energy Graph (A0 vs A1 vs Combined)
                         </h3>
-                        <span class="badge badge-info" id="airflowStreamRate">STREAM: 1.2 m/s</span>
+                        <span class="badge badge-info" id="acousticStreamBadge">A0: 281.2 | A1: 276.8</span>
                     </div>
                     <div class="airflow-canvas-container">
-                        <canvas id="liveAirflowChart" width="800" height="220"></canvas>
+                        <canvas id="liveWaterAcousticChart" width="800" height="220"></canvas>
                     </div>
                 </div>
 
                 <!-- Action Panels -->
                 <div class="action-panels-row" style="margin-top: 1.5rem;">
-                    <button id="downloadCsvBtn" class="btn btn-primary btn-action">
+                    <button id="downloadWaterCsvBtn" class="btn btn-primary btn-action">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="7 10 12 15 17 10"/>
                             <line x1="12" y1="15" x2="12" y2="3"/>
                         </svg>
-                        Download Monthly Compliance Log (CSV)
+                        Download Water Compliance Log (CSV)
                     </button>
 
-                    <button id="notifyManagerBtn" class="btn btn-outline btn-action">
+                    <button id="dispatchWaterSpecialistBtn" class="btn btn-outline btn-action">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="8.5" cy="7" r="4"/>
+                            <polyline points="17 11 19 13 23 9"/>
                         </svg>
-                        Notify Facility Manager
+                        Dispatch Drainage Specialist
                     </button>
                 </div>
 
@@ -336,19 +311,19 @@
                             <line x1="3" y1="9" x2="21" y2="9" />
                             <line x1="9" y1="21" x2="9" y2="9" />
                         </svg>
-                        Maintenance &amp; Cleaning Overview
+                        Drainage Maintenance &amp; Hydro-Jetting Record
                     </h3>
                     <p class="maintenance-text">
-                        <strong>Last Serviced:</strong> October 12th, 2026<br>
-                        <strong>Technician:</strong> Sarah Jenkins<br><br>
-                        This facility has recently been inspected and all extraction systems are operating within TR19 parameters. Demister filters passed routine ultrasonic inspection and are operating at full capacity.
+                        <strong>Last Serviced:</strong> August 14th, 2026<br>
+                        <strong>Lead Hydraulic Tech:</strong> Marcus Vance<br><br>
+                        Drainage lines passed ultrasonic wave transmission verification and routine high-pressure hydro-jetting. Electro-pneumatic valves are fully calibrated and operational.
                     </p>
                 </div>
 
             </div>
         </div>
 
-        <!-- Bottom: Live Camera Feed Quadrants & Contact -->
+        <!-- Bottom: Live Camera Feed Quadrants (CAM 01 - CAM 04) -->
         <div class="bottom-section" style="margin-top: 2rem;">
             <div class="camera-section">
                 <h3 class="camera-heading" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.15rem; font-weight: 700;">
@@ -356,10 +331,10 @@
                         <path d="M23 7l-7 5 7 5V7z"></path>
                         <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
                     </svg>
-                    Live Duct Inspection Video Feeds (CAM 01 &ndash; CAM 04)
+                    Live Drainage Inspection Video Feeds (CAM 01 &ndash; CAM 04)
                 </h3>
                 <div id="cameraGrid" class="camera-grid" style="margin-top: 1rem;">
-                    <!-- 4 cameras populated dynamically by js/custom-site.js -->
+                    <!-- 4 cameras populated dynamically by js/facility-water.js -->
                 </div>
             </div>
         </div>
@@ -419,7 +394,7 @@
     <script src="js/auth.js"></script>
     <script src="js/site-data.js"></script>
     <script src="js/main.js?v=22"></script>
-    <script src="js/custom-site.js"></script>
+    <script src="js/facility-water.js"></script>
 </body>
 
 </html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Engineer Triage & Dispatch Queue | SIIM Telemetry Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=23">
+    <style>
+        .triage-hero-banner {
+            background: rgba(0, 17, 31, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .triage-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .triage-stat-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+        }
+
+        .triage-stat-num {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-top: 0.25rem;
+        }
+
+        .triage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .engineer-card {
+            background: rgba(0, 17, 31, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .engineer-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 90, 0, 0.4);
+        }
+
+        .engineer-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .engineer-card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .engineer-card-location {
+            font-size: 0.85rem;
+            color: #90a4ae;
+            margin-top: 0.25rem;
+        }
+
+        .sensor-array-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.35rem;
+            margin: 1rem 0;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 0.6rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .sensor-cell {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.35rem 0.2rem;
+            border-radius: 4px;
+        }
+
+        .sensor-cell-title {
+            font-size: 0.65rem;
+            color: #90a4ae;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .badge-high-risk {
+            background: rgba(198, 40, 40, 0.2);
+            color: #ef5350;
+            border: 1px solid rgba(239, 83, 80, 0.4);
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-action-due {
+            background: rgba(255, 90, 0, 0.2);
+            color: #ff9800;
+            border: 1px solid rgba(255, 152, 0, 0.4);
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-serviced {
+            background: rgba(58, 138, 51, 0.2);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .metrics-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 1rem;
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .metrics-list-item span {
+            color: #90a4ae;
+        }
+
+        .metrics-list-item strong {
+            color: #ffffff;
+        }
+    </style>
+</head>
+
+<body class="dashboard-theme dark-theme" style="display: flex; flex-direction: column; min-height: 100vh; justify-content: space-between;">
+
+    <!-- Top Navigation Bar -->
+    <header class="main-header site-header">
+        <div class="container nav-container" style="display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;">
+            <div class="nav-brand">
+                <a href="systems.html" class="logo">
+                    <div class="logo-container">
+                        <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="header-logo-img">
+                    </div>
+                </a>
+            </div>
+            <input type="checkbox" id="navToggle" class="hamburger-toggle">
+            <label for="navToggle" class="hamburger-btn" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </label>
+            <nav class="main-header-nav">
+                <ul id="dynamicNavLinks" class="nav-links"></ul>
+            </nav>
+            <div class="nav-right-controls" id="navRightControls"></div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container" style="flex: 1; margin-top: 2rem; margin-bottom: 3rem;">
+        
+        <!-- Hero Header -->
+        <div class="triage-hero-banner">
+            <h1 class="systems-hub-title" style="margin: 0 0 0.5rem 0; font-size: 2rem;">Field Engineer Triage &amp; Dispatch Queue</h1>
+            <p class="systems-hub-subtitle" style="margin: 0; color: #90a4ae; font-size: 1rem;">Live priority intervention list for commercial extraction and drainage systems.</p>
+            
+            <div class="triage-stats-grid">
+                <div class="triage-stat-card">
+                    <div style="font-size: 0.8rem; color: #90a4ae; text-transform: uppercase; letter-spacing: 0.5px;">Active Interventions</div>
+                    <div id="statTotalActive" class="triage-stat-num" style="color: #ff9800;">16</div>
+                </div>
+                <div class="triage-stat-card">
+                    <div style="font-size: 0.8rem; color: #90a4ae; text-transform: uppercase; letter-spacing: 0.5px;">High Risk (Immediate)</div>
+                    <div id="statHighRisk" class="triage-stat-num" style="color: #ef5350;">8</div>
+                </div>
+                <div class="triage-stat-card">
+                    <div style="font-size: 0.8rem; color: #90a4ae; text-transform: uppercase; letter-spacing: 0.5px;">Action Due (7 Days)</div>
+                    <div id="statActionDue" class="triage-stat-num" style="color: #ffb74d;">8</div>
+                </div>
+                <div class="triage-stat-card">
+                    <div style="font-size: 0.8rem; color: #90a4ae; text-transform: uppercase; letter-spacing: 0.5px;">Jobs Serviced Today</div>
+                    <div id="statServiced" class="triage-stat-num" style="color: #4caf50;">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Priority Triage Queue Grid -->
+        <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>🚨 Urgent Priority Dispatch Queue</span>
+        </h2>
+        
+        <div id="triageQueueContainer" class="triage-grid">
+            <!-- Dynamically populated from JS -->
+        </div>
+
+        <!-- Recently Serviced Section -->
+        <div style="margin-top: 3rem;">
+            <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>✅ Recently Serviced &amp; Certified Locations</span>
+            </h2>
+            <div id="recentlyServicedContainer" class="triage-grid">
+                <div style="grid-column: 1 / -1; padding: 2rem; text-align: center; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; color: #90a4ae;">
+                    No jobs completed during this session yet. Complete an intervention above to log engineer certification.
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Full SIIM Multi-Column Footer -->
+    <section id="footer" class="main-footer" style="margin-top: 3rem;">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-logo-container">
+                    <div class="footer-logo-container-rebranded">
+                        <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="footer-logo-img">
+                    </div>
+                </div>
+                <div class="footer-contact-info">
+                    <h2 class="footer-heading">Get in Touch</h2>
+                    <address class="footer-address">
+                        Unit 2a Brindley Way,<br>
+                        Wakefield,<br>
+                        West Yorkshire<br>
+                        WF2 0XQ
+                    </address>
+                    <div class="footer-contacts">
+                        <a href="tel:+441924856390" class="footer-phone">+44 (0)1924 856390</a>
+                        <a href="mailto:info@theheygroup.net" class="footer-email">info@theheygroup.net</a>
+                    </div>
+                    <div class="footer-links">
+                        <a href="#">&rarr; Privacy Policy</a>
+                        <a href="#">&rarr; Terms and Conditions</a>
+                        <a href="#">&rarr; Cookie Policy</a>
+                    </div>
+                </div>
+            </div>
+            <div class="social-strip">
+                <a href="https://www.linkedin.com/company/the-hey-group-ltd" target="_blank" class="social-icon" title="LinkedIn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 448 512"><path d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z"/></svg>
+                </a>
+                <a href="https://www.facebook.com/people/Hey-Service-Group/61578169043194/" target="_blank" class="social-icon" title="Facebook">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 320 512"><path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"/></svg>
+                </a>
+                <a href="https://www.youtube.com/@HEYSERVICEGROUP-f4s" target="_blank" class="social-icon" title="YouTube">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" fill="currentColor" viewBox="0 0 576 512"><path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.781 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"/></svg>
+                </a>
+                <a href="https://www.instagram.com/hey_servicegroup/" target="_blank" class="social-icon" title="Instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+                </a>
+                <a href="https://www.tiktok.com/@heyservicegroup2026?lang=en" target="_blank" class="social-icon" title="TikTok">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 448 512"><path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 162.6 186.9v86.32a76.24 76.24 0 1 0 86.34 75.58V14h86.34c2.14 48.91 32 89.6 80.37 99.8z"/></svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Supabase CDN + Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/site-data.js"></script>
+    <script src="js/main.js?v=24"></script>
+    <script src="js/engineer-portal.js?v=24"></script>
+</body>
+
+</html>

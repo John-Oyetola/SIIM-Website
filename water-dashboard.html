@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Flow &amp; Pipeline Telemetry | SIIM Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=23">
+</head>
+
+<body class="dashboard-theme dark-theme" style="display: flex; flex-direction: column; min-height: 100vh; justify-content: space-between;">
+
+    <!-- Top Navigation Bar -->
+    <header class="main-header site-header">
+        <div class="container nav-container" style="display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;">
+            <div class="nav-brand">
+                <a href="systems.html" class="logo">
+                    <div class="logo-container">
+                        <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="header-logo-img">
+                    </div>
+                </a>
+            </div>
+            <input type="checkbox" id="navToggle" class="hamburger-toggle">
+            <label for="navToggle" class="hamburger-btn" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </label>
+            <nav class="main-header-nav">
+                <ul id="dynamicNavLinks" class="nav-links"></ul>
+            </nav>
+            <div class="nav-right-controls" id="navRightControls"></div>
+        </div>
+    </header>
+
+    <!-- Water Dashboard Main Content -->
+    <main class="container dashboard-main" style="flex: 1; padding: 2.5rem 1rem;">
+        
+        <!-- Header & Breadcrumb Hierarchy -->
+        <div class="dashboard-header-section" style="margin-bottom: 2rem;">
+            <div class="breadcrumb-container" style="margin-bottom: 0.5rem;">
+                <span class="breadcrumb-sub">Portal / Water Flow Telemetry</span>
+            </div>
+            <h1 style="color: #ffffff; font-size: 2.2rem; font-weight: 800; margin: 0 0 0.5rem 0; letter-spacing: -0.01em;">Water Flow &amp; Pipeline Telemetry</h1>
+            <p class="section-subtitle" style="color: #94a3b8; font-size: 1rem; margin: 0; max-width: 850px; line-height: 1.5;">
+                Continuous volumetric flow rate telemetry, pipeline hydraulic pressure metrics, and distribution valve status management.
+            </p>
+        </div>
+
+        <!-- 7-Metric Executive Status Bar -->
+        <div class="stats-overview-bar">
+            <div class="stat-card active" data-filter="all">
+                <span class="stat-label">TOTAL SITES</span>
+                <span class="stat-value" id="statTotalSites">40</span>
+                <span class="stat-icon icon-building">🏢</span>
+            </div>
+            <div class="stat-card stat-compliant" data-filter="compliant">
+                <span class="stat-label"><span class="dot dot-green"></span> COMPLIANT</span>
+                <span class="stat-value" id="statCompliant">12</span>
+                <span class="stat-icon">✓</span>
+            </div>
+            <div class="stat-card stat-monitor" data-filter="monitor">
+                <span class="stat-label"><span class="dot dot-amber"></span> MONITOR</span>
+                <span class="stat-value" id="statMonitor">5</span>
+                <span class="stat-icon">⏱</span>
+            </div>
+            <div class="stat-card stat-action" data-filter="action-due">
+                <span class="stat-label"><span class="dot dot-orange"></span> ACTION DUE</span>
+                <span class="stat-value" id="statActionDue">15</span>
+                <span class="stat-icon">⚠</span>
+            </div>
+            <div class="stat-card stat-high-risk" data-filter="high-risk">
+                <span class="stat-label"><span class="dot dot-red"></span> HIGH RISK</span>
+                <span class="stat-value" id="statHighRisk">8</span>
+                <span class="stat-icon">✕</span>
+            </div>
+            <div class="stat-card stat-offline" data-filter="offline">
+                <span class="stat-label"><span class="dot dot-gray"></span> OFFLINE</span>
+                <span class="stat-value" id="statOffline">0</span>
+                <span class="stat-icon">⊘</span>
+            </div>
+            <div class="stat-card stat-estate" data-filter="all">
+                <span class="stat-label">ESTATE COMPLIANCE</span>
+                <span class="stat-value stat-value-teal" id="statCompliancePct">61.5%</span>
+                <span class="stat-icon">📈</span>
+            </div>
+        </div>
+
+        <!-- Toolbar Controls -->
+        <div class="water-toolbar" style="background: rgba(15, 23, 42, 0.8); border: 1px solid #1e293b; border-radius: 14px; padding: 1.1rem 1.4rem; margin-bottom: 2.25rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem;">
+            <div style="flex: 1; min-width: 280px;">
+                <input type="text" id="waterSearchInput" placeholder="Search facilities, locations..." style="width: 100%; background: rgba(11, 15, 25, 0.8); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0.65rem 1rem; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <select id="waterClientFilter" style="background: rgba(11, 15, 25, 0.8); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0.65rem 0.9rem; border-radius: 8px; font-size: 0.88rem; cursor: pointer; min-width: 200px;">
+                    <option value="all">All Corporate Clients</option>
+                    <option value="Wagamama">Wagamama</option>
+                    <option value="Five Guys">Five Guys</option>
+                    <option value="Zaap">Zaap</option>
+                    <option value="Premier Inn">Premier Inn</option>
+                    <option value="Bar+Block">Bar+Block</option>
+                    <option value="G.O.O.D.M.A.N">G.O.O.D.M.A.N</option>
+                    <option value="Thai Express">Thai Express</option>
+                    <option value="Cote">Cote</option>
+                </select>
+
+                <select id="waterRegionFilter" style="background: rgba(11, 15, 25, 0.8); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0.65rem 0.9rem; border-radius: 8px; font-size: 0.88rem; cursor: pointer; min-width: 220px;">
+                    <option value="all">All Regions (40)</option>
+                    <option value="west-yorkshire">West Yorkshire (Leeds, Bradford, Wakefield)</option>
+                    <option value="north-yorkshire">North Yorkshire (York, Harrogate)</option>
+                    <option value="south-yorkshire">South Yorkshire (Sheffield)</option>
+                    <option value="greater-manchester">Greater Manchester</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 40-Site Grouped Pipeline Grid -->
+        <div id="waterSitesGrid">
+            <!-- Brand headers & high-density cards dynamically populated -->
+        </div>
+
+    </main>
+
+    <!-- Full SIIM Multi-Column Footer -->
+    <section id="footer" class="main-footer" style="margin-top: 3rem;">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-logo-container">
+                    <div class="footer-logo-container-rebranded">
+                        <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="footer-logo-img">
+                    </div>
+                </div>
+                <div class="footer-contact-info">
+                    <h2 class="footer-heading">Get in Touch</h2>
+                    <address class="footer-address">
+                        Unit 2a Brindley Way,<br>
+                        Wakefield,<br>
+                        West Yorkshire<br>
+                        WF2 0XQ
+                    </address>
+                    <div class="footer-contacts">
+                        <a href="tel:+441924856390" class="footer-phone">+44 (0)1924 856390</a>
+                        <a href="mailto:info@theheygroup.net" class="footer-email">info@theheygroup.net</a>
+                    </div>
+                    <div class="footer-links">
+                        <a href="#">&rarr; Privacy Policy</a>
+                        <a href="#">&rarr; Terms and Conditions</a>
+                        <a href="#">&rarr; Cookie Policy</a>
+                    </div>
+                </div>
+            </div>
+            <div class="social-strip">
+                <a href="https://www.linkedin.com/company/the-hey-group-ltd" target="_blank" class="social-icon" title="LinkedIn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 448 512"><path d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z"/></svg>
+                </a>
+                <a href="https://www.facebook.com/people/Hey-Service-Group/61578169043194/" target="_blank" class="social-icon" title="Facebook">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 320 512"><path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"/></svg>
+                </a>
+                <a href="https://www.youtube.com/@HEYSERVICEGROUP-f4s" target="_blank" class="social-icon" title="YouTube">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" fill="currentColor" viewBox="0 0 576 512"><path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.781 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"/></svg>
+                </a>
+                <a href="https://www.instagram.com/hey_servicegroup/" target="_blank" class="social-icon" title="Instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+                </a>
+                <a href="https://www.tiktok.com/@heyservicegroup2026?lang=en" target="_blank" class="social-icon" title="TikTok">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 448 512"><path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 162.6 186.9v86.32a76.24 76.24 0 1 0 86.34 75.58V14h86.34c2.14 48.91 32 89.6 80.37 99.8z"/></svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Supabase CDN + Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/site-data.js"></script>
+    <script src="js/main.js?v=22"></script>
+    <script>
+        let currentStatusFilter = 'all';
+        let currentRegionFilter = 'all';
+        let currentSearchQuery = '';
+
+        // Map sites to Water Telemetry metrics matching SITE_DATA status
+        function getWaterMetricsForSite(site) {
+            let flowCapacity, acousticRatio, riskLabel, riskColor, riskClass;
+            const status = (site && site.status) ? site.status : 'safe';
+
+            if (status === 'danger' || status === 'critical') {
+                flowCapacity = 86;
+                acousticRatio = '12.4 dB (Severe Impedance)';
+                riskLabel = 'Critical Descale Needed';
+                riskColor = '#ef5350';
+                riskClass = 'status-danger';
+            } else if (status === 'warning' || status === 'action-due') {
+                flowCapacity = 64;
+                acousticRatio = '28.6 dB (Restricted Flow)';
+                riskLabel = 'Action Due';
+                riskColor = '#ff9800';
+                riskClass = 'status-warn';
+            } else if (status === 'monitor') {
+                flowCapacity = 45;
+                acousticRatio = '34.2 dB (Elevated Monitoring)';
+                riskLabel = 'Monitor';
+                riskColor = '#ffb74d';
+                riskClass = 'status-warn';
+            } else {
+                flowCapacity = 16;
+                acousticRatio = '42.1 dB (Optimal Line Ratio)';
+                riskLabel = 'Optimal Flow';
+                riskColor = '#06b6d4';
+                riskClass = 'status-safe';
+            }
+
+            return { flowCapacity, acousticRatio, riskLabel, riskColor, riskClass };
+        }
+
+        function getWaterCategory(site) {
+            if (!site) return 'compliant';
+            if (site.status === 'danger' || site.status === 'critical') return 'high-risk';
+            if (site.status === 'warning' || site.status === 'action-due') return 'action-due';
+            if (site.status === 'monitor') return 'monitor';
+            return 'compliant';
+        }
+
+        function updateWaterStatusCounts() {
+            if (typeof SITE_DATA === 'undefined') return;
+            let total = SITE_DATA.length, compliant = 0, monitor = 0, actionDue = 0, highRisk = 0, offline = 0;
+            SITE_DATA.forEach(site => {
+                const cat = getWaterCategory(site);
+                if (cat === 'compliant') compliant++;
+                else if (cat === 'monitor') monitor++;
+                else if (cat === 'action-due') actionDue++;
+                else if (cat === 'high-risk') highRisk++;
+            });
+
+            const elemTotal = document.getElementById('statTotalSites');
+            const elemCompliant = document.getElementById('statCompliant');
+            const elemMonitor = document.getElementById('statMonitor');
+            const elemActionDue = document.getElementById('statActionDue');
+            const elemHighRisk = document.getElementById('statHighRisk');
+            const elemOffline = document.getElementById('statOffline');
+            const elemPct = document.getElementById('statCompliancePct');
+
+            if (elemTotal) elemTotal.textContent = total;
+            if (elemCompliant) elemCompliant.textContent = compliant;
+            if (elemMonitor) elemMonitor.textContent = monitor;
+            if (elemActionDue) elemActionDue.textContent = actionDue;
+            if (elemHighRisk) elemHighRisk.textContent = highRisk;
+            if (elemOffline) elemOffline.textContent = offline;
+            if (elemPct && total > 0) {
+                elemPct.textContent = `${(((compliant + monitor) / total) * 100).toFixed(1)}%`;
+            }
+        }
+
+        function filterWaterStatus(status, btnElem) {
+            currentStatusFilter = status;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if (btnElem) btnElem.classList.add('active');
+            renderWaterGrid();
+        }
+
+        function matchesRegion(location, selectedRegion) {
+            if (!selectedRegion || selectedRegion === 'all') return true;
+            const loc = (location || '').toLowerCase();
+
+            if (selectedRegion === 'west-yorkshire') {
+                return loc.includes('west yorkshire') || loc.includes('leeds') || loc.includes('bradford') || loc.includes('wakefield') || loc.includes('trinity');
+            }
+            if (selectedRegion === 'north-yorkshire') {
+                return loc.includes('north yorkshire') || loc.includes('york') || loc.includes('harrogate');
+            }
+            if (selectedRegion === 'south-yorkshire') {
+                return loc.includes('south yorkshire') || loc.includes('sheffield');
+            }
+            if (selectedRegion === 'greater-manchester') {
+                return loc.includes('greater manchester') || loc.includes('manchester') || loc.includes('deansgate') || loc.includes('spinningfields') || loc.includes('northern quarter');
+            }
+            return true;
+        }
+
+        function renderWaterGrid() {
+            const gridContainer = document.getElementById('waterSitesGrid');
+            if (!gridContainer || typeof SITE_DATA === 'undefined') return;
+
+            gridContainer.innerHTML = '';
+
+            const clientFilter = document.getElementById('waterClientFilter') ? document.getElementById('waterClientFilter').value : 'all';
+
+            const filteredSites = SITE_DATA.filter(site => {
+                // 1. Status Filter
+                let statusMatches = true;
+                if (currentStatusFilter && currentStatusFilter !== 'all') {
+                    if (currentStatusFilter === 'offline') {
+                        statusMatches = false;
+                    } else {
+                        const cat = getWaterCategory(site);
+                        statusMatches = (cat === currentStatusFilter);
+                    }
+                }
+
+                // 2. Client Filter
+                let clientMatches = true;
+                if (clientFilter && clientFilter !== 'all') {
+                    clientMatches = (site.brand === clientFilter);
+                }
+
+                // 3. Region Filter
+                const regionMatches = matchesRegion(site.location, currentRegionFilter);
+
+                // 4. Search Query Filter
+                const query = currentSearchQuery.toLowerCase();
+                const searchMatches = !query || site.brand.toLowerCase().includes(query) || site.location.toLowerCase().includes(query) || site.id.toLowerCase().includes(query);
+
+                return statusMatches && clientMatches && regionMatches && searchMatches;
+            });
+
+            if (filteredSites.length === 0) {
+                gridContainer.innerHTML = `
+                    <div style="text-align: center; padding: 4rem 1rem; color: #94a3b8; background: rgba(15, 23, 42, 0.8); border: 1px solid #1e293b; border-radius: 14px;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 1rem; color: #06b6d4;"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                        <h3 style="color: #fff; font-size: 1.25rem;">No Facilities Found</h3>
+                        <p style="font-size: 0.9rem; margin-top: 0.35rem;">No hydraulic line telemetry matching your active filter criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group filtered sites by Brand
+            const grouped = {};
+            filteredSites.forEach(site => {
+                if (!grouped[site.brand]) grouped[site.brand] = [];
+                grouped[site.brand].push(site);
+            });
+
+            for (const brand in grouped) {
+                const sites = grouped[brand];
+                if (sites.length === 0) continue;
+
+                // Brand Category Header
+                const brandSection = document.createElement('div');
+                brandSection.style.cssText = 'margin-bottom: 2.5rem;';
+
+                const header = document.createElement('h2');
+                header.className = 'brand-header';
+                header.style.cssText = 'font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.6rem;';
+                header.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg> ${brand} (${sites.length} Monitored Pipelines)`;
+                brandSection.appendChild(header);
+
+                // Grid of High-Density Pipeline Cards
+                const grid = document.createElement('div');
+                grid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;';
+
+                sites.forEach(site => {
+                    const water = getWaterMetricsForSite(site);
+                    const siteIdNum = typeof site.id === 'number' ? site.id : (site.id ? site.id.length : 1);
+                    
+                    // Strict Fallbacks so "undefined" NEVER prints
+                    const flowVal = site.flowRate || site.waterFlow || (water && water.flowRate ? water.flowRate : (120 + ((siteIdNum * 7) % 45)));
+                    const flowText = String(flowVal).includes('L/min') ? flowVal : (flowVal + ' L/min');
+
+                    const pressureVal = site.pressure || site.waterPressure || (water && water.pressure ? water.pressure : (42 + ((siteIdNum * 3) % 20)));
+                    const pressureText = String(pressureVal).includes('PSI') ? pressureVal : (pressureVal + ' PSI');
+
+                    const valveStatusText = site.status === 'danger' ? 'THROTTLED' : (site.status === 'warning' ? 'THROTTLED' : (water && water.valveStatus ? water.valveStatus : 'OPEN'));
+                    const valveClass = valveStatusText === 'THROTTLED' ? 'badge-valve-throttled' : 'badge-valve-open';
+
+                    const consumptionVal = site.consumption || site.waterConsumption || (water && water.consumption ? water.consumption : ((12 + (siteIdNum % 6)) + '.4'));
+                    const consumptionText = String(consumptionVal).includes('m³') ? consumptionVal : (consumptionVal + ' m³');
+
+                    let statusClass, statusText;
+                    if (site.status === 'danger' || (water && water.riskClass === 'status-danger') || (water && water.statusPillText === 'CRITICAL')) {
+                        statusClass = 'status-danger';
+                        statusText = 'CRITICAL';
+                    } else if (site.status === 'warning' || (water && water.riskClass === 'status-warn') || (water && water.statusPillText === 'PRESSURE WARNING')) {
+                        statusClass = 'status-warning';
+                        statusText = 'PRESSURE WARNING';
+                    } else {
+                        statusClass = 'status-safe';
+                        statusText = 'SAFE (NOMINAL)';
+                    }
+
+                    const targetSiteId = site.id || site.slug || 'wagamama-leeds';
+
+                    const card = document.createElement('a');
+                    card.href = 'facility-water.html?id=' + encodeURIComponent(targetSiteId);
+                    card.className = 'pipeline-card';
+
+                    card.innerHTML = `
+                        <div>
+                            <div class="card-meta-top">
+                                <span class="card-brand-tag">${site.brand || 'Facility'}</span>
+                                <span class="status-pill ${statusClass}">${statusText}</span>
+                            </div>
+                            <h3 class="facility-name">${site.brand || 'Facility'} ${(site.location || '').split(',')[0]}</h3>
+                            <p class="facility-location">📍 ${site.location || 'Location'}</p>
+
+                            <div class="pipeline-grid">
+                                <div class="pipeline-cell">
+                                    <span class="cell-label">CURRENT FLOW RATE</span>
+                                    <span class="cell-value">${flowText}</span>
+                                </div>
+                                <div class="pipeline-cell">
+                                    <span class="cell-label">SYSTEM PRESSURE</span>
+                                    <span class="cell-value">${pressureText}</span>
+                                </div>
+                                <div class="pipeline-cell">
+                                    <span class="cell-label">Valve Status</span>
+                                    <span class="badge-valve ${valveClass}">${valveStatusText}</span>
+                                </div>
+                                <div class="pipeline-cell">
+                                    <span class="cell-label">24h Consumption</span>
+                                    <span class="cell-value">${consumptionText}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-meta-footer">
+                            <span class="footer-timestamp">Updated: 2 mins ago</span>
+                            <span class="footer-link">Hydraulic Diagnostics &rarr;</span>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                brandSection.appendChild(grid);
+                gridContainer.appendChild(brandSection);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateWaterStatusCounts();
+            renderWaterGrid();
+
+            document.querySelectorAll('.stats-overview-bar .stat-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.stats-overview-bar .stat-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    currentStatusFilter = card.getAttribute('data-filter') || 'all';
+                    renderWaterGrid();
+                });
+            });
+
+            const clientFilter = document.getElementById('waterClientFilter');
+            if (clientFilter) {
+                clientFilter.addEventListener('change', () => {
+                    renderWaterGrid();
+                });
+            }
+
+            const regionFilter = document.getElementById('waterRegionFilter');
+            if (regionFilter) {
+                regionFilter.addEventListener('change', () => {
+                    currentRegionFilter = regionFilter.value;
+                    renderWaterGrid();
+                });
+            }
+
+            const searchInput = document.getElementById('waterSearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', () => {
+                    currentSearchQuery = searchInput.value.trim();
+                    renderWaterGrid();
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

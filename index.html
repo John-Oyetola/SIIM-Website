@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIM | Intelligent Monitoring</title>
+    <title>SIIM | Intelligent Monitoring Dashboard</title>
     <meta name="description"
-        content="SIM — real-time wastewater, grease and safety monitoring.">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=14">
+        content="SIIM - Stratton Innovation Intelligent Monitoring dashboard ensures your wastewater, grease, heat and operational systems run smoothly.">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=22">
 </head>
 
 <body>
@@ -17,137 +18,221 @@
     <header class="main-header">
         <div class="container nav-container">
             <a href="index.html" class="logo">
-                <img src="Images/logo.png" alt="SIM — Stratton Innovation Monitoring" class="header-logo">
+                <div class="logo-container">
+                    <img src="Images/logo_siim_final.png" alt="SIIM Logo" class="header-logo-img">
+                </div>
             </a>
             <input type="checkbox" id="navToggleIndex" class="hamburger-toggle">
             <label for="navToggleIndex" class="hamburger-btn" aria-label="Toggle navigation">
                 <span></span><span></span><span></span>
             </label>
             <nav>
-                <ul class="nav-links">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="#quote">Contact</a></li>
+                <ul class="nav-links" id="dynamicNavLinks">
+                    <li><a href="index.html" class="nav-link active">Home</a></li>
+                    <li><a href="solutions.html" class="nav-link">Solutions</a></li>
+                    <li><a href="technology.html" class="nav-link">Technology</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
                 </ul>
             </nav>
-            <form id="globalSearchForm" class="search-form">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search pages..." required>
-                <button type="submit" class="btn btn-primary search-btn">Search</button>
-            </form>
-            <select id="langToggle" class="lang-toggle-btn" aria-label="Select Language" title="Select Language">
-                <option value="en">EN</option>
-                <option value="fr">FR</option>
-                <option value="es">ES</option>
-            </select>
-            <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle Dark Mode" title="Toggle Dark Mode">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-            </button>
-
+            <div class="nav-right-controls" id="navRightControls">
+                <a href="login.html" class="btn-logout" style="border-color: #f97316; color: #f97316;">Sign In</a>
+                <button id="themeToggleBtn" class="btn-theme-toggle">NIGHT MODE</button>
+            </div>
         </div>
     </header>
 
-    <section class="hero-section sim-hero">
-        <div class="sim-hero-glow sim-hero-glow-one"></div>
-        <div class="sim-hero-glow sim-hero-glow-two"></div>
-        <div class="container sim-hero-layout">
-            <div class="sim-hero-copy">
-                <p class="sim-eyebrow"><span></span> Stratton Innovation Monitoring</p>
-                <h1>Operational visibility,<br><em>in real time.</em></h1>
-                <p class="sim-hero-text">Real-time wastewater, grease, and safety diagnostics—all in one intelligent dashboard.</p>
-                <p class="sim-hero-support">Turn live site data into earlier warnings, faster responses and better-protected operations.</p>
-                <div class="sim-hero-actions">
-                    <a href="login.html" class="btn sim-btn-primary">Access dashboard <span aria-hidden="true">→</span></a>
-                    <a href="#quote" class="sim-btn-secondary">Talk to an expert</a>
+    <section class="hero-section"
+        style="background-color: var(--bg-main); padding: 6rem 0; min-height: 500px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); position: relative; overflow: hidden;">
+        <div class="container hero-split-container"
+            style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 4rem; align-items: center; position: relative; z-index: 10;">
+
+            <!-- Left Side: Copy & CTA -->
+            <div class="hero-left-content" style="z-index: 10;">
+                <span class="hero-overtitle"
+                    style="color: #FF5A00; text-transform: uppercase; font-weight: 700; font-size: 0.95rem; letter-spacing: 2px; display: block; margin-bottom: 0.75rem;">
+                    Stratton Innovation Monitoring
+                </span>
+                <h1 class="hero-main-title"
+                    style="font-family: 'Montserrat'; font-weight: 800; font-size: 3rem; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.15;">
+                    See more. <br>Know more. <br>Protect more.
+                </h1>
+                <p class="hero-subhead"
+                    style="color: var(--text-muted); font-size: 1.2rem; font-weight: 500; line-height: 1.6; margin-bottom: 2.5rem; max-width: 600px;">
+                    Real-time wastewater, grease and safety diagnostics for operational teams that cannot afford blind
+                    spots.
+                </p>
+
+                <div class="hero-cta-actions" style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                    <a href="demo-dashboard.html" class="btn btn-primary"
+                        style="background-color: #FF5A00; border-color: #FF5A00; color: #FFFFFF; font-weight: 700; padding: 0.9rem 2rem; border-radius: var(--border-radius); text-decoration: none; box-shadow: 0 4px 14px rgba(255, 90, 0, 0.35); transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center;">
+                        Request a Demo
+                    </a>
+                    <a href="#quote" class="btn btn-outline"
+                        style="border: 2px solid var(--text-main); color: var(--text-main); font-weight: 700; padding: 0.9rem 2rem; border-radius: var(--border-radius); text-decoration: none; transition: background 0.2s; display: inline-flex; align-items: center; background: transparent;">
+                        Talk to an Expert
+                    </a>
                 </div>
             </div>
 
-            <div class="sim-telemetry" aria-label="Animated monitoring telemetry illustration">
-                <div class="sim-telemetry-top">
-                    <span class="sim-live-dot"></span><span>LIVE SITE DATA</span><span class="sim-telemetry-time">12:48:02</span>
+            <!-- Right Side: Subtle Animated Telemetry Visual -->
+            <div class="hero-right-visual"
+                style="position: relative; z-index: 10; display: flex; justify-content: center; align-items: center;">
+                <div class="telemetry-visual-card"
+                    style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius); width: 100%; max-width: 360px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 1.5rem; position: relative; overflow: hidden;">
+
+                    <!-- Scanline effect -->
+                    <div class="scanline"
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: rgba(255, 90, 0, 0.3); box-shadow: 0 0 8px rgba(255, 90, 0, 0.8); animation: scan-move 4s infinite linear;">
+                    </div>
+
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+                        <span
+                            style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Live
+                            Diagnostics</span>
+                        <span class="pulse-dot"
+                            style="width: 8px; height: 8px; border-radius: 50%; background: #3A8A33; box-shadow: 0 0 8px #3A8A33; animation: blink 1.5s infinite;"></span>
+                    </div>
+
+                    <!-- Sensor 1: Wastewater -->
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div
+                            style="width: 10px; height: 10px; border-radius: 50%; background: #1E4E96; box-shadow: 0 0 6px #1E4E96;">
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Wastewater Flow
+                            </div>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">7.4 pH <span
+                                    style="font-size: 0.75rem; font-weight: 500; color: #3A8A33;">• Nominal</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Sensor 2: Grease & Heat -->
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div
+                            style="width: 10px; height: 10px; border-radius: 50%; background: #FF5A00; box-shadow: 0 0 6px #FF5A00;">
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Grease Deposits
+                            </div>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">14% <span
+                                    style="font-size: 0.75rem; font-weight: 500; color: #3A8A33;">• Safe Range</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sensor 3: Risk Level -->
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div
+                            style="width: 10px; height: 10px; border-radius: 50%; background: #3A8A33; box-shadow: 0 0 6px #3A8A33;">
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Risk Index
+                            </div>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">0.02 <span
+                                    style="font-size: 0.75rem; font-weight: 500; color: #3A8A33;">• Very Low</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="sim-chart-grid">
-                    <div class="sim-chart-line sim-chart-line-one"></div>
-                    <div class="sim-chart-line sim-chart-line-two"></div>
-                    <div class="sim-chart-line sim-chart-line-three"></div>
-                    <span class="sim-chart-node sim-node-one"></span>
-                    <span class="sim-chart-node sim-node-two"></span>
-                    <span class="sim-chart-node sim-node-three"></span>
-                </div>
-                <div class="sim-metrics">
-                    <div><span>GREASE</span><strong>24<span>%</span></strong><small class="sim-safe">● Normal</small></div>
-                    <div><span>AIRFLOW</span><strong>98<span>%</span></strong><small class="sim-info">● Stable</small></div>
-                    <div><span>ALERTS</span><strong>02</strong><small class="sim-warn">● Review</small></div>
-                </div>
-                <div class="sim-scan-ring"><i></i><i></i><i></i></div>
             </div>
+
         </div>
     </section>
 
-    <!-- Main Highlight Section (Mobile Only) -->
-    <section class="highlight-section animation-container">
-        <div class="container highlight-content">
-            <h2 class="highlight-title">Your Operations, Visualized</h2>
-            <p class="highlight-text">
-                Get complete visibility over your distributed infrastructure. Identify bottlenecks before they become
-                critical and empower your teams with real-time insight.
-            </p>
-            <a href="login.html" class="btn btn-primary highlight-btn">Access Dashboard</a>
-        </div>
-    </section>
-
-    <!-- Bottom Section: Clients & Testimonials -->
-    <section class="clients-section">
+    <!-- SIIM Core Pillars Section -->
+    <section class="pillars-section">
         <div class="container">
-            <!-- Header -->
-            <h2 class="clients-title">These are just a few of the clients we work with.</h2>
+            <h2 class="pillars-main-title">SIIM Core Technology Pillars</h2>
+            <p class="pillars-subtitle">Our 5 core monitoring capabilities designed to deliver intelligence that
+                protects.</p>
 
-            <!-- Logos Grid: Exactly 4 Top, 4 Bottom -->
-            <div class="clients-grid">
-                <img src="Images/wagamamalogo.png" alt="Wagamama" class="client-logo client-logo-custom">
-                <img src="Images/five guys.png" alt="Five Guys" class="client-logo client-logo-custom">
-                <img src="Images/Zaap logo .png" alt="Zaap" class="client-logo client-logo-custom">
-                <img src="Images/Premier Inn logo.png" alt="Premier Inn" class="client-logo client-logo-custom">
-
-                <img src="Images/Barblock logo .png" alt="Bar+Block" class="client-logo client-logo-custom">
-                <img src="Images/goodman logo.png" alt="Goodman" class="client-logo client-logo-custom">
-                <img src="Images/Thai express.png" alt="Thai express" class="client-logo client-logo-custom">
-                <img src="Images/cote.png" alt="Côte" class="client-logo client-logo-custom">
-            </div>
-
-            <!-- Testimonials: 3 Cards -->
-            <div class="testimonials-grid">
-                <!-- Testimonial 1 -->
-                <div class="card testimonial-card-pad border-success">
-                    <div class="testimonial-stars">★★★★★</div>
-                    <p class="testimonial-text">
-                        "The Hey Service platform has fundamentally transformed how we monitor our commercial kitchen
-                        exhaust systems. We've completely eliminated unpredictable downtime, and the automated alert
-                        system ensures absolute compliance across all regional branches."</p>
-                    <h4 class="testimonial-author">Operations Director</h4>
-                    <span class="testimonial-role">National Restaurant Chain</span>
+            <div class="pillars-grid">
+                <!-- Pillar 1 -->
+                <div class="pillar-card border-wastewater">
+                    <div class="pillar-icon-wrap">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            class="pillar-svg svg-wastewater">
+                            <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5" />
+                            <path d="M50 22C50 22 32 44 32 56C32 66 40 74 50 74C60 74 68 66 68 56C68 44 50 22 50 22Z"
+                                fill="currentColor" />
+                            <path d="M36 62Q43 58 50 62Q57 66 64 62" stroke="#FFFFFF" stroke-width="3"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <h3>Wastewater Monitoring</h3>
+                    <p>Advanced liquid telemetry tracking pH levels, chemical contaminants, and flow blockages
+                        dynamically.</p>
                 </div>
 
-                <!-- Testimonial 2 -->
-                <div class="card testimonial-card-pad border-info">
-                    <div class="testimonial-stars">★★★★★</div>
-                    <p class="testimonial-text">
-                        "Implementing their custom dashboard gave our facilities management team unparalleled oversight.
-                        Tracking ambient temperature and latency anomalies in real-time has kept our multi-site hotel
-                        infrastructure operating flawlessly through peak seasons."</p>
-                    <h4 class="testimonial-author">Head of Infrastructure</h4>
-                    <span class="testimonial-role">Hospitality Group</span>
+                <!-- Pillar 2 -->
+                <div class="pillar-card border-grease">
+                    <div class="pillar-icon-wrap">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            class="pillar-svg svg-grease">
+                            <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5" />
+                            <path d="M50 18C50 18 68 42 68 58C68 70 58 78 50 78C42 78 32 70 32 58C32 40 50 18 50 18Z"
+                                fill="currentColor" />
+                            <path d="M50 38C50 38 58 52 58 62C58 68 54 72 50 72C46 72 42 68 42 62C42 52 50 38 50 38Z"
+                                fill="#FFFFFF" />
+                        </svg>
+                    </div>
+                    <h3>Grease & Heat Monitoring</h3>
+                    <p>Continuous infrared diagnostics to monitor grease deposits and thermodynamic variations in
+                        real-time.</p>
                 </div>
 
-                <!-- Testimonial 3 -->
-                <div class="card testimonial-card-pad border-secondary">
-                    <div class="testimonial-stars">★★★★★</div>
-                    <p class="testimonial-text">
-                        "We manage data metrics remotely, so the role-based dashboard logic is invaluable. Engineers
-                        receive precise diagnostic data via instant push-alerts the exact moment a sensor drifts out of
-                        tolerance. It easily paid for itself in month one."</p>
-                    <h4 class="testimonial-author">Lead Technical Engineer</h4>
-                    <span class="testimonial-role">Premium Dining Syndicate</span>
+                <!-- Pillar 3 -->
+                <div class="pillar-card border-risk">
+                    <div class="pillar-icon-wrap">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            class="pillar-svg svg-risk">
+                            <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5" />
+                            <path d="M50 24L72 32V54C72 68 62 76 50 80C38 76 28 68 28 54V32L50 24Z"
+                                stroke="currentColor" stroke-width="5" fill="none" stroke-linejoin="round" />
+                            <path d="M42 50L48 56L60 42" stroke="currentColor" stroke-width="6" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3>Risk Reduction</h3>
+                    <p>Intelligent algorithms to identify potential safety concerns and mechanical failures before they
+                        impact your site.</p>
+                </div>
+
+                <!-- Pillar 4 -->
+                <div class="pillar-card border-alerts">
+                    <div class="pillar-icon-wrap">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            class="pillar-svg svg-alerts">
+                            <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5" />
+                            <circle cx="50" cy="74" r="6" fill="currentColor" />
+                            <path d="M34 54C42 45 58 45 66 54" stroke="currentColor" stroke-width="5"
+                                stroke-linecap="round" />
+                            <path d="M22 40C36 26 64 26 78 40" stroke="currentColor" stroke-width="5"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <h3>Smart Alerts</h3>
+                    <p>Automated push telemetry notifying field engineers immediately when operational metrics drift
+                        from baseline parameters.</p>
+                </div>
+
+                <!-- Pillar 5 -->
+                <div class="pillar-card border-intelligence">
+                    <div class="pillar-icon-wrap">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            class="pillar-svg svg-intelligence">
+                            <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5" />
+                            <rect x="32" y="52" width="8" height="22" rx="2" fill="currentColor" />
+                            <rect x="46" y="40" width="8" height="34" rx="2" fill="currentColor" />
+                            <rect x="60" y="28" width="8" height="46" rx="2" fill="currentColor" />
+                            <path d="M32 48L46 34L60 22M60 22H50M60 22V32" stroke="currentColor" stroke-width="4"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3>Intelligence That Protects</h3>
+                    <p>Encrypted cloud analytics combined with machine learning to protect assets, personnel, and
+                        compliance.</p>
                 </div>
             </div>
         </div>
@@ -157,19 +242,22 @@
     <section id="quote" class="quote-section">
         <div class="container">
             <div class="quote-container">
-                
+
                 <!-- Left Side: Text and Hours -->
                 <div class="contact-divider">
                     <h2 class="quote-title">Request a Quote or Consultation Today</h2>
                     <p class="quote-subtitle">
-                        Contact Hey Service Group to schedule your commercial kitchen cleaning, fire damper testing, or high-level cleaning. Call us on 01924 856 390, email enquiries@theheygroup.net, or use our chat for instant assistance.
+                        Contact Stratton Innovation Intelligent Monitoring (SIIM) to schedule a consultation for your
+                        wastewater diagnostics, grease telemetry, or high-tech facility compliance audits. Call us on
+                        01924 856 390, email enquiries@theheygroup.net, or submit the form for instant assistance.
                     </p>
 
                     <div class="contact-detail-block">
                         <strong class="contact-detail-title">Mail</strong>
-                        <a href="mailto:enquiries@theheygroup.net" class="contact-detail-link">enquiries@theheygroup.net</a>
+                        <a href="mailto:enquiries@theheygroup.net"
+                            class="contact-detail-link">enquiries@theheygroup.net</a>
                     </div>
-                    
+
                     <div class="contact-detail-block-alt">
                         <strong class="contact-detail-title">Phone</strong>
                         <a href="tel:01924856390" class="contact-detail-link">01924 856 390</a>
@@ -194,30 +282,36 @@
 
                     <!-- Success message (shown after submit) -->
                     <div id="quoteSuccessMsg" class="quote-success-msg" style="display:none;">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
                         <div>
                             <strong>Quote submitted successfully!</strong><br>
-                            <span>Thank you — a member of the Hey Service team will be in touch shortly.</span>
+                            <span>Thank you — a member of the SIIM team will be in touch shortly.</span>
                         </div>
                     </div>
 
                     <form id="quoteContactForm" class="quote-form" name="quote-request">
                         <!-- Web3Forms hidden fields -->
                         <input type="hidden" name="access_key" value="9e57d327-5dea-477e-8a5b-4edc4083329a">
-                        <input type="hidden" name="subject" value="New Quote Request from Hey Service Website">
-                        <input type="hidden" name="from_name" value="Hey Service Website">
+                        <input type="hidden" name="subject" value="New Quote Request from SIIM Website">
+                        <input type="hidden" name="from_name" value="SIIM Website">
                         <input type="checkbox" name="botcheck" style="display:none">
                         <div>
                             <label class="form-label">Name</label>
-                            <input type="text" name="Name" required class="form-control form-input-custom" placeholder="Your full name">
+                            <input type="text" name="Name" required class="form-control form-input-custom"
+                                placeholder="Your full name">
                         </div>
                         <div>
                             <label class="form-label">Email</label>
-                            <input type="email" name="Email" required class="form-control form-input-custom" placeholder="you@company.com">
+                            <input type="email" name="Email" required class="form-control form-input-custom"
+                                placeholder="you@company.com">
                         </div>
                         <div>
                             <label class="form-label">Phone Number</label>
-                            <input type="tel" name="Phone Number" required class="form-control form-input-custom" placeholder="01924...">
+                            <input type="tel" name="Phone Number" required class="form-control form-input-custom"
+                                placeholder="01924...">
                         </div>
                         <div>
                             <label class="form-label">How did you hear about us?</label>
@@ -231,9 +325,11 @@
                         </div>
                         <div>
                             <label class="form-label">Message</label>
-                            <textarea name="Message" required class="form-control form-textarea form-input-custom" rows="4" placeholder="How can we help?"></textarea>
+                            <textarea name="Message" required class="form-control form-textarea form-input-custom"
+                                rows="4" placeholder="How can we help?"></textarea>
                         </div>
-                        <button type="submit" id="quoteSubmitBtn" class="btn btn-primary quote-submit-btn">Submit Request</button>
+                        <button type="submit" id="quoteSubmitBtn" class="btn btn-primary quote-submit-btn">Submit
+                            Request</button>
                     </form>
 
                 </div>
@@ -245,11 +341,13 @@
     <!-- Main Footer -->
     <section id="footer" class="main-footer">
         <div class="container">
-            
+
             <div class="footer-grid">
                 <!-- First Half: Big Sized Logo -->
                 <div class="footer-logo-container">
-                    <img src="Images/logo.png" alt="Hey Service Logo" class="footer-logo">
+                    <div class="footer-logo-container-rebranded">
+                        <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="footer-logo-img">
+                    </div>
                 </div>
 
                 <!-- Second Half: Contact & Address -->
@@ -278,27 +376,52 @@
 
             <!-- Social Media Icons (Bottom Strip) -->
             <div class="social-strip">
-                
-                <a href="https://www.linkedin.com/company/the-hey-group-ltd" target="_blank" class="social-icon" title="LinkedIn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 448 512"><path d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z"/></svg>
+
+                <a href="https://www.linkedin.com/company/the-hey-group-ltd" target="_blank" class="social-icon"
+                    title="LinkedIn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                        viewBox="0 0 448 512">
+                        <path
+                            d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z" />
+                    </svg>
                 </a>
-                
-                <a href="https://www.facebook.com/people/Hey-Service-Group/61578169043194/" target="_blank" class="social-icon" title="Facebook">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 320 512"><path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"/></svg>
+
+                <a href="https://www.facebook.com/people/Hey-Service-Group/61578169043194/" target="_blank"
+                    class="social-icon" title="Facebook">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                        viewBox="0 0 320 512">
+                        <path
+                            d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z" />
+                    </svg>
                 </a>
-                
-                <a href="https://www.youtube.com/@HEYSERVICEGROUP-f4s" target="_blank" class="social-icon" title="YouTube">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" fill="currentColor" viewBox="0 0 576 512"><path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.781 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"/></svg>
+
+                <a href="https://www.youtube.com/@HEYSERVICEGROUP-f4s" target="_blank" class="social-icon"
+                    title="YouTube">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" fill="currentColor"
+                        viewBox="0 0 576 512">
+                        <path
+                            d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.781 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z" />
+                    </svg>
                 </a>
-                
-                <a href="https://www.instagram.com/hey_servicegroup/" target="_blank" class="social-icon" title="Instagram">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+
+                <a href="https://www.instagram.com/hey_servicegroup/" target="_blank" class="social-icon"
+                    title="Instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                        viewBox="0 0 448 512">
+                        <path
+                            d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z" />
+                    </svg>
                 </a>
-                
-                <a href="https://www.tiktok.com/@heyservicegroup2026?lang=en" target="_blank" class="social-icon" title="TikTok">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 448 512"><path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 162.6 186.9v86.32a76.24 76.24 0 1 0 86.34 75.58V14h86.34c2.14 48.91 32 89.6 80.37 99.8z"/></svg>
+
+                <a href="https://www.tiktok.com/@heyservicegroup2026?lang=en" target="_blank" class="social-icon"
+                    title="TikTok">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                        viewBox="0 0 448 512">
+                        <path
+                            d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 162.6 186.9v86.32a76.24 76.24 0 1 0 86.34 75.58V14h86.34c2.14 48.91 32 89.6 80.37 99.8z" />
+                    </svg>
                 </a>
-                
+
             </div>
 
         </div>
@@ -306,7 +429,7 @@
 
 
 
-    <script src="js/main.js?v=15"></script>
+    <script src="js/main.js?v=22"></script>
 </body>
 
 </html>

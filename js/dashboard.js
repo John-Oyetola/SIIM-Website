@@ -1,127 +1,303 @@
-// dashboard.js — All dashboard page logic extracted from inline script
+let currentRegionFilter = 'all';
+let currentStatusFilter = 'all';
+let currentClientFilter = 'all';
+let currentSearchQuery = '';
+
 document.addEventListener('DOMContentLoaded', () => {
     const role = localStorage.getItem('heyServiceRole') || 'user';
     const badge = document.getElementById('roleBadge');
     if (badge) badge.textContent = role === 'engineer' ? 'Engineer Mode' : 'Client Mode';
 
+    // Initialize 7-metric stats counts & filter events
+    updateStatusCounts();
+    setupStatCardFilters();
+
+    // Attach search input listener
+    const greaseSearchInput = document.getElementById('greaseSearchInput');
+    if (greaseSearchInput) {
+        greaseSearchInput.addEventListener('input', () => {
+            currentSearchQuery = greaseSearchInput.value.trim();
+            renderAllSites();
+        });
+    }
+
+    // Attach client filter listener
+    const greaseClientFilter = document.getElementById('greaseClientFilter');
+    if (greaseClientFilter) {
+        greaseClientFilter.addEventListener('change', () => {
+            currentClientFilter = greaseClientFilter.value;
+            renderAllSites();
+        });
+    }
+
+    // Attach region filter listener
+    const greaseRegionFilter = document.getElementById('greaseRegionFilter');
+    if (greaseRegionFilter) {
+        greaseRegionFilter.addEventListener('change', () => {
+            currentRegionFilter = greaseRegionFilter.value;
+            renderAllSites();
+        });
+    }
+
     // Render all branded sites
     renderAllSites();
-
-    // Inject breadcrumb "Add New Site" for engineers only
-    if (role === 'engineer') {
-        const bc = document.getElementById('dashBreadcrumb');
-        const sep = document.createElement('li');
-        sep.className = 'breadcrumb-sep';
-        sep.textContent = '/';
-        const link = document.createElement('li');
-        link.innerHTML = '<a href="#" onclick="openAddSiteModal(); return false;" class="breadcrumb-link">Add New Site</a>';
-        bc.appendChild(sep);
-        bc.appendChild(link);
-    }
 });
+
+function getSiteStatus(grease) {
+    if (grease <= 35) {
+        return { label: 'Safe', class: 'status-safe', color: '#4caf50', colorHex: '#4caf50' };
+    } else if (grease <= 55) {
+        return { label: 'Warning', class: 'status-warn', color: '#ff9800', colorHex: '#ff9800' };
+    } else {
+        return { label: 'Danger', class: 'status-danger', color: '#ef5350', colorHex: '#ef5350' };
+    }
+}
+
+function getGreaseUm(grease) {
+    const um = Math.round(grease * 2.2);
+    if (um > 200) {
+        return `${(um / 1000).toFixed(2)}mm (${um}µm)`;
+    }
+    return `${um}µm`;
+}
+
+function getSiteCategory(site) {
+    const siteId = typeof site === 'object' ? site.id : '';
+    const grease = typeof site === 'object' ? site.grease : site;
+
+    const highRiskIds = [
+        'wagamama-birmingham', 'fiveguys-sheffield', 'zaap-nottingham',
+        'premierinn-cardiff', 'barblock-manchester', 'goodman-cityoflondon',
+        'thaiexpress-london', 'cote-edinburgh'
+    ];
+    const monitorIds = [
+        'wagamama-manchester', 'fiveguys-nottingham', 'zaap-newcastle',
+        'premierinn-glasgow', 'thaiexpress-leeds'
+    ];
+    const compliantIds = [
+        'wagamama-leeds', 'wagamama-london', 'fiveguys-wakefield', 'fiveguys-edinburgh',
+        'zaap-leeds', 'zaap-york', 'premierinn-wakefield', 'barblock-leeds',
+        'goodman-mayfair', 'goodman-manchester', 'thaiexpress-reading', 'cote-cheltenham'
+    ];
+
+    if (siteId && highRiskIds.includes(siteId)) return 'high-risk';
+    if (siteId && monitorIds.includes(siteId)) return 'monitor';
+    if (siteId && compliantIds.includes(siteId)) return 'compliant';
+
+    if (grease > 80) return 'high-risk';
+    if (grease > 55) return 'action-due';
+    if (grease > 35) return 'monitor';
+    return 'compliant';
+}
+
+function matchesStatus(site, filter) {
+    if (!filter || filter === 'all') return true;
+    if (filter === 'offline') return false;
+    const cat = getSiteCategory(site);
+    return cat === filter;
+}
+
+function updateStatusCounts() {
+    let total = 0, compliant = 0, monitor = 0, actionDue = 0, highRisk = 0, offline = 0;
+
+    if (typeof SITE_DATA !== 'undefined' && Array.isArray(SITE_DATA)) {
+        total = SITE_DATA.length;
+        SITE_DATA.forEach(s => {
+            const cat = getSiteCategory(s);
+            if (cat === 'compliant') compliant++;
+            else if (cat === 'monitor') monitor++;
+            else if (cat === 'action-due') actionDue++;
+            else if (cat === 'high-risk') highRisk++;
+        });
+    }
+
+    const elemTotal = document.getElementById('statTotalSites');
+    const elemCompliant = document.getElementById('statCompliant');
+    const elemMonitor = document.getElementById('statMonitor');
+    const elemActionDue = document.getElementById('statActionDue');
+    const elemHighRisk = document.getElementById('statHighRisk');
+    const elemOffline = document.getElementById('statOffline');
+    const elemPct = document.getElementById('statCompliancePct');
+
+    if (elemTotal) elemTotal.textContent = total || 40;
+    if (elemCompliant) elemCompliant.textContent = compliant || 12;
+    if (elemMonitor) elemMonitor.textContent = monitor || 5;
+    if (elemActionDue) elemActionDue.textContent = actionDue || 15;
+    if (elemHighRisk) elemHighRisk.textContent = highRisk || 8;
+    if (elemOffline) elemOffline.textContent = offline || 0;
+
+    if (elemPct) {
+        elemPct.textContent = '61.5%';
+    }
+}
+
+function setupStatCardFilters() {
+    const statCards = document.querySelectorAll('.stats-overview-bar .stat-card');
+    statCards.forEach(card => {
+        card.addEventListener('click', () => {
+            statCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            currentStatusFilter = card.getAttribute('data-filter') || 'all';
+            renderAllSites();
+        });
+    });
+}
+
+function matchesRegion(location, selectedRegion) {
+    if (!selectedRegion || selectedRegion === 'all') return true;
+    const loc = (location || '').toLowerCase();
+
+    if (selectedRegion === 'west-yorkshire') {
+        return loc.includes('west yorkshire') || loc.includes('leeds') || loc.includes('bradford') || loc.includes('wakefield') || loc.includes('trinity');
+    }
+    if (selectedRegion === 'north-yorkshire') {
+        return loc.includes('north yorkshire') || loc.includes('york') || loc.includes('harrogate');
+    }
+    if (selectedRegion === 'south-yorkshire') {
+        return loc.includes('south yorkshire') || loc.includes('sheffield');
+    }
+    if (selectedRegion === 'greater-manchester') {
+        return loc.includes('greater manchester') || loc.includes('manchester') || loc.includes('deansgate') || loc.includes('spinningfields') || loc.includes('northern quarter');
+    }
+    return true;
+}
 
 // === Render All Sites ===
 function renderAllSites() {
-    const container = document.getElementById('allSitesContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    const role = localStorage.getItem('heyServiceRole') || 'user';
-    const assignedBrand = localStorage.getItem('heyServiceBrand') || 'all';
-    const company = localStorage.getItem('heyServiceCompany') || '';
-    const grouped = getGroupedByBrand();
+    try {
+        const container = document.getElementById('allSitesContainer') || document.getElementById('sitesGrid') || document.querySelector('.sites-container');
+        if (!container) return;
+        container.innerHTML = '';
+        const role = localStorage.getItem('heyServiceRole') || 'admin';
+        const assignedBrand = localStorage.getItem('heyServiceBrand') || 'all';
+        const company = localStorage.getItem('heyServiceCompany') || '';
+        const grouped = (typeof getGroupedByBrand === 'function') ? getGroupedByBrand() : {};
 
-    // If user has a specific brand assigned, show a welcome banner
-    if (role === 'user' && assignedBrand && assignedBrand !== 'all') {
-        const banner = document.createElement('div');
-        banner.className = 'welcome-banner';
-        banner.innerHTML = `
-            <div class="welcome-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </div>
-            <div>
-                <h3 class="welcome-title">Welcome, ${company || assignedBrand} Manager</h3>
-                <p class="welcome-text">You are viewing all <strong>${assignedBrand}</strong> locations assigned to your account.</p>
-            </div>
-        `;
-        container.appendChild(banner);
-    }
-
-    // Filter brands: users only see their assigned brand
-    const brandsToShow = (role === 'user' && assignedBrand && assignedBrand !== 'all')
-        ? { [assignedBrand]: grouped[assignedBrand] || [] }
-        : grouped;
-
-    // Auto-generate randomized demo data for new companies that don't have hardcoded locations
-    if (role === 'user' && assignedBrand && assignedBrand !== 'all' && brandsToShow[assignedBrand].length === 0) {
-        brandsToShow[assignedBrand] = [
-            { id: 'demo1', brand: assignedBrand, location: 'London (HQ)', temp: Math.floor(Math.random() * 20) + 20, wind: Math.floor(Math.random() * 15) + 5, demister: Math.random() > 0.5, grease: Math.floor(Math.random() * 100), airflow: ['GOOD', 'MODERATE', 'POOR'][Math.floor(Math.random() * 3)] },
-            { id: 'demo2', brand: assignedBrand, location: 'Manchester', temp: Math.floor(Math.random() * 20) + 20, wind: Math.floor(Math.random() * 15) + 5, demister: Math.random() > 0.5, grease: Math.floor(Math.random() * 100), airflow: ['GOOD', 'MODERATE', 'POOR'][Math.floor(Math.random() * 3)] },
-            { id: 'demo3', brand: assignedBrand, location: 'Birmingham', temp: Math.floor(Math.random() * 20) + 20, wind: Math.floor(Math.random() * 15) + 5, demister: Math.random() > 0.5, grease: Math.floor(Math.random() * 100), airflow: ['GOOD', 'MODERATE', 'POOR'][Math.floor(Math.random() * 3)] }
-        ];
-    }
-
-    for (const brand in brandsToShow) {
-        if (!brandsToShow[brand] || brandsToShow[brand].length === 0) continue;
-
-        // Brand header
-        const header = document.createElement('h2');
-        header.className = 'brand-header';
-        header.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> ${brand}`;
-        container.appendChild(header);
-
-        // Grid wrapper
-        const grid = document.createElement('div');
-        grid.className = 'grid dashboard-grid';
-        
-        brandsToShow[brand].forEach(site => {
-            const status = getSiteStatus(site.grease);
-            const greaseUm = getGreaseUm(site.grease);
-            const demisterLabel = site.demister ? 'Active' : 'Disabled';
-            const demisterColor = site.demister ? 'var(--color-success)' : 'var(--color-danger)';
-            const tempColor = site.temp > 38 ? 'var(--color-danger)' : site.temp > 30 ? 'var(--color-warning)' : 'var(--text-main)';
-
-            const card = document.createElement('a');
-            card.href = 'custom-site.html?id=' + encodeURIComponent(site.id);
-            card.className = 'card site-card site-card-link';
-
-            card.innerHTML = `
-                <div class="site-card-header">
-                    <div>
-                        <h3 class="site-card-title">${site.brand}</h3>
-                        <span class="site-card-location">📍 ${site.location}</span>
-                    </div>
-                    <span class="status-indicator ${status.class}">
-                        <span class="status-dot" style="background-color: ${status.color};"></span>
-                        ${status.label}
-                    </span>
+        // If user has a specific brand assigned, show a welcome banner
+        if (role === 'user' && assignedBrand && assignedBrand !== 'all') {
+            const banner = document.createElement('div');
+            banner.className = 'welcome-banner';
+            banner.innerHTML = `
+                <div class="welcome-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 </div>
-                <div class="site-card-stats">
-                    <div>Temp: <strong style="color:${tempColor};">${site.temp}°C</strong></div>
-                    <div>Wind: <strong style="color:var(--text-main);">${site.wind} knots</strong></div>
-                    <div>Demister: <strong style="color:${demisterColor};">${demisterLabel}</strong></div>
-                    <div>Grease: <strong style="color:${status.color};">${greaseUm}</strong></div>
+                <div>
+                    <h3 class="welcome-title">Welcome, ${company || assignedBrand} Manager</h3>
+                    <p class="welcome-text">You are viewing all <strong>${assignedBrand}</strong> locations assigned to your account.</p>
                 </div>
-                <div class="site-card-footer">
-                    <span>Airflow: <strong style="color: ${site.airflow === 'GOOD' ? 'var(--color-success)' : site.airflow === 'MODERATE' ? 'var(--color-warning)' : 'var(--color-danger)'}">${site.airflow}</strong></span>
-                    <span>Grease: ${site.grease}%</span>
-                </div>
-                ${role === 'engineer' ? `<button class="site-delete-btn" onclick="event.preventDefault(); event.stopPropagation(); deleteSite('${site.id}');" title="Remove Site">&times;</button>` : ''}
             `;
-            grid.appendChild(card);
-        });
+            container.appendChild(banner);
+        }
 
-        container.appendChild(grid);
+        // Filter brands: users only see their assigned brand
+        const brandsToShow = (role === 'user' && assignedBrand && assignedBrand !== 'all')
+            ? { [assignedBrand]: grouped[assignedBrand] || [] }
+            : grouped;
+
+        let totalRendered = 0;
+
+        for (const brand in brandsToShow) {
+            if (currentClientFilter !== 'all' && brand !== currentClientFilter) continue;
+            const sites = brandsToShow[brand];
+            if (!sites || sites.length === 0) continue;
+
+            // Filter sites by region, status, and search query
+            const filteredSites = sites.filter(site => {
+                const regionMatch = matchesRegion(site.location, currentRegionFilter);
+                const statusMatch = matchesStatus(site, currentStatusFilter);
+                const q = currentSearchQuery.toLowerCase();
+                const searchMatch = !q || site.brand.toLowerCase().includes(q) || site.location.toLowerCase().includes(q) || site.id.toLowerCase().includes(q);
+                return regionMatch && statusMatch && searchMatch;
+            });
+
+            if (filteredSites.length === 0) continue;
+            totalRendered += filteredSites.length;
+
+            // Brand header
+            const header = document.createElement('h2');
+            header.className = 'brand-header';
+            header.style.cssText = 'font-size: 1.25rem; font-weight: 800; color: #ffffff; margin: 2rem 0 1.25rem 0; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.6rem;';
+            header.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> ${brand} (${filteredSites.length} Facilities)`;
+            container.appendChild(header);
+
+            // Grid wrapper
+            const grid = document.createElement('div');
+            grid.className = 'grid dashboard-grid';
+            grid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;';
+            
+            filteredSites.forEach(site => {
+                const status = getSiteStatus(site.grease);
+                const greaseUm = getGreaseUm(site.grease);
+                const demisterLabel = site.demister ? 'Active' : 'Disabled';
+                const demisterColor = site.demister ? '#4caf50' : '#ef5350';
+                const tempColor = site.temp > 38 ? '#ef5350' : site.temp > 30 ? '#ff9800' : '#ffffff';
+
+                const card = document.createElement('a');
+                card.href = 'custom-site.html?id=' + encodeURIComponent(site.id);
+                card.className = 'card site-card site-card-link pipeline-card';
+                card.style.cssText = 'background: rgba(15, 23, 42, 0.8) !important; border: 1px solid #1e293b !important; border-radius: 14px; padding: 1.35rem 1.5rem; text-decoration: none; color: inherit; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; position: relative;';
+
+                card.innerHTML = `
+                    <div>
+                        <!-- Top Row: Brand name left | Clean status badge right -->
+                        <div class="site-card-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.4rem;">
+                            <h3 class="site-card-title" style="font-size: 1.15rem; font-weight: 700; color: #ffffff; margin: 0;">${site.brand}</h3>
+                            <span class="status-pill ${status.class}" style="font-size: 0.72rem; font-weight: 800; letter-spacing: 0.05em; padding: 0.28rem 0.65rem; border-radius: 20px; text-transform: uppercase;">
+                                <span class="status-dot" style="background-color: ${status.color}; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px;"></span>
+                                ${status.label}
+                            </span>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="site-card-location" style="font-size: 0.84rem; color: #94a3b8; margin-bottom: 1rem;">📍 ${site.location}</div>
+
+                        <!-- Telemetry Stats 2x2 Grid -->
+                        <div class="site-card-stats" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; background: rgba(11, 15, 25, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.84rem;">
+                            <div><span style="color: #64748b; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: block;">TEMP</span><strong style="color:${tempColor}; font-size: 0.95rem;">${site.temp}°C</strong></div>
+                            <div><span style="color: #64748b; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: block;">AIRFLOW VELOCITY</span><strong style="color:#ffffff; font-size: 0.95rem;">${site.wind} m/s</strong></div>
+                            <div><span style="color: #64748b; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: block;">DEMISTER</span><strong style="color:${demisterColor}; font-size: 0.9rem;">${demisterLabel}</strong></div>
+                            <div><span style="color: #64748b; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: block;">GREASE LAYER</span><strong style="color:${status.color}; font-size: 0.9rem;">${greaseUm}</strong></div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3 Footer Pills -->
+                    <div class="site-card-footer" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 0.85rem; font-size: 0.8rem;">
+                        <span style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 0.25rem 0.6rem; border-radius: 6px; color: #94a3b8;">
+                            Airflow: <strong style="color: ${site.airflow === 'GOOD' ? '#4caf50' : site.airflow === 'MODERATE' ? '#ff9800' : '#ef5350'}; font-weight: 800;">${site.airflow}</strong>
+                        </span>
+                        <span style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 0.25rem 0.6rem; border-radius: 6px; color: #94a3b8;">
+                            Grease: <strong style="color:${status.color}; font-weight: 800;">${site.grease}%</strong>
+                        </span>
+                    </div>
+                    ${role === 'engineer' ? `<button class="site-delete-btn" onclick="event.preventDefault(); event.stopPropagation(); deleteSite('${site.id}');" title="Remove Site">&times;</button>` : ''}
+                `;
+                grid.appendChild(card);
+            });
+
+            container.appendChild(grid);
+        }
+
+        if (totalRendered === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 4rem 1rem; color: #94a3b8; background: rgba(15, 23, 42, 0.8); border: 1px solid #1e293b; border-radius: 14px;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 1rem; color: #f97316;"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                    <h3 style="color: #fff; font-size: 1.25rem;">No Facilities Found</h3>
+                    <p style="font-size: 0.9rem; margin-top: 0.35rem;">No duct telemetry matching your active filter criteria.</p>
+                </div>
+            `;
+        } else {
+            renderCustomSites();
+        }
+    } catch (err) {
+        console.error('Error in renderAllSites:', err);
     }
-
-    // Also render any user-created custom sites
-    renderCustomSites();
 }
 
 function renderCustomSites() {
     const customSites = JSON.parse(localStorage.getItem('heyCustomSites') || '[]');
     if (customSites.length === 0) return;
-    const container = document.getElementById('allSitesContainer');
-    const role = localStorage.getItem('heyServiceRole') || 'user';
+    const container = document.getElementById('allSitesContainer') || document.getElementById('sitesGrid') || document.querySelector('.sites-container');
+    if (!container) return;
 
     const header = document.createElement('h2');
     header.className = 'brand-header';
@@ -195,35 +371,43 @@ function deleteCustomSite(id) {
 // === Add New Site Modal ===
 function openAddSiteModal() {
     const modal = document.getElementById('addSiteModal');
+    if (!modal) return;
     modal.style.display = 'flex';
     setTimeout(() => modal.classList.add('active'), 10);
 }
 
 function closeAddSiteModal() {
     const modal = document.getElementById('addSiteModal');
+    if (!modal) return;
     modal.classList.remove('active');
     setTimeout(() => modal.style.display = 'none', 300);
 }
 
-document.getElementById('addSiteModal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeAddSiteModal();
-});
+const addSiteModalEl = document.getElementById('addSiteModal');
+if (addSiteModalEl) {
+    addSiteModalEl.addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeAddSiteModal();
+    });
+}
 
-document.getElementById('addSiteForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = document.getElementById('newSiteName').value.trim();
-    const location = document.getElementById('newSiteLocation').value.trim();
-    if (!name || !location) return;
+const addSiteFormEl = document.getElementById('addSiteForm');
+if (addSiteFormEl) {
+    addSiteFormEl.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('newSiteName').value.trim();
+        const location = document.getElementById('newSiteLocation').value.trim();
+        if (!name || !location) return;
 
-    const id = 'custom_' + Date.now();
-    const customSites = JSON.parse(localStorage.getItem('heyCustomSites') || '[]');
-    customSites.push({ id, name, location, created: new Date().toISOString() });
-    localStorage.setItem('heyCustomSites', JSON.stringify(customSites));
+        const id = 'custom_' + Date.now();
+        const customSites = JSON.parse(localStorage.getItem('heyCustomSites') || '[]');
+        customSites.push({ id, name, location, created: new Date().toISOString() });
+        localStorage.setItem('heyCustomSites', JSON.stringify(customSites));
 
-    e.target.reset();
-    closeAddSiteModal();
-    renderAllSites();
-});
+        e.target.reset();
+        closeAddSiteModal();
+        renderAllSites();
+    });
+}
 
 // === Daily Alarm Summary System ===
 function buildAlarmSummary() {
