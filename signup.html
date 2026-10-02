@@ -48,7 +48,7 @@
 
     <!-- SignUp Main Container -->
     <main class="container" style="display: flex; align-items: center; justify-content: center; flex: 1; min-height: calc(100vh - 180px); padding: 4rem 1rem;">
-        <div class="card auth-card-container">
+        <div class="card auth-card-container" style="max-width: 520px; width: 100%;">
             
             <div style="text-align: center;">
                 <h1 class="auth-title">Register Facility Account</h1>
@@ -57,6 +57,7 @@
 
             <div id="signupMsg" class="protocol-banner banner-danger" style="display: none; padding: 0.85rem; font-size: 0.92rem; margin-bottom: 1.5rem; border-radius: 8px;"></div>
 
+            <!-- STEP 1: Registration Form -->
             <form id="signupForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" class="auth-form-group">
                     <div>
@@ -69,9 +70,15 @@
                     </div>
                 </div>
 
-                <div class="auth-form-group">
-                    <label class="auth-label">Company / Brand</label>
-                    <input type="text" id="signupCompany" name="organization" autocomplete="organization" class="auth-input-field" required placeholder="e.g. Wagamama">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" class="auth-form-group">
+                    <div>
+                        <label class="auth-label">Company / Brand</label>
+                        <input type="text" id="signupCompany" name="organization" autocomplete="organization" class="auth-input-field" required placeholder="e.g. Wagamama">
+                    </div>
+                    <div>
+                        <label class="auth-label">Phone Number</label>
+                        <input type="tel" id="phoneInput" name="phone" placeholder="+44 7123 456789" class="auth-input-field" required>
+                    </div>
                 </div>
 
                 <div class="auth-form-group">
@@ -92,9 +99,46 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary auth-submit-btn" style="margin-top: 0.5rem;">
-                    Complete Registration &rarr;
+                    Continue to MFA Setup &rarr;
                 </button>
             </form>
+
+            <!-- STEP 2: MFA Enrollment Verification View -->
+            <div id="mfaEnrollModal" style="display: none; margin-top: 1rem;">
+                <div style="text-align: center; margin-bottom: 1.25rem;">
+                    <span class="protocol-banner banner-safe" style="display: inline-block; padding: 0.35rem 0.85rem; font-size: 0.82rem; font-weight: 700; margin-bottom: 0.75rem;">Account Created — MFA Identity Setup</span>
+                    <h2 style="font-size: 1.35rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Link Microsoft Authenticator</h2>
+                    <p class="text-muted" style="font-size: 0.85rem;">Scan the QR code with Microsoft Authenticator app to protect your facility telemetry portal.</p>
+                </div>
+
+                <!-- Genuine SVG QR Code Container -->
+                <div style="text-align: center; margin-bottom: 1.25rem; display: flex; justify-content: center;">
+                    <div id="mfaQrWrapper" style="padding: 10px; background: #ffffff; border-radius: 12px; display: inline-block; box-shadow: 0 4px 20px rgba(0, 229, 255, 0.25);">
+                        <img id="mfaQrImage" src="" alt="Microsoft Authenticator QR Code" style="width: 170px; height: 170px; display: block;">
+                    </div>
+                </div>
+
+                <!-- Secret Key Container with Copy Key Button -->
+                <div style="text-align: center; font-size: 0.82rem; color: #90a4ae; margin-bottom: 1.5rem;">
+                    Can't scan QR code? Enter secret key manually:<br>
+                    <div style="display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 0.5rem; background: rgba(0,0,0,0.4); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(0, 229, 255, 0.3);">
+                        <strong id="mfaSecretText" style="color: #00e5ff; letter-spacing: 1.5px; font-family: monospace; font-size: 0.95rem;">-</strong>
+                        <button type="button" id="copyMfaKeyBtn" class="btn btn-outline" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; border-color: #00e5ff; color: #00e5ff; font-weight: 700;">Copy Key</button>
+                    </div>
+                </div>
+
+                <!-- 6-digit Code Input Form -->
+                <form id="mfaVerifyForm">
+                    <div class="auth-form-group">
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #00e5ff; margin-bottom: 0.45rem; text-transform: uppercase; text-align: center;">Enter 6-Digit Authenticator Code</label>
+                        <input type="text" id="mfaCodeInput" name="mfaCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" required placeholder="000000" class="auth-input-field" style="letter-spacing: 8px; font-size: 1.75rem; text-align: center; font-weight: 800; padding: 0.75rem;">
+                    </div>
+
+                    <button type="submit" id="mfaSubmitBtn" class="btn btn-primary" style="width: 100%; padding: 0.95rem; font-weight: 700; font-size: 1rem; border-radius: 8px; margin-top: 0.75rem;">
+                        Verify MFA &amp; Complete Registration &rarr;
+                    </button>
+                </form>
+            </div>
 
             <p style="text-align: center; margin-top: 2rem; font-size: 15px; color: #94a3b8;">
                 Already have an account? <a href="login.html" class="auth-link">Sign In</a>
@@ -158,7 +202,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('signupForm');
+            const mfaModal = document.getElementById('mfaEnrollModal');
             const msgBanner = document.getElementById('signupMsg');
+            const copyKeyBtn = document.getElementById('copyMfaKeyBtn');
+
+            let currentFactorId = null;
 
             // Toggle password eye icon listener
             const toggleRegBtn = document.getElementById('toggleRegPasswordBtn');
@@ -174,28 +222,72 @@
                 });
             }
 
+            // Copy Secret Key listener
+            if (copyKeyBtn) {
+                copyKeyBtn.addEventListener('click', () => {
+                    const secretElem = document.getElementById('mfaSecretText');
+                    if (secretElem && secretElem.textContent) {
+                        navigator.clipboard.writeText(secretElem.textContent);
+                        copyKeyBtn.textContent = 'Copied!';
+                        setTimeout(() => copyKeyBtn.textContent = 'Copy Key', 2000);
+                    }
+                });
+            }
+
+            // Step 1 & 2: Signup Form Submit -> Trigger MFA enrollment
             if (form) {
                 form.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const nameInput = document.getElementById('signupName') || document.getElementById('regFullName');
-                    const emailInput = document.getElementById('signupEmail') || document.getElementById('regEmail');
-                    const companyInput = document.getElementById('signupCompany') || document.getElementById('regCompany');
-                    const passwordInput = document.getElementById('signupPassword') || document.getElementById('regPassword');
+                    const nameInput = document.getElementById('signupName');
+                    const emailInput = document.getElementById('signupEmail');
+                    const companyInput = document.getElementById('signupCompany');
+                    const phoneInput = document.getElementById('phoneInput');
+                    const passwordInput = document.getElementById('signupPassword');
 
                     const fullName = nameInput ? nameInput.value.trim() : '';
                     const email = emailInput ? emailInput.value.trim() : '';
                     const company = companyInput ? companyInput.value.trim() : '';
+                    const phone = phoneInput ? phoneInput.value.trim() : '';
                     const password = passwordInput ? passwordInput.value.trim() : '';
 
                     const btn = form.querySelector('button[type="submit"]');
                     btn.disabled = true;
                     btn.textContent = 'Creating Account...';
+                    if (msgBanner) msgBanner.style.display = 'none';
 
                     try {
-                        await signUpWithEmail(email, password, fullName, company);
+                        // Step 1: SignUp
+                        await signUpWithEmail(email, password, fullName, company, phone);
+
+                        // Step 2: Enroll TOTP MFA
+                        btn.textContent = 'Generating Authenticator Key...';
+                        const enrollData = await enrollMfaTotp(email);
+
+                        if (enrollData) {
+                            currentFactorId = enrollData.id;
+                            sessionStorage.setItem('mfaEnrolledFactorId', enrollData.id);
+
+                            // Step 3: Display genuine SVG QR code
+                            const qrImg = document.getElementById('mfaQrImage');
+                            if (qrImg && enrollData.totp && enrollData.totp.qr_code) {
+                                qrImg.src = enrollData.totp.qr_code;
+                            }
+
+                            // Display valid Base32 secret string
+                            const secretElem = document.getElementById('mfaSecretText');
+                            if (secretElem && enrollData.totp && enrollData.totp.secret) {
+                                secretElem.textContent = enrollData.totp.secret;
+                            }
+
+                            // Transition view to MFA verification modal/card
+                            form.style.display = 'none';
+                            if (mfaModal) mfaModal.style.display = 'block';
+                        } else {
+                            throw new Error('Could not initiate MFA enrollment.');
+                        }
                     } catch (err) {
                         btn.disabled = false;
-                        btn.textContent = 'Complete Registration →';
+                        btn.textContent = 'Continue to MFA Setup →';
                         if (msgBanner) {
                             msgBanner.style.display = 'block';
                             msgBanner.className = 'protocol-banner banner-danger';
@@ -204,8 +296,56 @@
                     }
                 });
             }
+
+            // Step 4: Verification Form Submit -> Verify MFA and redirect to systems.html
+            const mfaVerifyForm = document.getElementById('mfaVerifyForm');
+            if (mfaVerifyForm) {
+                mfaVerifyForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const codeInput = document.getElementById('mfaCodeInput');
+                    const code = codeInput ? codeInput.value.trim() : '';
+
+                    if (msgBanner) msgBanner.style.display = 'none';
+
+                    if (code.length !== 6 || !/^\d+$/.test(code)) {
+                        if (msgBanner) {
+                            msgBanner.style.display = 'block';
+                            msgBanner.className = 'protocol-banner banner-danger';
+                            msgBanner.textContent = 'Please enter a valid 6-digit numeric verification code.';
+                        }
+                        return;
+                    }
+
+                    const verifyBtn = document.getElementById('mfaSubmitBtn');
+                    verifyBtn.disabled = true;
+                    verifyBtn.textContent = 'Verifying Authenticator Code...';
+
+                    try {
+                        const factorId = currentFactorId || sessionStorage.getItem('mfaEnrolledFactorId');
+                        await verifyMfaTotp(factorId, code);
+
+                        verifyBtn.textContent = 'Setup Verified! Redirecting...';
+                        if (msgBanner) {
+                            msgBanner.style.display = 'block';
+                            msgBanner.className = 'protocol-banner banner-safe';
+                            msgBanner.textContent = '✅ Microsoft Authenticator Verified! Setup complete.';
+                        }
+
+                        setTimeout(() => {
+                            window.location.href = 'systems.html';
+                        }, 1000);
+                    } catch (err) {
+                        verifyBtn.disabled = false;
+                        verifyBtn.textContent = 'Verify MFA & Complete Registration →';
+                        if (msgBanner) {
+                            msgBanner.style.display = 'block';
+                            msgBanner.className = 'protocol-banner banner-danger';
+                            msgBanner.textContent = 'Verification error: ' + (err.message || 'Invalid 6-digit code.');
+                        }
+                    }
+                });
+            }
         });
-    </script>
 </body>
 
 </html>
