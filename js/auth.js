@@ -173,6 +173,11 @@ window.signUpWithEmail = async function(email, password, fullName = '', company 
     const assignedRole = 'client';
     const accountStatus = 'pending';
 
+    const sanitizedPhone = (phone || '').trim();
+    if (!sanitizedPhone) {
+        throw new Error('A valid phone number is required for SMS & account security.');
+    }
+
     // 1. Write user to persistent localStorage key 'siim_registered_users'
     try {
         let registeredList = JSON.parse(localStorage.getItem('siim_registered_users') || '[]');
@@ -180,7 +185,7 @@ window.signUpWithEmail = async function(email, password, fullName = '', company 
         const userRecord = {
             id: 'usr_' + Date.now(),
             email: email,
-            phone: phone,
+            phone: sanitizedPhone,
             full_name: fullName || email.split('@')[0],
             company: company,
             role: assignedRole,
@@ -209,7 +214,7 @@ window.signUpWithEmail = async function(email, password, fullName = '', company 
             password,
             options: {
                 data: {
-                    phone,
+                    phone: sanitizedPhone,
                     full_name: fullName,
                     company,
                     role: assignedRole,
