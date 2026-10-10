@@ -276,9 +276,11 @@ window.enrollMfaTotp = async function(email) {
     // Inject the genuine SVG QR code returned by Supabase
     const qrContainer = document.getElementById('mfaQrWrapper');
     if (qrContainer && enrollData && enrollData.totp && enrollData.totp.qr_code) {
-        const qrStr = enrollData.totp.qr_code.trim();
-        if (qrStr.startsWith('<svg') || qrStr.toLowerCase().includes('<svg')) {
-            qrContainer.innerHTML = qrStr;
+        qrContainer.innerHTML = '';
+        const qrCodeData = enrollData.totp.qr_code.trim();
+
+        if (qrCodeData.startsWith('<svg')) {
+            qrContainer.innerHTML = qrCodeData;
             const svgEl = qrContainer.querySelector('svg');
             if (svgEl) {
                 svgEl.setAttribute('width', '200');
@@ -290,11 +292,21 @@ window.enrollMfaTotp = async function(email) {
                 svgEl.style.background = '#ffffff';
                 svgEl.style.padding = '12px';
                 svgEl.style.borderRadius = '12px';
-                svgEl.style.boxSizing = 'border-box';
-                svgEl.style.shapeRendering = 'crispEdges';
+                svgEl.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
             }
         } else {
-            qrContainer.innerHTML = `<img src="${qrStr}" alt="Scan with Microsoft Authenticator" style="width: 200px; height: 200px; display: block; margin: 0 auto; background: #ffffff; padding: 12px; border-radius: 12px; box-sizing: border-box; shape-rendering: crispEdges;">`;
+            const qrImg = document.createElement('img');
+            qrImg.src = qrCodeData;
+            qrImg.alt = 'Scan with Microsoft Authenticator';
+            qrImg.style.width = '200px';
+            qrImg.style.height = '200px';
+            qrImg.style.display = 'block';
+            qrImg.style.margin = '0 auto';
+            qrImg.style.background = '#ffffff';
+            qrImg.style.padding = '12px';
+            qrImg.style.borderRadius = '12px';
+            qrImg.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+            qrContainer.appendChild(qrImg);
         }
     }
 

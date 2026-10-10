@@ -30,9 +30,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // Render live QR Code SVG / Data URI
                     const qrWrapper = document.getElementById('mfaQrWrapper');
                     if (qrWrapper && data.totp.qr_code) {
-                        const qrStr = data.totp.qr_code.trim();
-                        if (qrStr.startsWith('<svg') || qrStr.toLowerCase().includes('<svg')) {
-                            qrWrapper.innerHTML = qrStr;
+                        qrWrapper.innerHTML = '';
+                        const qrCodeData = data.totp.qr_code.trim();
+
+                        if (qrCodeData.startsWith('<svg')) {
+                            qrWrapper.innerHTML = qrCodeData;
                             const svgEl = qrWrapper.querySelector('svg');
                             if (svgEl) {
                                 svgEl.setAttribute('width', '200');
@@ -44,11 +46,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 svgEl.style.background = '#ffffff';
                                 svgEl.style.padding = '12px';
                                 svgEl.style.borderRadius = '12px';
-                                svgEl.style.boxSizing = 'border-box';
-                                svgEl.style.shapeRendering = 'crispEdges';
+                                svgEl.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
                             }
                         } else {
-                            qrWrapper.innerHTML = `<img src="${qrStr}" alt="Scan with Microsoft Authenticator" style="width: 200px; height: 200px; display: block; margin: 0 auto; background: #ffffff; padding: 12px; border-radius: 12px; box-sizing: border-box; shape-rendering: crispEdges;">`;
+                            const qrImg = document.createElement('img');
+                            qrImg.src = qrCodeData;
+                            qrImg.alt = 'Scan with Microsoft Authenticator';
+                            qrImg.style.width = '200px';
+                            qrImg.style.height = '200px';
+                            qrImg.style.display = 'block';
+                            qrImg.style.margin = '0 auto';
+                            qrImg.style.background = '#ffffff';
+                            qrImg.style.padding = '12px';
+                            qrImg.style.borderRadius = '12px';
+                            qrImg.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+                            qrWrapper.appendChild(qrImg);
                         }
                     }
 
