@@ -4855,3 +4855,27 @@ body.dark-theme .badge-danger {
     opacity: 1;
     transform: translateY(0);
 }
+
+/* === SECTION 9: MFA QR Code Wrapper & SVG Styling === */
+#mfaQrWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 220px;
+    margin: 16px 0;
+    overflow: visible;
+}
+
+#mfaQrWrapper svg,
+#mfaQrWrapper img {
+    width: 200px !important;
+    height: 200px !important;
+    display: block !important;
+    margin: 0 auto !important;
+    background: #ffffff !important;
+    padding: 12px !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+    shape-rendering: crispEdges !important;
+}

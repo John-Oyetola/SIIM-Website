@@ -276,7 +276,26 @@ window.enrollMfaTotp = async function(email) {
     // Inject the genuine SVG QR code returned by Supabase
     const qrContainer = document.getElementById('mfaQrWrapper');
     if (qrContainer && enrollData && enrollData.totp && enrollData.totp.qr_code) {
-        qrContainer.innerHTML = `<img src="${enrollData.totp.qr_code}" alt="Scan with Microsoft Authenticator" style="width: 210px; height: 210px; background: white; padding: 10px; border-radius: 10px; display: block; margin: 0 auto;">`;
+        const qrStr = enrollData.totp.qr_code.trim();
+        if (qrStr.startsWith('<svg') || qrStr.toLowerCase().includes('<svg')) {
+            qrContainer.innerHTML = qrStr;
+            const svgEl = qrContainer.querySelector('svg');
+            if (svgEl) {
+                svgEl.setAttribute('width', '200');
+                svgEl.setAttribute('height', '200');
+                svgEl.style.width = '200px';
+                svgEl.style.height = '200px';
+                svgEl.style.display = 'block';
+                svgEl.style.margin = '0 auto';
+                svgEl.style.background = '#ffffff';
+                svgEl.style.padding = '12px';
+                svgEl.style.borderRadius = '12px';
+                svgEl.style.boxSizing = 'border-box';
+                svgEl.style.shapeRendering = 'crispEdges';
+            }
+        } else {
+            qrContainer.innerHTML = `<img src="${qrStr}" alt="Scan with Microsoft Authenticator" style="width: 200px; height: 200px; display: block; margin: 0 auto; background: #ffffff; padding: 12px; border-radius: 12px; box-sizing: border-box; shape-rendering: crispEdges;">`;
+        }
     }
 
     // Inject the genuine Base32 secret string returned by Supabase

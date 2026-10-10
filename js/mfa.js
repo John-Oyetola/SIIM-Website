@@ -30,7 +30,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // Render live QR Code SVG / Data URI
                     const qrWrapper = document.getElementById('mfaQrWrapper');
                     if (qrWrapper && data.totp.qr_code) {
-                        qrWrapper.innerHTML = `<img src="${data.totp.qr_code}" alt="Scan with Microsoft Authenticator" style="width: 210px; height: 210px; background: white; padding: 10px; border-radius: 10px; display: block; margin: 0 auto;">`;
+                        const qrStr = data.totp.qr_code.trim();
+                        if (qrStr.startsWith('<svg') || qrStr.toLowerCase().includes('<svg')) {
+                            qrWrapper.innerHTML = qrStr;
+                            const svgEl = qrWrapper.querySelector('svg');
+                            if (svgEl) {
+                                svgEl.setAttribute('width', '200');
+                                svgEl.setAttribute('height', '200');
+                                svgEl.style.width = '200px';
+                                svgEl.style.height = '200px';
+                                svgEl.style.display = 'block';
+                                svgEl.style.margin = '0 auto';
+                                svgEl.style.background = '#ffffff';
+                                svgEl.style.padding = '12px';
+                                svgEl.style.borderRadius = '12px';
+                                svgEl.style.boxSizing = 'border-box';
+                                svgEl.style.shapeRendering = 'crispEdges';
+                            }
+                        } else {
+                            qrWrapper.innerHTML = `<img src="${qrStr}" alt="Scan with Microsoft Authenticator" style="width: 200px; height: 200px; display: block; margin: 0 auto; background: #ffffff; padding: 12px; border-radius: 12px; box-sizing: border-box; shape-rendering: crispEdges;">`;
+                        }
                     }
 
                     // Render Secret Key
