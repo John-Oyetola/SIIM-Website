@@ -256,36 +256,67 @@ window.signUpWithEmail = async function(email, password, fullName = '', company 
 
 // 4. Supabase MFA TOTP Enrollment (Step 2 of Signup)
 window.enrollMfaTotp = async function(email) {
-    const client = getSupabase();
-    const { data, error } = await client.auth.mfa.enroll({
+    const supabaseClient = getSupabase();
+    const { data: enrollData, error: enrollError } = await supabaseClient.auth.mfa.enroll({
         factorType: 'totp',
         issuer: 'SIIM Telemetry',
         friendlyName: email
     });
 
-    if (error) {
-        throw new Error(error.message || 'MFA enrollment failed.');
+    if (enrollError) {
+        alert('MFA Enrollment failed: ' + enrollError.message);
+        throw new Error('MFA Enrollment failed: ' + enrollError.message);
     }
 
-    return data;
+    // Inject the genuine SVG QR code returned by Supabase
+    const qrContainer = document.getElementById('mfaQrWrapper');
+    if (qrContainer && enrollData && enrollData.totp && enrollData.totp.qr_code) {
+        qrContainer.innerHTML = `<img src="${enrollData.totp.qr_code}" alt="Scan with Microsoft Authenticator" style="width: 210px; height: 210px; background: white; padding: 10px; border-radius: 10px; display: block; margin: 0 auto;">`;
+    }
+
+    // Inject the genuine Base32 secret string returned by Supabase
+    const secretDisplay = document.getElementById('mfaSecretDisplay');
+    if (secretDisplay && enrollData && enrollData.totp && enrollData.totp.secret) {
+        secretDisplay.textContent = enrollData.totp.secret;
+    }
+
+    window.currentMfaFactorId = enrollData ? enrollData.id : null;
+    return enrollData;
 };
+
+// Global Copy Key button handler setup
+document.addEventListener('DOMContentLoaded', () => {
+    const copyBtn = document.getElementById('copyMfaKeyBtn');
+    if (copyBtn) {
+        copyBtn.onclick = () => {
+            const secretElem = document.getElementById('mfaSecretDisplay');
+            const key = secretElem ? secretElem.textContent.trim() : '';
+            if (key) {
+                navigator.clipboard.writeText(key);
+                copyBtn.textContent = 'Copied!';
+                setTimeout(() => { copyBtn.textContent = 'Copy Key'; }, 2000);
+            }
+        };
+    }
+});
 
 // 5. Supabase MFA TOTP Challenge & Verification (Step 4 of Signup)
 window.verifyMfaTotp = async function(factorId, code) {
-    const client = getSupabase();
+    const supabaseClient = getSupabase();
+    const fId = factorId || window.currentMfaFactorId || sessionStorage.getItem('mfaEnrolledFactorId');
 
-    if (!factorId) {
+    if (!fId) {
         throw new Error('MFA factor ID is missing.');
     }
 
-    const challengeRes = await client.auth.mfa.challenge({ factorId });
+    const challengeRes = await supabaseClient.auth.mfa.challenge({ factorId: fId });
     if (challengeRes.error) {
         throw new Error('MFA challenge failed: ' + challengeRes.error.message);
     }
 
     const challengeId = challengeRes.data.id;
-    const verifyRes = await client.auth.mfa.verify({
-        factorId,
+    const verifyRes = await supabaseClient.auth.mfa.verify({
+        factorId: fId,
         challengeId,
         code: code.trim()
     });

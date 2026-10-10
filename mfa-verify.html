@@ -51,26 +51,27 @@
 
                     <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: #b0bec5; line-height: 1.6;">
                         <strong style="color: #fff; display: block; margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px;">Setup Instructions:</strong>
-                        <ol style="margin: 0; padding-left: 1.25rem;">
-                            <li>Open the <strong>Microsoft Authenticator</strong> app on your mobile device.</li>
-                            <li>Tap <strong>'+'</strong> to add an account and select <strong>'Work or school account'</strong> or <strong>'Other'</strong>.</li>
-                            <li>Point your camera at the QR code generated below.</li>
-                            <li>Enter the 6-digit verification code from the app.</li>
+                        <ol style="margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                            <li>Step 1: Download <strong>Microsoft Authenticator</strong> (free on iOS App Store or Google Play Store).</li>
+                            <li>Step 2: Tap <strong>'+'</strong> in the app and choose <strong>'Other (Google, Facebook, etc.)'</strong>.</li>
+                            <li>Step 3: <strong>Scan the QR code below</strong> with your camera.</li>
+                            <li>Step 4 (Mobile/Manual): If you are on your phone and cannot scan, tap <strong>[Copy Key]</strong> below, choose <strong>'Or enter code manually'</strong> in the Authenticator app, and paste the key.</li>
+                            <li>Step 5: Enter the 6-digit rolling code generated in the app below to activate your account.</li>
                         </ol>
                     </div>
 
-                    <!-- Live / Fallback QR Code Display -->
-                    <div style="text-align: center; margin-bottom: 1.25rem;">
-                        <img id="mfaQrImage" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><rect width='180' height='180' fill='%23ffffff'/><rect x='10' y='10' width='50' height='50' fill='%2300111F'/><rect x='20' y='20' width='30' height='30' fill='%23ffffff'/><rect x='25' y='25' width='20' height='20' fill='%23FF5A00'/><rect x='120' y='10' width='50' height='50' fill='%2300111F'/><rect x='130' y='20' width='30' height='30' fill='%23ffffff'/><rect x='135' y='25' width='20' height='20' fill='%23FF5A00'/><rect x='10' y='120' width='50' height='50' fill='%2300111F'/><rect x='20' y='130' width='30' height='30' fill='%23ffffff'/><rect x='25' y='135' width='20' height='20' fill='%23FF5A00'/><path d='M70 20h20v20H70zm30 30h20v20h-20zm-30 40h40v10H70zm50-20h20v40h-20zm-40 40h20v30H80zm30 10h40v20h-40z' fill='%2300111F'/></svg>" alt="MFA QR Code" style="width: 170px; height: 170px; border-radius: 12px; border: 4px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+                    <!-- Live Supabase QR Code Container -->
+                    <div id="mfaQrWrapper" style="display:flex; justify-content:center; align-items:center; min-height:210px; margin: 16px 0;">
+                      <div id="qrLoadingText" style="color:#94a3b8; font-size:14px;">Generating secure Authenticator QR code...</div>
                     </div>
 
-                    <!-- Manual Secret Key Fallback -->
-                    <div style="text-align: center; font-size: 0.82rem; color: #90a4ae; margin-bottom: 1.5rem;">
-                        Can't scan? Enter key manually:<br>
-                        <span style="display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.35rem; background: rgba(0,0,0,0.3); padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
-                            <strong id="mfaSecretText" style="color: #00e5ff; letter-spacing: 1.5px; font-family: monospace;">-</strong>
-                            <button type="button" id="copyMfaKeyBtn" class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.72rem; border-color: rgba(255,255,255,0.2); color: #ffffff;">Copy Key</button>
-                        </span>
+                    <!-- Manual Secret Key Display -->
+                    <div style="text-align: center; font-size: 0.85rem; color: #90a4ae; margin-bottom: 1.5rem;">
+                        Can't scan QR code? Enter secret key manually:<br>
+                        <div style="display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; margin-top: 0.5rem; background: rgba(0,0,0,0.4); padding: 0.5rem 0.9rem; border-radius: 8px; border: 1px solid rgba(0, 229, 255, 0.3);">
+                            <code id="mfaSecretDisplay" style="font-family: monospace; font-size: 15px; letter-spacing: 2px; color: #38bdf8; font-weight: bold; word-break: break-all;"></code>
+                            <button type="button" id="copyMfaKeyBtn" class="btn btn-outline" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; border-color: #00e5ff; color: #00e5ff; font-weight: 700; cursor: pointer;">Copy Key</button>
+                        </div>
                     </div>
                 </div>
 

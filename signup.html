@@ -109,18 +109,29 @@
                     <span class="protocol-banner banner-safe" style="display: inline-block; padding: 0.35rem 0.85rem; font-size: 0.82rem; font-weight: 700; margin-bottom: 0.75rem;">Account Created — MFA Identity Setup</span>
                     <h2 style="font-size: 1.35rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Link Microsoft Authenticator</h2>
                     <p class="text-muted" style="font-size: 0.85rem;">Scan the QR code with Microsoft Authenticator app to protect your facility telemetry portal.</p>
-                </div>                <!-- Genuine SVG QR Code Container -->
-                <div style="text-align: center; margin-bottom: 1.25rem; display: flex; justify-content: center;">
-                    <div id="mfaQrWrapper" style="padding: 12px; background: #ffffff; border-radius: 12px; display: flex; justify-content: center; align-items: center; min-width: 190px; min-height: 190px; box-shadow: 0 4px 20px rgba(0, 229, 255, 0.25);">
-                        <!-- Direct SVG or image injected dynamically -->
-                    </div>
+                </div>
+
+                <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: #b0bec5; line-height: 1.6;">
+                    <strong style="color: #fff; display: block; margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px;">Setup Instructions:</strong>
+                    <ol style="margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <li>Step 1: Download <strong>Microsoft Authenticator</strong> (free on iOS App Store or Google Play Store).</li>
+                        <li>Step 2: Tap <strong>'+'</strong> in the app and choose <strong>'Other (Google, Facebook, etc.)'</strong>.</li>
+                        <li>Step 3: <strong>Scan the QR code below</strong> with your camera.</li>
+                        <li>Step 4 (Mobile/Manual): If you are on your phone and cannot scan, tap <strong>[Copy Key]</strong> below, choose <strong>'Or enter code manually'</strong> in the Authenticator app, and paste the key.</li>
+                        <li>Step 5: Enter the 6-digit rolling code generated in the app below to activate your account.</li>
+                    </ol>
+                </div>
+
+                <!-- Genuine SVG QR Code Container -->
+                <div id="mfaQrWrapper" style="display:flex; justify-content:center; align-items:center; min-height:210px; margin: 16px 0;">
+                  <div id="qrLoadingText" style="color:#94a3b8; font-size:14px;">Generating secure Authenticator QR code...</div>
                 </div>
 
                 <!-- Secret Key Container with Copy Key Button -->
-                <div style="text-align: center; font-size: 0.82rem; color: #90a4ae; margin-bottom: 1.5rem;">
+                <div style="text-align: center; font-size: 0.85rem; color: #90a4ae; margin-bottom: 1.5rem;">
                     Can't scan QR code? Enter secret key manually:<br>
-                    <div style="display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 0.5rem; background: rgba(0,0,0,0.4); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(0, 229, 255, 0.3);">
-                        <input type="text" id="mfaSecretInput" readonly class="auth-input-field" style="width: 180px; color: #00e5ff; letter-spacing: 2px; font-family: monospace; font-size: 0.92rem; font-weight: 700; text-align: center; background: transparent; border: none; padding: 0; outline: none;" value="">
+                    <div style="display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; margin-top: 0.5rem; background: rgba(0,0,0,0.4); padding: 0.5rem 0.9rem; border-radius: 8px; border: 1px solid rgba(0, 229, 255, 0.3);">
+                        <code id="mfaSecretDisplay" style="font-family: monospace; font-size: 15px; letter-spacing: 2px; color: #38bdf8; font-weight: bold; word-break: break-all;"></code>
                         <button type="button" id="copyMfaKeyBtn" class="btn btn-outline" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; border-color: #00e5ff; color: #00e5ff; font-weight: 700; cursor: pointer;">Copy Key</button>
                     </div>
                 </div>
@@ -222,14 +233,15 @@
 
             // Copy Secret Key listener
             if (copyKeyBtn) {
-                copyKeyBtn.addEventListener('click', () => {
-                    const secretInput = document.getElementById('mfaSecretInput');
-                    if (secretInput && secretInput.value) {
-                        navigator.clipboard.writeText(secretInput.value.trim());
+                copyKeyBtn.onclick = () => {
+                    const secretDisplay = document.getElementById('mfaSecretDisplay');
+                    const key = secretDisplay ? secretDisplay.textContent.trim() : '';
+                    if (key) {
+                        navigator.clipboard.writeText(key);
                         copyKeyBtn.textContent = 'Copied!';
-                        setTimeout(() => copyKeyBtn.textContent = 'Copy Key', 2000);
+                        setTimeout(() => { copyKeyBtn.textContent = 'Copy Key'; }, 2000);
                     }
-                });
+                };
             }
 
             // Step 1 & 2: Signup Form Submit -> Trigger MFA enrollment
@@ -257,38 +269,13 @@
                         // Step 1: SignUp
                         await signUpWithEmail(email, password, fullName, company, phone);
 
-                        // Step 2: Enroll TOTP MFA
+                        // Step 2: Enroll TOTP MFA (populates mfaQrWrapper & mfaSecretDisplay)
                         btn.textContent = 'Generating Authenticator Key...';
                         const enrollData = await enrollMfaTotp(email);
 
-                        if (enrollData && enrollData.totp) {
-                            currentFactorId = enrollData.id;
-                            sessionStorage.setItem('mfaEnrolledFactorId', enrollData.id);
-
-                            // Step 3: Inject genuine SVG QR code into DOM
-                            const qrWrapper = document.getElementById('mfaQrWrapper');
-                            if (qrWrapper && enrollData.totp.qr_code) {
-                                const rawQr = enrollData.totp.qr_code;
-                                if (rawQr.trim().startsWith('<svg') || rawQr.includes('<svg')) {
-                                    qrWrapper.innerHTML = rawQr;
-                                    const svgEl = qrWrapper.querySelector('svg');
-                                    if (svgEl) {
-                                        svgEl.setAttribute('width', '170');
-                                        svgEl.setAttribute('height', '170');
-                                        svgEl.style.display = 'block';
-                                    }
-                                } else if (rawQr.startsWith('data:image')) {
-                                    qrWrapper.innerHTML = `<img src="${rawQr}" alt="Microsoft Authenticator QR Code" style="width: 170px; height: 170px; display: block;">`;
-                                } else {
-                                    qrWrapper.innerHTML = `<img src="data:image/svg+xml;utf8,${encodeURIComponent(rawQr)}" alt="Microsoft Authenticator QR Code" style="width: 170px; height: 170px; display: block;">`;
-                                }
-                            }
-
-                            // Step 4: Inject Base32 secret string into text box
-                            const secretInput = document.getElementById('mfaSecretInput');
-                            if (secretInput && enrollData.totp.secret) {
-                                secretInput.value = enrollData.totp.secret;
-                            }
+                        if (enrollData) {
+                            currentFactorId = enrollData.id || window.currentMfaFactorId;
+                            sessionStorage.setItem('mfaEnrolledFactorId', currentFactorId);
 
                             // Transition view to MFA verification modal/card
                             form.style.display = 'none';

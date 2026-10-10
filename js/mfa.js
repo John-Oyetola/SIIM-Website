@@ -16,28 +16,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Initialize Supabase TOTP Enrollment
         if (window.supabaseClient) {
             try {
+                const userEmail = sessionStorage.getItem('pendingUserEmail') || localStorage.getItem('heyServiceUser') || 'user@theheygroup.net';
                 const { data, error } = await window.supabaseClient.auth.mfa.enroll({
                     factorType: 'totp',
-                    issuer: 'SIIM Telemetry'
+                    issuer: 'SIIM Telemetry',
+                    friendlyName: userEmail
                 });
 
                 if (!error && data && data.totp) {
                     sessionStorage.setItem('mfaEnrolledFactorId', data.id);
+                    window.currentMfaFactorId = data.id;
 
                     // Render live QR Code SVG / Data URI
-                    const qrElem = document.getElementById('mfaQrImage');
-                    if (qrElem && data.totp.qr_code) {
-                        qrElem.src = data.totp.qr_code;
+                    const qrWrapper = document.getElementById('mfaQrWrapper');
+                    if (qrWrapper && data.totp.qr_code) {
+                        qrWrapper.innerHTML = `<img src="${data.totp.qr_code}" alt="Scan with Microsoft Authenticator" style="width: 210px; height: 210px; background: white; padding: 10px; border-radius: 10px; display: block; margin: 0 auto;">`;
                     }
 
                     // Render Secret Key
-                    const secretElem = document.getElementById('mfaSecretText');
-                    if (secretElem && data.totp.secret) {
-                        secretElem.textContent = data.totp.secret;
+                    const secretDisplay = document.getElementById('mfaSecretDisplay');
+                    if (secretDisplay && data.totp.secret) {
+                        secretDisplay.textContent = data.totp.secret;
                     }
                 }
             } catch (e) {
-                console.warn('MFA enrollment fallback active:', e);
+                console.warn('MFA enrollment error:', e);
             }
         }
     } else {
@@ -48,14 +51,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Copy Manual Key Button Listener
     const copyKeyBtn = document.getElementById('copyMfaKeyBtn');
     if (copyKeyBtn) {
-        copyKeyBtn.addEventListener('click', () => {
-            const secretElem = document.getElementById('mfaSecretText');
-            if (secretElem) {
-                navigator.clipboard.writeText(secretElem.textContent);
+        copyKeyBtn.onclick = () => {
+            const secretDisplay = document.getElementById('mfaSecretDisplay');
+            const key = secretDisplay ? secretDisplay.textContent.trim() : '';
+            if (key) {
+                navigator.clipboard.writeText(key);
                 copyKeyBtn.textContent = 'Copied!';
                 setTimeout(() => copyKeyBtn.textContent = 'Copy Key', 2000);
             }
-        });
+        };
     }
 
     // MFA Verification Form Handler
@@ -80,48 +84,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             try {
-                let verified = false;
+                if (typeof window.verifyMfaTotp === 'function') {
+                    const factorId = window.currentMfaFactorId || sessionStorage.getItem('mfaEnrolledFactorId');
+                    await window.verifyMfaTotp(factorId, enteredCode);
+                } else if (window.supabaseClient) {
+                    const factorId = window.currentMfaFactorId || sessionStorage.getItem('mfaEnrolledFactorId');
+                    if (!factorId) throw new Error('MFA factor ID is missing.');
 
-                if (window.supabaseClient) {
-                    const factorId = sessionStorage.getItem('mfaEnrolledFactorId') || sessionStorage.getItem('mfaFactorId');
-                    let challengeId = sessionStorage.getItem('mfaChallengeId');
+                    const cRes = await window.supabaseClient.auth.mfa.challenge({ factorId });
+                    if (cRes.error) throw cRes.error;
 
-                    if (factorId) {
-                        if (!challengeId) {
-                            const cRes = await window.supabaseClient.auth.mfa.challenge({ factorId });
-                            if (cRes.data) challengeId = cRes.data.id;
-                        }
-
-                        if (challengeId) {
-                            const vRes = await window.supabaseClient.auth.mfa.verify({
-                                factorId,
-                                challengeId,
-                                code: enteredCode
-                            });
-
-                            if (!vRes.error) {
-                                verified = true;
-                            }
-                        }
-                    }
+                    const vRes = await window.supabaseClient.auth.mfa.verify({
+                        factorId,
+                        challengeId: cRes.data.id,
+                        code: enteredCode
+                    });
+                    if (vRes.error) throw vRes.error;
                 }
 
-                // If Supabase MFA verified OR offline fallback code (accept any valid 6-digit input)
-                if (verified || enteredCode.length === 6) {
-                    const email = sessionStorage.getItem('pendingUserEmail') || localStorage.getItem('heyServiceUser') || 'johnoyetolaoluwafemi113@gmail.com';
-                    const role = sessionStorage.getItem('pendingUserRole') || localStorage.getItem('heyServiceRole') || 'client';
-                    const siteId = sessionStorage.getItem('pendingUserSiteId') || localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds';
-                    const company = sessionStorage.getItem('pendingUserCompany') || localStorage.getItem('heyServiceCompany') || 'SIIM';
+                const email = sessionStorage.getItem('pendingUserEmail') || localStorage.getItem('heyServiceUser') || 'user@theheygroup.net';
+                const role = sessionStorage.getItem('pendingUserRole') || localStorage.getItem('heyServiceRole') || 'client';
+                const siteId = sessionStorage.getItem('pendingUserSiteId') || localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds';
+                const company = sessionStorage.getItem('pendingUserCompany') || localStorage.getItem('heyServiceCompany') || 'SIIM Monitored Facility';
 
-                    const userObj = { email, role, siteId, company };
-                    
-                    if (typeof handleRoleRouting === 'function') {
-                        handleRoleRouting(userObj);
-                    } else {
-                        window.location.href = 'systems.html';
-                    }
+                const userObj = { email, role, siteId, company };
+
+                if (typeof handleRoleRouting === 'function') {
+                    handleRoleRouting(userObj);
                 } else {
-                    throw new Error('Invalid 6-digit code. Please check your authenticator clock and try again.');
+                    window.location.href = 'systems.html';
                 }
             } catch (err) {
                 if (btn) {
