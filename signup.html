@@ -322,16 +322,16 @@
                         const factorId = currentFactorId || sessionStorage.getItem('mfaEnrolledFactorId');
                         await verifyMfaTotp(factorId, code);
 
-                        verifyBtn.textContent = 'Setup Verified! Redirecting...';
+                        verifyBtn.textContent = 'Verification Complete! Redirecting...';
                         if (msgBanner) {
                             msgBanner.style.display = 'block';
                             msgBanner.className = 'protocol-banner banner-safe';
-                            msgBanner.textContent = '✅ Microsoft Authenticator Verified! Setup complete.';
+                            msgBanner.textContent = '✅ Microsoft Authenticator Verified! Routing to pending authorization status...';
                         }
 
                         setTimeout(() => {
-                            window.location.href = 'systems.html';
-                        }, 1000);
+                            window.location.href = 'pending-approval.html';
+                        }, 800);
                     } catch (err) {
                         verifyBtn.disabled = false;
                         verifyBtn.textContent = 'Verify MFA & Complete Registration →';

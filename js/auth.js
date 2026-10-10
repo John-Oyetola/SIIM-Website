@@ -82,6 +82,7 @@ window.signInWithEmail = async function(email, password) {
     let siteId = null;
     let company = null;
     let fullName = null;
+    let status = null;
     let isApproved = true;
 
     if (userObj && client) {
@@ -92,13 +93,14 @@ window.signInWithEmail = async function(email, password) {
                 if (profile.site_id) siteId = profile.site_id;
                 if (profile.company) company = profile.company;
                 if (profile.full_name) fullName = profile.full_name;
+                if (profile.status) status = profile.status;
 
-                if (profile.is_approved === false || (profile.status && profile.status !== 'approved')) {
+                if (profile.status === 'pending' || profile.role === 'pending' || profile.is_approved === false || (profile.status && profile.status !== 'approved' && profile.status !== 'active')) {
                     isApproved = false;
                 }
             } else {
                 const meta = userObj.user_metadata || {};
-                if (meta.is_approved === false || meta.status === 'pending') {
+                if (meta.role === 'pending' || meta.status === 'pending' || meta.is_approved === false) {
                     isApproved = false;
                 }
             }
@@ -110,7 +112,7 @@ window.signInWithEmail = async function(email, password) {
         const localUsers = JSON.parse(localStorage.getItem('siim_registered_users') || '[]');
         const matchedLocal = localUsers.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
         if (matchedLocal) {
-            if (matchedLocal.status === 'pending' || matchedLocal.is_approved === false) {
+            if (matchedLocal.status === 'pending' || matchedLocal.role === 'pending' || matchedLocal.is_approved === false) {
                 isApproved = false;
             }
             if (matchedLocal.role) role = matchedLocal.role;
@@ -123,16 +125,18 @@ window.signInWithEmail = async function(email, password) {
     // Special bypass for administrative test accounts
     if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('john')) {
         isApproved = true;
+        if (!role || role === 'pending') role = 'admin';
+        status = 'active';
     }
 
-    if (!isApproved) {
+    if (!isApproved || status === 'pending' || role === 'pending') {
         if (client && client.auth) {
             await client.auth.signOut().catch(() => {});
         }
         sessionStorage.clear();
         localStorage.removeItem('siim_user_role');
         localStorage.removeItem('heyServiceRole');
-        throw new Error("⚠️ Access Restricted: Your account is currently pending administrative approval. An automated email will be sent once an administrator reviews your application.");
+        throw new Error("Your account is currently pending authorization from the Stratton Innovation Intelligent Monitoring (SIIM) team. Please check your email for activation confirmation before signing in.");
     }
 
     if (!role) {
@@ -360,6 +364,51 @@ window.verifyMfaTotp = async function(factorId, code) {
     if (verifyRes.error) {
         throw new Error('Invalid MFA verification code: ' + verifyRes.error.message);
     }
+
+    // Insert or update profile record in public.profiles with status: 'pending', role: 'pending'
+    try {
+        const { data: userData } = await supabaseClient.auth.getUser();
+        const user = userData ? userData.user : null;
+        if (user) {
+            await supabaseClient.from('profiles').upsert({
+                id: user.id,
+                email: user.email,
+                role: 'pending',
+                status: 'pending',
+                is_approved: false,
+                full_name: user.user_metadata?.full_name || '',
+                company: user.user_metadata?.company || '',
+                phone: user.user_metadata?.phone || '',
+                updated_at: new Date().toISOString()
+            });
+        }
+    } catch (e) {
+        console.warn('Profile status update on MFA verification:', e);
+    }
+
+    // Update local storage fallback record to pending status
+    try {
+        const pendingEmail = sessionStorage.getItem('pendingUserEmail');
+        if (pendingEmail) {
+            let registeredList = JSON.parse(localStorage.getItem('siim_registered_users') || '[]');
+            const idx = registeredList.findIndex(u => u.email && u.email.toLowerCase() === pendingEmail.toLowerCase());
+            if (idx >= 0) {
+                registeredList[idx].status = 'pending';
+                registeredList[idx].role = 'pending';
+                registeredList[idx].is_approved = false;
+                localStorage.setItem('siim_registered_users', JSON.stringify(registeredList));
+            }
+        }
+    } catch (e) {}
+
+    // Immediately sign out user so they are not left authenticated
+    try {
+        await supabaseClient.auth.signOut();
+    } catch (e) {}
+
+    sessionStorage.clear();
+    localStorage.removeItem('siim_user_role');
+    localStorage.removeItem('heyServiceRole');
 
     return verifyRes.data;
 };

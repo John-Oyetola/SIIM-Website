@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Approval | SIIM Telemetry Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=23">
+</head>
+
+<body class="dashboard-theme dark-theme" style="display: flex; flex-direction: column; min-height: 100vh; justify-content: space-between;">
+
+    <!-- Persistent Floating Header -->
+    <header class="main-header site-header">
+        <div class="container nav-container" style="justify-content: space-between;">
+            <a href="index.html" class="logo">
+                <div class="logo-container">
+                    <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="header-logo-img">
+                </div>
+            </a>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <a href="login.html" class="btn btn-outline" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Sign In</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Pending Authorization Status Container -->
+    <main class="container" style="display: flex; align-items: center; justify-content: center; flex: 1; min-height: calc(100vh - 180px); padding: 4rem 1rem;">
+        <div class="card auth-card-container" style="max-width: 540px; width: 100%; text-align: center; padding: 2.5rem 2rem;">
+            
+            <div style="margin-bottom: 1.5rem;">
+                <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" style="max-height: 54px; margin: 0 auto 1.25rem auto; display: block;">
+                <span class="protocol-banner banner-warn" style="display: inline-block; padding: 0.45rem 1rem; font-size: 0.82rem; font-weight: 700; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Registration Submitted — Verification Pending
+                </span>
+            </div>
+
+            <h1 class="auth-title" style="font-size: 1.65rem; font-weight: 800; color: #ffffff; margin-bottom: 1rem;">
+                Account Awaiting SIIM Authorization
+            </h1>
+
+            <p style="font-size: 0.92rem; color: #94a3b8; line-height: 1.7; margin-bottom: 2rem;">
+                Thank you for registering. Your credentials have been authenticated with Microsoft Authenticator and are currently undergoing security verification by the Stratton Innovation Intelligent Monitoring (SIIM) administration team. You will receive an automated email confirmation once your account has been approved and assigned portal permissions.
+            </p>
+
+            <a href="login.html" class="btn btn-primary" style="display: inline-block; padding: 0.85rem 1.75rem; font-size: 0.95rem; font-weight: 700; border-radius: 8px; text-decoration: none; width: 100%;">
+                Return to Sign In &rarr;
+            </a>
+
+        </div>
+    </main>
+
+    <!-- Full SIIM Multi-Column Footer -->
+    <section id="footer" class="main-footer" style="margin-top: 3rem;">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-logo-container">
+                    <div class="footer-logo-container-rebranded">
+                        <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="footer-logo-img">
+                    </div>
+                </div>
+                <div class="footer-contact-info">
+                    <h2 class="footer-heading">Get in Touch</h2>
+                    <address class="footer-address">
+                        Unit 2a Brindley Way,<br>
+                        Wakefield,<br>
+                        West Yorkshire<br>
+                        WF2 0XQ
+                    </address>
+                    <div class="footer-contacts">
+                        <a href="tel:+441924856390" class="footer-phone">+44 (0)1924 856390</a>
+                        <a href="mailto:info@theheygroup.net" class="footer-email">info@theheygroup.net</a>
+                    </div>
+                    <div class="footer-links">
+                        <a href="#">&rarr; Privacy Policy</a>
+                        <a href="#">&rarr; Terms and Conditions</a>
+                        <a href="#">&rarr; Cookie Policy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</body>
+
+</html>
