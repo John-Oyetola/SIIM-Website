@@ -235,6 +235,36 @@ window.renderDynamicNavbar = function() {
     if (typeof window.updateToggleSwitch === 'function') {
         window.updateToggleSwitch(document.body.classList.contains('dark-theme'));
     }
+
+    if (typeof window.highlightActiveNavLink === 'function') {
+        window.highlightActiveNavLink();
+    }
+};
+
+// Dynamic active nav link auto-highlighter
+window.highlightActiveNavLink = function() {
+    let currentPath = window.location.pathname.toLowerCase().replace(/\\/g, '/');
+    let segments = currentPath.split('/').filter(Boolean);
+    let currentPage = segments.pop() || 'index.html';
+
+    // Normalize root, folder paths or index
+    if (!currentPage.includes('.html') || currentPage === '' || currentPage === 'fmp%20website' || currentPage === 'fmp website') {
+        currentPage = 'index.html';
+    }
+
+    const navLinks = document.querySelectorAll('#dynamicNavLinks a, .nav-links a, nav.main-header-nav a');
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        const href = (link.getAttribute('href') || '').toLowerCase().trim();
+        const linkPage = href.split('/').filter(Boolean).pop() || '';
+
+        // Match current page
+        if (linkPage === currentPage) {
+            link.classList.add('active');
+        } else if ((currentPage === 'index.html') && (linkPage === 'index.html' || href === '/' || href === './' || href === 'index.html#hero')) {
+            link.classList.add('active');
+        }
+    });
 };
 
 // Right-Side Controls & User Avatar Component
@@ -246,6 +276,7 @@ window.renderNavRightControls = function() {
 
 if (document.readyState === 'interactive' || document.readyState === 'complete') {
     window.renderDynamicNavbar();
+    window.highlightActiveNavLink();
 }
 
 // === GLOBAL TOAST NOTIFICATION HELPER ===
@@ -622,6 +653,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render Dynamic Role-Based Navbar
     if (typeof window.renderDynamicNavbar === 'function') {
         window.renderDynamicNavbar();
+    }
+    if (typeof window.highlightActiveNavLink === 'function') {
+        window.highlightActiveNavLink();
     }
 
     // === Login Welcome Banner (dashboard page) ===

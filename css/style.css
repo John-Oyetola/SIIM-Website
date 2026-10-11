@@ -18,6 +18,7 @@
     --color-secondary: #FF5A00;
     /* Stratton Orange */
     --color-secondary-light: #ff7733;
+    --primary-orange: #FF5A00;
 
     --color-danger: #c62828;
     /* Red */
@@ -599,14 +600,60 @@ h3 {
     gap: 2rem !important;
 }
 
-.nav-links a {
+.nav-links a,
+.main-header .nav-links a {
     font-weight: 600;
     color: var(--text-main);
-    transition: color var(--transition-fast);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0;
+    transition: color var(--transition-fast), transform var(--transition-fast);
 }
 
-.nav-links a:hover {
-    color: var(--theme-primary);
+.nav-links a::after,
+.main-header .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary-orange, #ff6600);
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(255, 102, 0, 0.6);
+    transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    opacity: 0;
+}
+
+.nav-links a:hover,
+.main-header .nav-links a:hover {
+    color: var(--primary-orange, #ff6600) !important;
+}
+
+.nav-links a:hover::after,
+.main-header .nav-links a:hover::after {
+    width: 100%;
+    opacity: 0.7;
+}
+
+/* Active Page Indicator with Underline Glow */
+.nav-links li a.active,
+.nav-links a.active,
+.main-header .nav-links a.active,
+body.dark-theme .main-header .nav-links a.active {
+    color: var(--primary-orange, #ff6600) !important;
+    font-weight: 700 !important;
+}
+
+.nav-links li a.active::after,
+.nav-links a.active::after,
+.main-header .nav-links a.active::after,
+body.dark-theme .main-header .nav-links a.active::after {
+    width: 100% !important;
+    opacity: 1 !important;
+    background: var(--primary-orange, #ff6600) !important;
+    box-shadow: 0 0 8px rgba(255, 102, 0, 0.6) !important;
 }
 
 /* Page 1 - Home */
