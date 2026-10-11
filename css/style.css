@@ -5010,3 +5010,223 @@ body.dark-theme .metric-item-box {
         grid-template-columns: 1fr !important;
     }
 }
+
+/* === SECTION 13: 5-Stage Risk Reduction Pipeline & Smart Alerts Engine === */
+
+.pipeline-steps-grid {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.pipeline-step-card {
+    flex: 1;
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem 1.1rem;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark-theme .pipeline-step-card {
+    background: rgba(0, 18, 36, 0.65);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.pipeline-step-card:hover {
+    transform: translateY(-3px);
+    border-color: #38bdf8;
+}
+
+.pipeline-step-number {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem auto;
+}
+
+.pipeline-step-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.5px;
+}
+
+.pipeline-step-desc {
+    font-size: 0.83rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.pipeline-arrow-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    opacity: 0.5;
+    flex-shrink: 0;
+    padding: 0 0.15rem;
+}
+
+.alert-showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+.alert-card-ui {
+    background: var(--bg-main);
+    border-radius: 14px;
+    padding: 1.75rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+body.dark-theme .alert-card-ui {
+    background: rgba(0, 18, 36, 0.7);
+}
+
+.amber-alert-card {
+    border: 1.5px solid rgba(245, 158, 11, 0.4);
+}
+
+.red-alert-card {
+    border: 1.5px solid rgba(239, 68, 68, 0.4);
+}
+
+.alert-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.alert-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+}
+
+.badge-amber {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.badge-red {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.status-pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+
+.dot-amber {
+    background: #f59e0b;
+    box-shadow: 0 0 6px #f59e0b;
+}
+
+.dot-red {
+    background: #ef4444;
+    box-shadow: 0 0 6px #ef4444;
+}
+
+.alert-time-tag {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.alert-card-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+}
+
+.alert-details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.alert-detail-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.alert-detail-label {
+    font-weight: 700;
+    color: var(--text-main);
+    min-width: 65px;
+    flex-shrink: 0;
+}
+
+.alert-detail-value {
+    color: var(--text-muted);
+}
+
+.alert-action-box {
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--text-main);
+}
+
+.amber-action {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.red-action {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+@media (max-width: 900px) {
+    .pipeline-steps-grid {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .pipeline-arrow-separator {
+        transform: rotate(90deg);
+        margin: 0.25rem 0;
+    }
+}
