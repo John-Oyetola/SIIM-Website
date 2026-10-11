@@ -5351,3 +5351,19 @@ body.dark-theme .alert-card-ui {
         margin: 0.5rem 0;
     }
 }
+
+/* === SECTION 16: Operational Intelligence Responsive Rules === */
+.timeline-row, .technical-incident-terminal {
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.timeline-row:hover, .technical-incident-terminal:hover {
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .timeline-row {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+}
