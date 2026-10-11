@@ -1,5 +1,21 @@
 // js/auth.js — SIIM Pure Supabase Email & Password Auth Gateway & Role Router
 
+// Immediate redirect for authenticated admin visiting login.html or signup.html
+(function checkAdminRedirect() {
+    const page = window.location.pathname.toLowerCase().split('/').pop() || 'index.html';
+    if (page === 'login.html' || page === 'signup.html') {
+        if (sessionStorage.getItem('siim_logged_out') === 'true') return;
+        const role = localStorage.getItem('siim_user_role') || localStorage.getItem('heyServiceRole');
+        let sessionObj = null;
+        try {
+            sessionObj = JSON.parse(localStorage.getItem('siim_session') || '{}');
+        } catch(e) {}
+        if (role === 'admin' || (sessionObj && sessionObj.role === 'admin')) {
+            window.location.replace('systems.html');
+        }
+    }
+})();
+
 // Helper to access production Supabase client instance
 function getSupabase() {
     if (!window.supabaseClient) {
@@ -17,6 +33,15 @@ window.handleRoleRouting = function(user) {
     const fullName = (user && (user.full_name || user.name)) ? (user.full_name || user.name) : (email.includes('@') ? email.split('@')[0] : 'User');
 
     // Persist official session variables
+    const sessionPayload = {
+        role: role,
+        email: email,
+        fullName: fullName,
+        company: company,
+        siteId: siteId,
+        timestamp: Date.now()
+    };
+    localStorage.setItem('siim_session', JSON.stringify(sessionPayload));
     localStorage.setItem('siim_user_role', role);
     localStorage.setItem('heyServiceRole', role);
     localStorage.setItem('heyServiceUser', email);
@@ -104,6 +129,15 @@ window.signInWithEmail = async function(email, password) {
             company: company
         };
 
+        const sessionPayload = {
+            role: role,
+            email: activeUser.email,
+            fullName: activeUser.full_name,
+            company: activeUser.company,
+            siteId: activeUser.siteId,
+            timestamp: Date.now()
+        };
+        localStorage.setItem('siim_session', JSON.stringify(sessionPayload));
         localStorage.setItem('siim_user_role', role);
         localStorage.setItem('heyServiceRole', role);
         localStorage.setItem('heyServiceUser', activeUser.email);
@@ -414,8 +448,10 @@ window.updateUserPassword = async function(newPassword, mfaCode = null) {
 window.logout = function(e) {
     if (e && e.preventDefault) e.preventDefault();
 
+    sessionStorage.setItem('siim_logged_out', 'true');
     localStorage.clear();
     sessionStorage.clear();
+    sessionStorage.setItem('siim_logged_out', 'true');
 
     if (window.supabaseClient && window.supabaseClient.auth) {
         window.supabaseClient.auth.signOut().catch(() => {});

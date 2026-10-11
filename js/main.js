@@ -19,160 +19,234 @@ window.ensureAdminModalsExist = function() {
     }
 };
 
+// Helper to extract authenticated SIIM session
+window.getSIIMSession = function() {
+    if (sessionStorage.getItem('siim_logged_out') === 'true') {
+        return null;
+    }
+
+    // 1. Check explicit siim_session object in localStorage
+    try {
+        const raw = localStorage.getItem('siim_session');
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && (parsed.role || (parsed.user && parsed.user.role))) {
+                const role = parsed.role || parsed.user.role;
+                const fullName = parsed.fullName || (parsed.user && (parsed.user.full_name || parsed.user.name)) || localStorage.getItem('heyServiceFullName') || 'John Oyetola Admin';
+                const email = parsed.email || (parsed.user && parsed.user.email) || localStorage.getItem('heyServiceUser') || 'admin@siimtelemetry.com';
+                return { role, fullName, email, session: parsed };
+            }
+        }
+    } catch (e) {}
+
+    // 2. Check Supabase auth tokens in localStorage
+    let hasSupabaseToken = false;
+    let tokenEmail = null;
+    try {
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && ((k.startsWith('sb-') && k.endsWith('-auth-token')) || k === 'supabase.auth.token')) {
+                const val = JSON.parse(localStorage.getItem(k));
+                if (val && (val.access_token || val.currentSession)) {
+                    hasSupabaseToken = true;
+                    if (val.user && val.user.email) tokenEmail = val.user.email;
+                }
+            }
+        }
+    } catch (e) {}
+
+    // 3. Check official stored role keys
+    const storedRole = localStorage.getItem('siim_user_role') || localStorage.getItem('heyServiceRole');
+    if (storedRole) {
+        const fullName = localStorage.getItem('heyServiceFullName') || (storedRole === 'admin' ? 'John Oyetola Admin' : 'User');
+        const email = localStorage.getItem('heyServiceUser') || tokenEmail || '';
+        return { role: storedRole, fullName: fullName, email: email, hasSupabaseToken: hasSupabaseToken };
+    }
+
+    if (hasSupabaseToken) {
+        const fullName = localStorage.getItem('heyServiceFullName') || 'John Oyetola Admin';
+        const email = localStorage.getItem('heyServiceUser') || tokenEmail || '';
+        return { role: 'admin', fullName: fullName, email: email, hasSupabaseToken: true };
+    }
+
+    return null;
+};
+
+// Immediate redirect for authenticated admin visiting login.html or signup.html
+(function checkAuthRedirect() {
+    const path = window.location.pathname.toLowerCase();
+    const page = path.split('/').pop() || 'index.html';
+    if (page === 'login.html' || page === 'signup.html') {
+        const session = window.getSIIMSession();
+        if (session && session.role === 'admin') {
+            window.location.replace('systems.html');
+        }
+    }
+})();
+
 // Dynamic Role-Aware Navbar Generator
 window.renderDynamicNavbar = function() {
     const currentPath = window.location.pathname.toLowerCase();
-    const isPublicPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('fmp%20website/') || currentPath.endsWith('fmp website/') || currentPath.endsWith('login.html') || currentPath.endsWith('signup.html') || currentPath.endsWith('pending-approval.html') || currentPath.endsWith('demo.html') || currentPath.endsWith('demo-dashboard.html') || currentPath.endsWith('solutions.html') || currentPath.endsWith('technology.html') || currentPath.endsWith('contact.html');
-    if (isPublicPage) {
-        return;
-    }
+    const currentPage = currentPath.split('/').pop() || 'index.html';
 
-    const navElem = document.getElementById('dynamicNavLinks') || document.querySelector('nav .nav-links') || document.querySelector('nav');
+    const session = window.getSIIMSession();
+    const role = session ? session.role : null;
+    const fullName = session ? session.fullName : (localStorage.getItem('heyServiceFullName') || 'John Oyetola Admin');
 
-    // Clear residual session role if user explicitly logged out
-    if (sessionStorage.getItem('siim_logged_out') === 'true') {
-        localStorage.removeItem('siim_user_role');
-        localStorage.removeItem('heyServiceRole');
-    }
+    // Locate header containers across all templates
+    const logoLink = document.getElementById('headerLogoLink') || document.querySelector('.nav-brand .logo') || document.querySelector('.logo');
+    const navLinksContainer = document.getElementById('dynamicNavLinks') || document.querySelector('.main-header-nav .nav-links') || document.querySelector('nav .nav-links') || document.querySelector('.nav-links');
+    const rightContainer = document.getElementById('navRightControls') || document.querySelector('.nav-right-controls') || document.querySelector('.header-actions');
 
-    let role = localStorage.getItem('siim_user_role') || localStorage.getItem('heyServiceRole');
-    if (!role && sessionStorage.getItem('siim_logged_out') !== 'true') {
-        role = 'admin'; // default role fallback for active session
-    }
-
-    let siteId = localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds';
-    const isWaterPage = window.location.pathname.includes('water');
-    const facilityUrl = isWaterPage ? `facility-water.html?id=${encodeURIComponent(siteId)}` : `custom-site.html?id=${encodeURIComponent(siteId)}`;
-
-    let navHtml = '';
+    const isDark = document.body.classList.contains('dark-theme');
+    const themeSwitchHtml = `
+        <button id="themeToggleBtn" class="theme-toggle-switch" aria-label="Toggle theme">
+            <span class="switch-label">${isDark ? 'Night Mode' : 'Day Mode'}</span>
+            <div class="switch-knob">
+                <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"></circle>
+                </svg>
+                <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </div>
+        </button>
+    `;
 
     if (role === 'admin') {
-        // ADMIN NAVBAR (Home, Pending Approvals, Macro Analytics)
-        navHtml = `
-            <li><a href="index.html" class="nav-link">Home</a></li>
-            <li><button type="button" class="nav-link btn-nav-modal" id="navPendingApprovals">Pending Approvals</button></li>
-            <li><button type="button" class="nav-link btn-nav-modal" id="navMacroAnalytics">Macro Analytics</button></li>
-        `;
+        // Authenticated Admin Navigation
+        if (typeof window.ensureAdminModalsExist === 'function') {
+            window.ensureAdminModalsExist();
+        }
+
+        if (logoLink) {
+            logoLink.setAttribute('href', 'systems.html');
+        }
+
+        if (navLinksContainer) {
+            navLinksContainer.innerHTML = `
+                <li><a href="index.html" class="nav-link ${currentPage === 'index.html' ? 'active' : ''}">Home</a></li>
+                <li><button type="button" class="nav-link btn-nav-modal" id="navPendingApprovals">Pending Approvals</button></li>
+                <li><button type="button" class="nav-link btn-nav-modal" id="navMacroAnalytics">Macro Analytics</button></li>
+            `;
+        }
+
+        if (rightContainer) {
+            let displayName = fullName;
+            if (displayName.includes('@')) displayName = displayName.split('@')[0];
+            if (!displayName || displayName === 'User') displayName = 'John Oyetola Admin';
+
+            rightContainer.innerHTML = `
+                <div class="nav-right-controls-group" style="display: flex; align-items: center; gap: 0.85rem;">
+                    <a href="systems.html" class="switch-console-pill" id="switchConsoleBtn" style="margin-right: 0.2rem;">&larr; Switch Console</a>
+                    <button id="logoutBtn" onclick="window.logout && window.logout(event)" class="btn-logout">Logout</button>
+                    ${themeSwitchHtml}
+                    <div class="user-profile-badge" style="display: flex; align-items: center; gap: 0.6rem;">
+                        <div class="user-avatar-circle" style="width: 34px; height: 34px; border-radius: 50%; background: rgba(0, 229, 255, 0.12); border: 1px solid rgba(6, 182, 212, 0.4); display: flex; align-items: center; justify-content: center; color: #06b6d4; flex-shrink: 0;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div style="display: flex; flex-direction: column; text-align: left; line-height: 1.2;">
+                            <span id="userBadgeName" style="font-weight: 700; font-size: 0.88rem; color: #ffffff;">${displayName}</span>
+                            <span id="userBadgeRole" style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">Admin</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
     } else if (role === 'engineer') {
-        // ENGINEER NAVBAR ([Home] [Engineer Portal])
-        navHtml = `
-            <li><a href="index.html" class="nav-link">Home</a></li>
-            <li><a href="engineer-portal.html" class="nav-link" id="navEngineerPortal">Engineer Portal</a></li>
-        `;
-    } else if (role === 'client') {
-        // CLIENT NAVBAR ([Home])
-        navHtml = `
-            <li><a href="index.html" class="nav-link">Home</a></li>
-        `;
+        if (logoLink) logoLink.setAttribute('href', 'engineer-portal.html');
+        if (navLinksContainer) {
+            navLinksContainer.innerHTML = `
+                <li><a href="index.html" class="nav-link ${currentPage === 'index.html' ? 'active' : ''}">Home</a></li>
+                <li><a href="engineer-portal.html" class="nav-link ${currentPage === 'engineer-portal.html' ? 'active' : ''}" id="navEngineerPortal">Engineer Portal</a></li>
+            `;
+        }
+        if (rightContainer) {
+            rightContainer.innerHTML = `
+                <div class="nav-right-controls-group" style="display: flex; align-items: center; gap: 0.85rem;">
+                    <button id="logoutBtn" onclick="window.logout && window.logout(event)" class="btn-logout">Logout</button>
+                    ${themeSwitchHtml}
+                    <div class="user-profile-badge" style="display: flex; align-items: center; gap: 0.6rem;">
+                        <span style="font-weight: 700; font-size: 0.85rem; color: #ffffff;">${fullName} (Field Engineer)</span>
+                    </div>
+                </div>
+            `;
+        }
+
     } else {
-        // Unauthenticated Navigation
-        navHtml = `
-            <li><a href="index.html#hero" class="nav-link">Home</a></li>
-            <li><a href="index.html#monitoring" class="nav-link">Monitoring</a></li>
-            <li><a href="index.html#intelligence" class="nav-link">Intelligence</a></li>
-            <li><a href="index.html#network" class="nav-link">Network</a></li>
-            <li><a href="index.html#support" class="nav-link">Support</a></li>
-        `;
-    }
+        // GUEST / NOT LOGGED IN
+        if (logoLink) {
+            logoLink.setAttribute('href', 'index.html');
+        }
 
-    if (navElem) {
-        if (navElem.tagName.toLowerCase() === 'ul') {
-            navElem.innerHTML = navHtml;
-        } else if (navElem.tagName.toLowerCase() === 'nav') {
-            navElem.innerHTML = `<ul id="dynamicNavLinks" class="nav-links">${navHtml}</ul>`;
+        const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html' || currentPage === 'pending-approval.html';
+
+        if (isAuthPage) {
+            // Auth pages: Clean header with Home, Day/Night toggle, and contextual CTA
+            if (navLinksContainer) {
+                navLinksContainer.innerHTML = `
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                `;
+            }
+
+            let authCta = '';
+            if (currentPage === 'login.html') {
+                authCta = `<a href="signup.html" class="btn btn-primary nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Create Account</a>`;
+            } else {
+                authCta = `<a href="login.html" class="btn btn-outline nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Sign In</a>`;
+            }
+
+            if (rightContainer) {
+                rightContainer.innerHTML = `
+                    <div class="nav-right-controls-group" style="display: flex; align-items: center; gap: 1rem;">
+                        ${themeSwitchHtml}
+                        ${authCta}
+                    </div>
+                `;
+            }
+
         } else {
-            navElem.innerHTML = `<ul class="nav-links">${navHtml}</ul>`;
+            // Public pages: Home, Monitoring, Intelligence, Network, Support, Day/Night toggle, Sign In
+            if (navLinksContainer) {
+                navLinksContainer.innerHTML = `
+                    <li><a href="index.html" class="nav-link ${currentPage === 'index.html' ? 'active' : ''}">Home</a></li>
+                    <li><a href="monitoring.html" class="nav-link ${currentPage === 'monitoring.html' ? 'active' : ''}">Monitoring</a></li>
+                    <li><a href="intelligence.html" class="nav-link ${currentPage === 'intelligence.html' ? 'active' : ''}">Intelligence</a></li>
+                    <li><a href="network.html" class="nav-link ${currentPage === 'network.html' ? 'active' : ''}">Network</a></li>
+                    <li><a href="support.html" class="nav-link ${currentPage === 'support.html' ? 'active' : ''}">Support</a></li>
+                `;
+            }
+
+            if (rightContainer) {
+                rightContainer.innerHTML = `
+                    <div class="nav-right-controls-group" style="display: flex; align-items: center; gap: 1rem;">
+                        ${themeSwitchHtml}
+                        <a href="login.html" class="btn btn-outline nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Sign In</a>
+                    </div>
+                `;
+            }
         }
     }
 
-    // Highlight active page link
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    const links = document.querySelectorAll('#dynamicNavLinks a, .nav-links a');
-    links.forEach(a => {
-        const href = a.getAttribute('href');
-        if (href && href.includes(currentPage) && currentPage !== 'index.html' && href !== '#') {
-            a.classList.add('active');
-        }
-    });
-
-    if (typeof window.renderNavRightControls === 'function') {
-        window.renderNavRightControls();
+    if (typeof window.updateToggleSwitch === 'function') {
+        window.updateToggleSwitch(document.body.classList.contains('dark-theme'));
     }
 };
 
 // Right-Side Controls & User Avatar Component
 window.renderNavRightControls = function() {
-    const currentPath = window.location.pathname.toLowerCase();
-    const isPublicPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('fmp%20website/') || currentPath.endsWith('fmp website/') || currentPath.endsWith('login.html') || currentPath.endsWith('signup.html') || currentPath.endsWith('pending-approval.html') || currentPath.endsWith('demo.html') || currentPath.endsWith('demo-dashboard.html') || currentPath.endsWith('solutions.html') || currentPath.endsWith('technology.html') || currentPath.endsWith('contact.html');
-    if (isPublicPage) {
-        return;
-    }
-
-    const rightContainer = document.getElementById('navRightControls') || document.querySelector('.nav-right-controls') || document.querySelector('.header-actions');
-    if (!rightContainer) return;
-
-    if (sessionStorage.getItem('siim_logged_out') === 'true') {
-        localStorage.removeItem('siim_user_role');
-        localStorage.removeItem('heyServiceRole');
-    }
-
-    let role = localStorage.getItem('siim_user_role') || localStorage.getItem('heyServiceRole');
-    if (!role && sessionStorage.getItem('siim_logged_out') !== 'true') {
-        role = 'admin';
-    }
-
-    if (!role) {
-        // Unauthenticated controls (Login / Signup)
-        rightContainer.innerHTML = `
-            <div class="nav-right-controls-group" style="display: flex; align-items: center; gap: 1rem;">
-                <a href="login.html" class="btn btn-outline" style="padding: 0.45rem 1rem; font-size: 0.85rem; font-weight: 700; border-radius: 8px;">Sign In</a>
-                <a href="signup.html" class="btn btn-primary" style="padding: 0.45rem 1rem; font-size: 0.85rem; font-weight: 700; border-radius: 8px;">Create Account</a>
-                <button id="themeToggleBtn" class="btn-theme-toggle">NIGHT MODE</button>
-            </div>
-        `;
-        return;
-    }
-
-    let fullName = localStorage.getItem('heyServiceFullName') || localStorage.getItem('heyServiceUser') || 'User';
-    if (fullName.includes('@')) fullName = fullName.split('@')[0];
-
-    let roleLabel = 'Client Manager';
-    if (role === 'admin') roleLabel = 'Admin';
-    else if (role === 'engineer') roleLabel = 'Field Engineer';
-    else if (role === 'client') roleLabel = 'Client Manager';
-
-    let switchConsoleBtn = role === 'admin' ? `<a href="systems.html" class="switch-console-pill" style="margin-right: 0.2rem;">&larr; Switch Console</a>` : '';
-
-    rightContainer.innerHTML = `
-        <div class="nav-right-controls-group" style="display: flex; align-items: center; gap: 1rem;">
-            ${switchConsoleBtn}
-            <button id="logoutBtn" onclick="window.logout && window.logout(event)" class="btn-logout">Logout</button>
-            <button id="themeToggleBtn" class="btn-theme-toggle">NIGHT MODE</button>
-
-            <div class="user-profile-badge" style="display: flex; align-items: center; gap: 0.6rem;">
-                <div class="user-avatar-circle" style="width: 34px; height: 34px; border-radius: 50%; background: rgba(0, 229, 255, 0.12); border: 1px solid rgba(6, 182, 212, 0.4); display: flex; align-items: center; justify-content: center; color: #06b6d4; flex-shrink: 0;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                </div>
-                <div style="display: flex; flex-direction: column; text-align: left; line-height: 1.2;">
-                    <span id="userBadgeName" style="font-weight: 700; font-size: 0.88rem; color: #ffffff;">${fullName}</span>
-                    <span id="userBadgeRole" style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">${roleLabel}</span>
-                </div>
-            </div>
-        </div>
-    `;
-
-    const themeBtn = document.getElementById('themeToggleBtn');
-    if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-            document.body.classList.toggle('dark-theme');
-            const isDark = document.body.classList.contains('dark-theme');
-            localStorage.setItem('heyServiceTheme', isDark ? 'dark' : 'light');
-        });
+    if (typeof window.renderDynamicNavbar === 'function') {
+        window.renderDynamicNavbar();
     }
 };
+
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    window.renderDynamicNavbar();
+}
 
 // === GLOBAL TOAST NOTIFICATION HELPER ===
 window.showToast = function(message) {
@@ -457,23 +531,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const LOGO_HEADER_LIGHT = 'Images/logo_siim_final.png';
     const LOGO_HEADER_DARK  = 'Images/logo_siim_final_dark.png';
-    const LOGO_FOOTER       = 'Images/logo_siim_final_dark.png';
-
-    function applyLogos(isDark) {
+    window.applyLogos = function(isDark) {
         document.querySelectorAll('.logo-container img').forEach(img => {
             img.src = isDark ? LOGO_HEADER_DARK : LOGO_HEADER_LIGHT;
         });
         document.querySelectorAll('.footer-logo-container-rebranded img').forEach(img => {
             img.src = LOGO_FOOTER;
         });
-    }
+    };
 
-    function updateToggleSwitch(isDark) {
+    window.updateToggleSwitch = function(isDark) {
         const switchLabel = document.querySelector('.theme-toggle-switch .switch-label');
         if (switchLabel) {
             switchLabel.textContent = isDark ? 'Night Mode' : 'Day Mode';
         }
-    }
+    };
 
     // Apply theme + logos on page load
     const savedTheme = localStorage.getItem('heyServiceTheme');
@@ -485,18 +557,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.remove('dark-theme');
     }
     const isCurrentlyDark = document.body.classList.contains('dark-theme');
-    applyLogos(isCurrentlyDark);
-    updateToggleSwitch(isCurrentlyDark);
+    window.applyLogos(isCurrentlyDark);
+    window.updateToggleSwitch(isCurrentlyDark);
 
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', () => {
+    // Global document delegated listener for theme toggling
+    document.addEventListener('click', (e) => {
+        const toggleBtn = e.target.closest('#themeToggleBtn, .btn-theme-toggle, .theme-toggle-switch');
+        if (toggleBtn) {
             document.body.classList.toggle('dark-theme');
             const isDark = document.body.classList.contains('dark-theme');
             localStorage.setItem('heyServiceTheme', isDark ? 'dark' : 'light');
-            applyLogos(isDark);
-            updateToggleSwitch(isDark);
-        });
-    }
+            if (typeof window.applyLogos === 'function') window.applyLogos(isDark);
+            if (typeof window.updateToggleSwitch === 'function') window.updateToggleSwitch(isDark);
+        }
+    });
 
     // Update user badge elements to display strictly full name without raw email or appended roles
     let displayName = localStorage.getItem('heyServiceFullName');
@@ -952,8 +1026,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function logout(e) {
     if (e && e.preventDefault) e.preventDefault();
 
+    sessionStorage.setItem('siim_logged_out', 'true');
     localStorage.clear();
     sessionStorage.clear();
+    sessionStorage.setItem('siim_logged_out', 'true');
 
     if (window.supabaseClient && window.supabaseClient.auth) {
         window.supabaseClient.auth.signOut().catch(() => {});

@@ -14,7 +14,7 @@
     <!-- Persistent Floating Header -->
     <header class="main-header site-header">
         <div class="container nav-container" style="justify-content: space-between;">
-            <a href="index.html" class="logo">
+            <a href="index.html" class="logo" id="headerLogoLink">
                 <div class="logo-container">
                     <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="header-logo-img">
                 </div>
@@ -23,16 +23,12 @@
             <label for="navToggle" class="hamburger-btn" aria-label="Toggle navigation">
                 <span></span><span></span><span></span>
             </label>
-            <nav>
-                <ul class="nav-links">
+            <nav class="main-header-nav">
+                <ul id="dynamicNavLinks" class="nav-links">
                     <li><a href="index.html" class="nav-link">Home</a></li>
-                    <li><a href="monitoring.html" class="nav-link">Monitoring</a></li>
-                    <li><a href="intelligence.html" class="nav-link">Intelligence</a></li>
-                    <li><a href="network.html" class="nav-link">Network</a></li>
-                    <li><a href="support.html" class="nav-link">Support</a></li>
                 </ul>
             </nav>
-            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+            <div class="header-actions nav-right-controls" id="navRightControls" style="display: flex; align-items: center; gap: 1rem;">
                 <button id="themeToggleBtn" class="theme-toggle-switch" aria-label="Toggle theme">
                     <span class="switch-label">Night Mode</span>
                     <div class="switch-knob">
@@ -44,7 +40,7 @@
                         </svg>
                     </div>
                 </button>
-                <a href="signup.html" class="btn btn-primary nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Create Account</a>
+                <a href="signup.html" class="btn btn-primary nav-cta-btn" id="navCtaBtn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Create Account</a>
             </div>
         </div>
     </header>
@@ -200,6 +196,14 @@
     <script src="js/auth.js"></script>
     <script src="js/main.js?v=23"></script>
     <script>
+        // Redirect if already logged in as admin
+        (function() {
+            const session = window.getSIIMSession ? window.getSIIMSession() : null;
+            if (session && session.role === 'admin') {
+                window.location.replace('systems.html');
+            }
+        })();
+
         document.addEventListener('DOMContentLoaded', () => {
             // Strictly clear input fields on page load so fields are clean
             const emailInput = document.getElementById('loginEmail');
