@@ -1,17 +1,32 @@
 // js/auth.js — SIIM Pure Supabase Email & Password Auth Gateway & Role Router
 
-// Immediate redirect for authenticated admin visiting login.html or signup.html
-(function checkAdminRedirect() {
-    const page = window.location.pathname.toLowerCase().split('/').pop() || 'index.html';
-    if (page === 'login.html' || page === 'signup.html') {
-        if (sessionStorage.getItem('siim_logged_out') === 'true') return;
-        const role = localStorage.getItem('siim_user_role') || localStorage.getItem('heyServiceRole');
-        let sessionObj = null;
+// Security Gate: Enforce credentials entry on login.html (no auto-redirects)
+(function enforceLoginSecurity() {
+    const page = window.location.pathname.toLowerCase().split('/').filter(Boolean).pop() || 'index.html';
+    if (page === 'login.html') {
+        sessionStorage.setItem('siim_logged_out', 'true');
+        const savedReg = localStorage.getItem('siim_registered_users');
+        localStorage.removeItem('siim_session');
+        localStorage.removeItem('siim_user_role');
+        localStorage.removeItem('heyServiceRole');
+        localStorage.removeItem('heyServiceUser');
+        localStorage.removeItem('heyServiceFullName');
+        localStorage.removeItem('heyServiceCompany');
+        localStorage.removeItem('heyServiceSiteId');
+        localStorage.removeItem('heyServiceBrand');
         try {
-            sessionObj = JSON.parse(localStorage.getItem('siim_session') || '{}');
-        } catch(e) {}
-        if (role === 'admin' || (sessionObj && sessionObj.role === 'admin')) {
-            window.location.replace('systems.html');
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const k = localStorage.key(i);
+                if (k && ((k.startsWith('sb-') && k.endsWith('-auth-token')) || k === 'supabase.auth.token')) {
+                    localStorage.removeItem(k);
+                }
+            }
+        } catch (e) {}
+        if (savedReg && !localStorage.getItem('siim_registered_users')) {
+            localStorage.setItem('siim_registered_users', savedReg);
+        }
+        if (window.supabaseClient && window.supabaseClient.auth) {
+            window.supabaseClient.auth.signOut().catch(() => {});
         }
     }
 })();
@@ -449,9 +464,13 @@ window.logout = function(e) {
     if (e && e.preventDefault) e.preventDefault();
 
     sessionStorage.setItem('siim_logged_out', 'true');
+    const savedReg = localStorage.getItem('siim_registered_users');
     localStorage.clear();
     sessionStorage.clear();
     sessionStorage.setItem('siim_logged_out', 'true');
+    if (savedReg) {
+        localStorage.setItem('siim_registered_users', savedReg);
+    }
 
     if (window.supabaseClient && window.supabaseClient.auth) {
         window.supabaseClient.auth.signOut().catch(() => {});

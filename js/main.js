@@ -72,22 +72,51 @@ window.getSIIMSession = function() {
     return null;
 };
 
-// Immediate redirect for authenticated admin visiting login.html or signup.html
-(function checkAuthRedirect() {
-    const path = window.location.pathname.toLowerCase();
-    const page = path.split('/').pop() || 'index.html';
-    if (page === 'login.html' || page === 'signup.html') {
-        const session = window.getSIIMSession();
-        if (session && session.role === 'admin') {
-            window.location.replace('systems.html');
+// Security Gate: Enforce credentials entry on login.html and protect portal views
+(function enforceSecurityGate() {
+    const path = window.location.pathname.toLowerCase().replace(/\\/g, '/');
+    const page = path.split('/').filter(Boolean).pop() || 'index.html';
+    
+    if (page === 'login.html') {
+        // Enforce credential entry: purge stale or transient tokens upon visiting login.html
+        sessionStorage.setItem('siim_logged_out', 'true');
+        const savedReg = localStorage.getItem('siim_registered_users');
+        localStorage.removeItem('siim_session');
+        localStorage.removeItem('siim_user_role');
+        localStorage.removeItem('heyServiceRole');
+        localStorage.removeItem('heyServiceUser');
+        localStorage.removeItem('heyServiceFullName');
+        localStorage.removeItem('heyServiceCompany');
+        localStorage.removeItem('heyServiceSiteId');
+        localStorage.removeItem('heyServiceBrand');
+        try {
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const k = localStorage.key(i);
+                if (k && ((k.startsWith('sb-') && k.endsWith('-auth-token')) || k === 'supabase.auth.token')) {
+                    localStorage.removeItem(k);
+                }
+            }
+        } catch (e) {}
+        if (savedReg && !localStorage.getItem('siim_registered_users')) {
+            localStorage.setItem('siim_registered_users', savedReg);
+        }
+        if (window.supabaseClient && window.supabaseClient.auth) {
+            window.supabaseClient.auth.signOut().catch(() => {});
+        }
+    } else if (page === 'systems.html') {
+        // Protected portal view: require active authenticated session
+        const session = typeof window.getSIIMSession === 'function' ? window.getSIIMSession() : null;
+        if (!session || sessionStorage.getItem('siim_logged_out') === 'true') {
+            window.location.replace('login.html');
         }
     }
 })();
 
 // Dynamic Role-Aware Navbar Generator
 window.renderDynamicNavbar = function() {
-    const currentPath = window.location.pathname.toLowerCase();
-    const currentPage = currentPath.split('/').pop() || 'index.html';
+    const currentPath = window.location.pathname.toLowerCase().replace(/\\/g, '/');
+    const segments = currentPath.split('/').filter(Boolean);
+    const currentPage = segments.pop() || 'index.html';
 
     const session = window.getSIIMSession();
     const role = session ? session.role : null;
@@ -113,8 +142,68 @@ window.renderDynamicNavbar = function() {
         </button>
     `;
 
-    if (role === 'admin') {
-        // Authenticated Admin Navigation
+    if (currentPage === 'systems.html') {
+        // Standardized Header Layout on systems.html
+        if (typeof window.ensureAdminModalsExist === 'function') {
+            window.ensureAdminModalsExist();
+        }
+
+        if (logoLink) {
+            logoLink.setAttribute('href', 'systems.html');
+        }
+
+        if (navLinksContainer) {
+            navLinksContainer.innerHTML = `
+                <li><a href="index.html" class="nav-link" id="navHomeLink">Home</a></li>
+                <li><button type="button" class="nav-link btn-nav-modal" id="navPendingApprovalsBtn">Pending Approvals</button></li>
+                <li><a href="support.html" class="nav-link">Support</a></li>
+            `;
+        }
+
+        if (rightContainer) {
+            rightContainer.innerHTML = `
+                <div class="nav-right-controls-group" style="display: flex; align-items: center; gap: 1rem;">
+                    ${themeSwitchHtml}
+                    <button id="logoutBtn" type="button" class="btn-logout" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; border-radius: 8px;">Logout</button>
+                </div>
+            `;
+        }
+
+        // Direct event bindings on systems.html header
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.onclick = function(e) {
+                if (window.logout) window.logout(e);
+            };
+        }
+
+        const approvalsBtn = document.getElementById('navPendingApprovalsBtn');
+        if (approvalsBtn) {
+            approvalsBtn.onclick = function(e) {
+                e.preventDefault();
+                if (window.openPendingApprovalsModal) window.openPendingApprovalsModal();
+            };
+        }
+
+        const homeLink = document.getElementById('navHomeLink');
+        if (homeLink) {
+            homeLink.onclick = function(e) {
+                e.preventDefault();
+                sessionStorage.setItem('siim_logged_out', 'true');
+                const savedReg = localStorage.getItem('siim_registered_users');
+                localStorage.clear();
+                sessionStorage.clear();
+                sessionStorage.setItem('siim_logged_out', 'true');
+                if (savedReg) localStorage.setItem('siim_registered_users', savedReg);
+                if (window.supabaseClient && window.supabaseClient.auth) {
+                    window.supabaseClient.auth.signOut().catch(() => {});
+                }
+                window.location.href = 'index.html';
+            };
+        }
+
+    } else if (role === 'admin') {
+        // Authenticated Admin Navigation (other admin pages)
         if (typeof window.ensureAdminModalsExist === 'function') {
             window.ensureAdminModalsExist();
         }
@@ -126,35 +215,33 @@ window.renderDynamicNavbar = function() {
         if (navLinksContainer) {
             navLinksContainer.innerHTML = `
                 <li><a href="index.html" class="nav-link ${currentPage === 'index.html' ? 'active' : ''}">Home</a></li>
-                <li><button type="button" class="nav-link btn-nav-modal" id="navPendingApprovals">Pending Approvals</button></li>
-                <li><button type="button" class="nav-link btn-nav-modal" id="navMacroAnalytics">Macro Analytics</button></li>
+                <li><button type="button" class="nav-link btn-nav-modal" id="navPendingApprovalsBtn">Pending Approvals</button></li>
+                <li><a href="support.html" class="nav-link ${currentPage === 'support.html' ? 'active' : ''}">Support</a></li>
             `;
         }
 
         if (rightContainer) {
-            let displayName = fullName;
-            if (displayName.includes('@')) displayName = displayName.split('@')[0];
-            if (!displayName || displayName === 'User') displayName = 'John Oyetola Admin';
-
             rightContainer.innerHTML = `
-                <div class="nav-right-controls-group" style="display: flex; align-items: center; gap: 0.85rem;">
-                    <a href="systems.html" class="switch-console-pill" id="switchConsoleBtn" style="margin-right: 0.2rem;">&larr; Switch Console</a>
-                    <button id="logoutBtn" onclick="window.logout && window.logout(event)" class="btn-logout">Logout</button>
+                <div class="nav-right-controls-group" style="display: flex; align-items: center; gap: 1rem;">
                     ${themeSwitchHtml}
-                    <div class="user-profile-badge" style="display: flex; align-items: center; gap: 0.6rem;">
-                        <div class="user-avatar-circle" style="width: 34px; height: 34px; border-radius: 50%; background: rgba(0, 229, 255, 0.12); border: 1px solid rgba(6, 182, 212, 0.4); display: flex; align-items: center; justify-content: center; color: #06b6d4; flex-shrink: 0;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                        </div>
-                        <div style="display: flex; flex-direction: column; text-align: left; line-height: 1.2;">
-                            <span id="userBadgeName" style="font-weight: 700; font-size: 0.88rem; color: #ffffff;">${displayName}</span>
-                            <span id="userBadgeRole" style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">Admin</span>
-                        </div>
-                    </div>
+                    <button id="logoutBtn" type="button" class="btn-logout" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; border-radius: 8px;">Logout</button>
                 </div>
             `;
+        }
+
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.onclick = function(e) {
+                if (window.logout) window.logout(e);
+            };
+        }
+
+        const approvalsBtn = document.getElementById('navPendingApprovalsBtn');
+        if (approvalsBtn) {
+            approvalsBtn.onclick = function(e) {
+                e.preventDefault();
+                if (window.openPendingApprovalsModal) window.openPendingApprovalsModal();
+            };
         }
 
     } else if (role === 'engineer') {
@@ -1793,22 +1880,27 @@ function showModalAlert(message, type) {
     }
 }
 
-// Active document event delegation for Pending Approvals & Macro Analytics modal triggers
+// Active document event delegation for Pending Approvals & Macro Analytics modal triggers & Logout & Public Exit
 document.addEventListener('click', function(e) {
-  const approvalsBtn = e.target.closest('#navPendingApprovals, .trigger-pending-approvals');
+  const approvalsBtn = e.target.closest('#navPendingApprovals, #navPendingApprovalsBtn, .trigger-pending-approvals');
   if (approvalsBtn) {
     e.preventDefault();
     e.stopPropagation();
-    if (!document.getElementById('pendingApprovalsModal') && typeof window.injectPendingApprovalsModalHTML === 'function') {
-      window.injectPendingApprovalsModalHTML();
+    if (typeof window.openPendingApprovalsModal === 'function') {
+      window.openPendingApprovalsModal();
+    } else {
+      if (!document.getElementById('pendingApprovalsModal') && typeof window.injectPendingApprovalsModalHTML === 'function') {
+        window.injectPendingApprovalsModalHTML();
+      }
+      const modal = document.getElementById('pendingApprovalsModal');
+      if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+        if (typeof renderPendingUserRequests === 'function') renderPendingUserRequests();
+        if (typeof renderServiceDispatches === 'function') renderServiceDispatches();
+      }
     }
-    const modal = document.getElementById('pendingApprovalsModal');
-    if (modal) {
-      modal.style.display = 'flex';
-      modal.classList.add('active');
-      if (typeof renderPendingUserRequests === 'function') renderPendingUserRequests();
-      if (typeof renderServiceDispatches === 'function') renderServiceDispatches();
-    }
+    return;
   }
   
   const analyticsBtn = e.target.closest('#navMacroAnalytics, .trigger-macro-analytics');
@@ -1822,6 +1914,38 @@ document.addEventListener('click', function(e) {
     if (modal) {
       modal.style.display = 'flex';
       modal.classList.add('active');
+    }
+    return;
+  }
+
+  // Logout button delegation
+  const logoutBtn = e.target.closest('#logoutBtn, .btn-logout');
+  if (logoutBtn) {
+    e.preventDefault();
+    if (typeof window.logout === 'function') {
+      window.logout(e);
+    }
+    return;
+  }
+
+  // Session Exit Trigger on Public Exit (Clicking Home from Portal)
+  const currentPath = window.location.pathname.toLowerCase().replace(/\\/g, '/');
+  const currentPage = currentPath.split('/').filter(Boolean).pop() || 'index.html';
+  if (currentPage === 'systems.html') {
+    const homeTarget = e.target.closest('#navHomeLink, a[href="index.html"], a[href="./index.html"], a[href="/index.html"]');
+    if (homeTarget) {
+      e.preventDefault();
+      sessionStorage.setItem('siim_logged_out', 'true');
+      const savedReg = localStorage.getItem('siim_registered_users');
+      localStorage.clear();
+      sessionStorage.clear();
+      sessionStorage.setItem('siim_logged_out', 'true');
+      if (savedReg) localStorage.setItem('siim_registered_users', savedReg);
+      if (window.supabaseClient && window.supabaseClient.auth) {
+        window.supabaseClient.auth.signOut().catch(() => {});
+      }
+      window.location.href = 'index.html';
+      return;
     }
   }
 

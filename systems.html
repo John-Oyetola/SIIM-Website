@@ -15,7 +15,7 @@
     <header class="main-header site-header">
         <div class="container nav-container" style="display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;">
             <div class="nav-brand">
-                <a href="systems.html" class="logo">
+                <a href="systems.html" class="logo" id="headerLogoLink">
                     <div class="logo-container">
                         <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="header-logo-img">
                     </div>
@@ -26,9 +26,26 @@
                 <span></span><span></span><span></span>
             </label>
             <nav class="main-header-nav">
-                <ul id="dynamicNavLinks" class="nav-links"></ul>
+                <ul id="dynamicNavLinks" class="nav-links">
+                    <li><a href="index.html" class="nav-link" id="navHomeLink">Home</a></li>
+                    <li><button type="button" class="nav-link btn-nav-modal" id="navPendingApprovalsBtn">Pending Approvals</button></li>
+                    <li><a href="support.html" class="nav-link">Support</a></li>
+                </ul>
             </nav>
-            <div class="nav-right-controls" id="navRightControls"></div>
+            <div class="header-actions nav-right-controls" id="navRightControls" style="display: flex; align-items: center; gap: 1rem;">
+                <button id="themeToggleBtn" class="theme-toggle-switch" aria-label="Toggle theme">
+                    <span class="switch-label">Night Mode</span>
+                    <div class="switch-knob">
+                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"></circle>
+                        </svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </div>
+                </button>
+                <button id="logoutBtn" type="button" class="btn-logout" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; border-radius: 8px;">Logout</button>
+            </div>
         </div>
     </header>
 
@@ -123,16 +140,62 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/main.js?v=22"></script>
+    <script src="js/main.js?v=23"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const role = localStorage.getItem('heyServiceRole') || 'client';
-            const user = localStorage.getItem('heyServiceUser') || 'johnoyetolaoluwafemi113@gmail.com';
-            const siteId = localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds';
+        // Enforce Strict Protected Portal Security Gate
+        (function enforceSystemsGate() {
+            const session = typeof window.getSIIMSession === 'function' ? window.getSIIMSession() : null;
+            if (!session || sessionStorage.getItem('siim_logged_out') === 'true') {
+                window.location.replace('login.html');
+                return;
+            }
+        })();
 
-            const userBadge = document.getElementById('userBadge');
-            if (userBadge) {
-                userBadge.textContent = user;
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = typeof window.getSIIMSession === 'function' ? window.getSIIMSession() : null;
+            if (!session || sessionStorage.getItem('siim_logged_out') === 'true') {
+                window.location.replace('login.html');
+                return;
+            }
+
+            // Pending Approvals Trigger
+            const approvalsBtn = document.getElementById('navPendingApprovalsBtn');
+            if (approvalsBtn) {
+                approvalsBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (typeof window.openPendingApprovalsModal === 'function') {
+                        window.openPendingApprovalsModal();
+                    }
+                });
+            }
+
+            // Logout Trigger
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (typeof window.logout === 'function') {
+                        window.logout(e);
+                    }
+                });
+            }
+
+            // Public Exit Trigger (Clicking Home from Portal)
+            const homeLink = document.getElementById('navHomeLink');
+            if (homeLink) {
+                homeLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    sessionStorage.setItem('siim_logged_out', 'true');
+                    const savedReg = localStorage.getItem('siim_registered_users');
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    sessionStorage.setItem('siim_logged_out', 'true');
+                    if (savedReg) localStorage.setItem('siim_registered_users', savedReg);
+                    if (window.supabaseClient && window.supabaseClient.auth) {
+                        window.supabaseClient.auth.signOut().catch(() => {});
+                    }
+                    window.location.href = 'index.html';
+                });
             }
 
             const enterGreaseBtn = document.getElementById('enterGreaseBtn');
