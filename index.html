@@ -28,11 +28,11 @@
             </label>
             <nav>
                 <ul class="nav-links">
-                    <li><a href="index.html" class="nav-link active">Home</a></li>
-                    <li><a href="#monitoring" class="nav-link">Monitoring</a></li>
-                    <li><a href="#hardware" class="nav-link">Hardware</a></li>
-                    <li><a href="#network" class="nav-link">Network</a></li>
-                    <li><a href="#support" class="nav-link">Support</a></li>
+                    <li><a href="index.html#hero" class="nav-link active">Home</a></li>
+                    <li><a href="index.html#monitoring" class="nav-link">Monitoring</a></li>
+                    <li><a href="index.html#intelligence" class="nav-link">Intelligence</a></li>
+                    <li><a href="index.html#network" class="nav-link">Network</a></li>
+                    <li><a href="index.html#support" class="nav-link">Support</a></li>
                 </ul>
             </nav>
             <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
@@ -52,8 +52,8 @@
         </div>
     </header>
 
-    <section class="hero-section"
-        style="background-color: var(--bg-main); padding: 6rem 0; min-height: 500px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); position: relative; overflow: hidden;">
+    <section id="hero" class="hero-section"
+        style="scroll-margin-top: 80px; background-color: var(--bg-main); padding: 6rem 0; min-height: 500px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); position: relative; overflow: hidden;">
         <div class="container hero-split-container"
             style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 4rem; align-items: center; position: relative; z-index: 10;">
 
@@ -152,7 +152,7 @@
     </section>
 
     <!-- SIIM Core Pillars Section -->
-    <section id="monitoring" class="pillars-section">
+    <section id="monitoring" class="pillars-section" style="scroll-margin-top: 80px;">
         <div class="container">
             <h2 class="pillars-main-title">SIIM Core Technology Pillars</h2>
             <p class="pillars-subtitle">Our 5 core monitoring capabilities designed to deliver intelligence that
@@ -249,12 +249,13 @@
         </div>
     </section>
 
-    <!-- Hardware & Edge Sensors Section -->
-    <section id="hardware" class="hardware-section" style="padding: 5rem 0; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color);">
+    <!-- Intelligence & Edge Sensors Section -->
+    <section id="intelligence" class="hardware-section" style="scroll-margin-top: 80px; padding: 5rem 0; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color);">
+        <div id="hardware" style="scroll-margin-top: 80px;"></div>
         <div class="container">
             <div style="text-align: center; max-width: 700px; margin: 0 auto 3rem auto;">
                 <span style="color: #FF5A00; text-transform: uppercase; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px;">Industrial Edge Telemetry</span>
-                <h2 style="font-size: 2.2rem; font-weight: 800; color: var(--text-main); margin-top: 0.5rem;">SIIM Hardware &amp; Sensor Nodes</h2>
+                <h2 style="font-size: 2.2rem; font-weight: 800; color: var(--text-main); margin-top: 0.5rem;">SIIM Intelligence &amp; Sensor Nodes</h2>
                 <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.75rem;">Ruggedized IP68-certified sensor packages engineered for extreme commercial kitchen &amp; industrial wastewater environments.</p>
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
@@ -275,7 +276,7 @@
     </section>
 
     <!-- Network & Telemetry Infrastructure Section -->
-    <section id="network" class="network-section" style="padding: 5rem 0; background-color: var(--bg-main); border-bottom: 1px solid var(--border-color);">
+    <section id="network" class="network-section" style="scroll-margin-top: 80px; padding: 5rem 0; background-color: var(--bg-main); border-bottom: 1px solid var(--border-color);">
         <div class="container">
             <div style="text-align: center; max-width: 700px; margin: 0 auto 3rem auto;">
                 <span style="color: #38bdf8; text-transform: uppercase; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px;">Encrypted Cloud Telemetry</span>
@@ -296,7 +297,7 @@
     </section>
 
     <!-- Contact Form & Hours Section -->
-    <section id="support" class="quote-section">
+    <section id="support" class="quote-section" style="scroll-margin-top: 80px;">
         <div class="container">
             <div class="quote-container">
 

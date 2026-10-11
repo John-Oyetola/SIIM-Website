@@ -4928,3 +4928,16 @@ body.dark-theme .badge-danger {
         font-size: 13px !important;
     }
 }
+
+/* === SECTION 11: Smooth Scroll Offsets & Drawer Text Wrapping === */
+html {
+    scroll-behavior: smooth;
+}
+
+#hero, #monitoring, #intelligence, #network, #support {
+    scroll-margin-top: 80px;
+}
+
+.nav-links li a {
+    white-space: nowrap !important;
+}

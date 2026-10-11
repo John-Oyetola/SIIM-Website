@@ -67,9 +67,9 @@ window.renderDynamicNavbar = function() {
     } else {
         // Unauthenticated Navigation
         navHtml = `
-            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li><a href="index.html#hero" class="nav-link">Home</a></li>
             <li><a href="index.html#monitoring" class="nav-link">Monitoring</a></li>
-            <li><a href="index.html#hardware" class="nav-link">Hardware</a></li>
+            <li><a href="index.html#intelligence" class="nav-link">Intelligence</a></li>
             <li><a href="index.html#network" class="nav-link">Network</a></li>
             <li><a href="index.html#support" class="nav-link">Support</a></li>
         `;
