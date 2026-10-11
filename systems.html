@@ -28,7 +28,12 @@
             <nav class="main-header-nav">
                 <ul id="dynamicNavLinks" class="nav-links">
                     <li><a href="index.html" class="nav-link" id="navHomeLink">Home</a></li>
-                    <li><button type="button" class="nav-link btn-nav-modal" id="navPendingApprovalsBtn">Pending Approvals</button></li>
+                    <li>
+                        <a href="#" id="navPendingApprovalsBtn" class="nav-link pending-approvals-link">
+                            Pending Approvals
+                            <span id="pendingApprovalsBadge" class="nav-badge" style="display:none;">0</span>
+                        </a>
+                    </li>
                     <li><a href="support.html" class="nav-link">Support</a></li>
                 </ul>
             </nav>
@@ -158,6 +163,14 @@
                 return;
             }
 
+            const role = session ? session.role : (localStorage.getItem('siim_user_role') || localStorage.getItem('heyServiceRole'));
+            const approvalsLink = document.getElementById('navPendingApprovalsBtn');
+            if (approvalsLink && role !== 'admin') {
+                const parentLi = approvalsLink.closest('li');
+                if (parentLi) parentLi.style.display = 'none';
+                else approvalsLink.style.display = 'none';
+            }
+
             // Pending Approvals Trigger
             const approvalsBtn = document.getElementById('navPendingApprovalsBtn');
             if (approvalsBtn) {
@@ -167,6 +180,11 @@
                         window.openPendingApprovalsModal();
                     }
                 });
+            }
+
+            // Initialize Live Pending Approvals Counter
+            if (role === 'admin' && typeof window.updatePendingApprovalsCount === 'function') {
+                window.updatePendingApprovalsCount();
             }
 
             // Logout Trigger

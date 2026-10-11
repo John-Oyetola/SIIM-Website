@@ -152,10 +152,22 @@ window.renderDynamicNavbar = function() {
             logoLink.setAttribute('href', 'systems.html');
         }
 
+        let pendingApprovalsHtml = '';
+        if (role === 'admin') {
+            pendingApprovalsHtml = `
+                <li>
+                    <a href="#" id="navPendingApprovalsBtn" class="nav-link pending-approvals-link">
+                        Pending Approvals
+                        <span id="pendingApprovalsBadge" class="nav-badge" style="display:none;">0</span>
+                    </a>
+                </li>
+            `;
+        }
+
         if (navLinksContainer) {
             navLinksContainer.innerHTML = `
                 <li><a href="index.html" class="nav-link" id="navHomeLink">Home</a></li>
-                <li><button type="button" class="nav-link btn-nav-modal" id="navPendingApprovalsBtn">Pending Approvals</button></li>
+                ${pendingApprovalsHtml}
                 <li><a href="support.html" class="nav-link">Support</a></li>
             `;
         }
@@ -202,6 +214,10 @@ window.renderDynamicNavbar = function() {
             };
         }
 
+        if (role === 'admin' && typeof window.updatePendingApprovalsCount === 'function') {
+            window.updatePendingApprovalsCount();
+        }
+
     } else if (role === 'admin') {
         // Authenticated Admin Navigation (other admin pages)
         if (typeof window.ensureAdminModalsExist === 'function') {
@@ -215,7 +231,12 @@ window.renderDynamicNavbar = function() {
         if (navLinksContainer) {
             navLinksContainer.innerHTML = `
                 <li><a href="index.html" class="nav-link ${currentPage === 'index.html' ? 'active' : ''}">Home</a></li>
-                <li><button type="button" class="nav-link btn-nav-modal" id="navPendingApprovalsBtn">Pending Approvals</button></li>
+                <li>
+                    <a href="#" id="navPendingApprovalsBtn" class="nav-link pending-approvals-link">
+                        Pending Approvals
+                        <span id="pendingApprovalsBadge" class="nav-badge" style="display:none;">0</span>
+                    </a>
+                </li>
                 <li><a href="support.html" class="nav-link ${currentPage === 'support.html' ? 'active' : ''}">Support</a></li>
             `;
         }
@@ -242,6 +263,10 @@ window.renderDynamicNavbar = function() {
                 e.preventDefault();
                 if (window.openPendingApprovalsModal) window.openPendingApprovalsModal();
             };
+        }
+
+        if (typeof window.updatePendingApprovalsCount === 'function') {
+            window.updatePendingApprovalsCount();
         }
 
     } else if (role === 'engineer') {
@@ -364,6 +389,17 @@ window.renderNavRightControls = function() {
 if (document.readyState === 'interactive' || document.readyState === 'complete') {
     window.renderDynamicNavbar();
     window.highlightActiveNavLink();
+    if (typeof window.updatePendingApprovalsCount === 'function') {
+        window.updatePendingApprovalsCount();
+    }
+} else {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.renderDynamicNavbar();
+        window.highlightActiveNavLink();
+        if (typeof window.updatePendingApprovalsCount === 'function') {
+            window.updatePendingApprovalsCount();
+        }
+    });
 }
 
 // === GLOBAL TOAST NOTIFICATION HELPER ===
@@ -1311,6 +1347,9 @@ window.closePendingApprovalsModal = function() {
     if (modal) {
         modal.style.display = 'none';
         modal.classList.remove('active');
+        if (typeof window.updatePendingApprovalsCount === 'function') {
+            window.updatePendingApprovalsCount();
+        }
     }
 };
 
@@ -1335,6 +1374,81 @@ window.switchPendingApprovalsTab = function(tabName) {
 
         tabUserContent.style.display = 'none';
         tabDispatchContent.style.display = 'block';
+    }
+};
+
+// Live Pending Approvals Counter for Admin Nav Badge
+window.updatePendingApprovalsCount = async function() {
+    const session = typeof window.getSIIMSession === 'function' ? window.getSIIMSession() : null;
+    const role = session ? session.role : (localStorage.getItem('siim_user_role') || localStorage.getItem('heyServiceRole'));
+
+    const badge = document.getElementById('pendingApprovalsBadge');
+    if (!badge) return;
+
+    if (role !== 'admin') {
+        badge.style.display = 'none';
+        return;
+    }
+
+    let count = 0;
+    let countedEmails = new Set();
+
+    // Query Supabase public.profiles counting rows where status === 'pending' OR is_approved === false
+    if (window.supabaseClient) {
+        try {
+            let data = null;
+            let error = null;
+            try {
+                const res = await window.supabaseClient
+                    .from('profiles')
+                    .select('id, email, status, is_approved')
+                    .or('status.eq.pending,is_approved.eq.false');
+                data = res.data;
+                error = res.error;
+            } catch (err) {
+                error = err;
+            }
+
+            if (error || !data) {
+                const fallbackRes = await window.supabaseClient
+                    .from('profiles')
+                    .select('id, email, status, is_approved');
+                if (fallbackRes.data) {
+                    data = fallbackRes.data.filter(p => p.status === 'pending' || p.is_approved === false);
+                    error = null;
+                }
+            }
+
+            if (!error && Array.isArray(data)) {
+                data.forEach(p => {
+                    count++;
+                    if (p.email) countedEmails.add(p.email.toLowerCase());
+                });
+            }
+        } catch (e) {
+            console.warn('Error querying public.profiles in updatePendingApprovalsCount:', e);
+        }
+    }
+
+    // Merge offline / persistent demo registered users where is_approved === false or status === 'pending'
+    try {
+        const stored = JSON.parse(localStorage.getItem('siim_registered_users') || '[]');
+        stored.forEach(su => {
+            const isPending = su.status === 'pending' || su.is_approved === false;
+            const email = (su.email || '').toLowerCase();
+            if (isPending && (!email || !countedEmails.has(email))) {
+                count++;
+                if (email) countedEmails.add(email);
+            }
+        });
+    } catch (e) {}
+
+    if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'inline-flex';
+    } else {
+        badge.textContent = '0';
+        badge.style.display = 'none';
     }
 };
 
@@ -1372,6 +1486,11 @@ async function renderPendingUserRequests() {
 
     const badgeCount = document.getElementById('userReqBadgeCount');
     if (badgeCount) badgeCount.textContent = users.length;
+
+    // Sync live pending approvals navbar badge
+    if (typeof window.updatePendingApprovalsCount === 'function') {
+        window.updatePendingApprovalsCount();
+    }
 
     if (users.length === 0) {
         tbody.innerHTML = `
@@ -1819,6 +1938,9 @@ window.approveUserAccess = async function(userId) {
     }
 
     await renderPendingUserRequests();
+    if (typeof window.updatePendingApprovalsCount === 'function') {
+        await window.updatePendingApprovalsCount();
+    }
 };
 
 window.declineUserAccess = async function(userId) {
@@ -1847,6 +1969,9 @@ window.declineUserAccess = async function(userId) {
 
         showModalAlert('⚠️ User access request rejected.', 'danger');
         await renderPendingUserRequests();
+        if (typeof window.updatePendingApprovalsCount === 'function') {
+            await window.updatePendingApprovalsCount();
+        }
     }
 };
 
@@ -1882,7 +2007,7 @@ function showModalAlert(message, type) {
 
 // Active document event delegation for Pending Approvals & Macro Analytics modal triggers & Logout & Public Exit
 document.addEventListener('click', function(e) {
-  const approvalsBtn = e.target.closest('#navPendingApprovals, #navPendingApprovalsBtn, .trigger-pending-approvals');
+  const approvalsBtn = e.target.closest('#navPendingApprovals, #navPendingApprovalsBtn, .pending-approvals-link, .trigger-pending-approvals');
   if (approvalsBtn) {
     e.preventDefault();
     e.stopPropagation();
