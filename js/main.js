@@ -186,10 +186,10 @@ window.renderDynamicNavbar = function() {
         const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html' || currentPage === 'pending-approval.html';
 
         if (isAuthPage) {
-            // Auth pages: Clean header with Home, Day/Night toggle, and contextual CTA
+            // Auth pages: Clean header with Support, Day/Night toggle, and contextual CTA
             if (navLinksContainer) {
                 navLinksContainer.innerHTML = `
-                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="support.html" class="nav-link">Support</a></li>
                 `;
             }
 
