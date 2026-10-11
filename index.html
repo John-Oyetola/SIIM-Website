@@ -9,12 +9,12 @@
         content="SIIM - Stratton Innovation Intelligent Monitoring dashboard ensures your wastewater, grease, heat and operational systems run smoothly.">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=22">
+    <link rel="stylesheet" href="css/style.css?v=23">
 </head>
 
-<body>
+<body class="dashboard-theme dark-theme">
 
-    <!-- Top Section (Hero/Header) -->
+    <!-- Persistent Floating Header -->
     <header class="main-header site-header">
         <div class="container nav-container" style="justify-content: space-between;">
             <a href="index.html" class="logo">
@@ -28,11 +28,11 @@
             </label>
             <nav>
                 <ul class="nav-links">
-                    <li><a href="index.html#hero" class="nav-link active">Home</a></li>
-                    <li><a href="index.html#monitoring" class="nav-link">Monitoring</a></li>
-                    <li><a href="index.html#intelligence" class="nav-link">Intelligence</a></li>
-                    <li><a href="index.html#network" class="nav-link">Network</a></li>
-                    <li><a href="index.html#support" class="nav-link">Support</a></li>
+                    <li><a href="index.html" class="nav-link active">Home</a></li>
+                    <li><a href="monitoring.html" class="nav-link">Monitoring</a></li>
+                    <li><a href="intelligence.html" class="nav-link">Intelligence</a></li>
+                    <li><a href="network.html" class="nav-link">Network</a></li>
+                    <li><a href="support.html" class="nav-link">Support</a></li>
                 </ul>
             </nav>
             <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
@@ -52,6 +52,7 @@
         </div>
     </header>
 
+    <!-- Hero Section -->
     <section id="hero" class="hero-section"
         style="scroll-margin-top: 80px; background-color: var(--bg-main); padding: 6rem 0; min-height: 500px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); position: relative; overflow: hidden;">
         <div class="container hero-split-container"
@@ -64,13 +65,12 @@
                     Stratton Innovation Monitoring
                 </span>
                 <h1 class="hero-main-title"
-                    style="font-family: 'Montserrat'; font-weight: 800; font-size: 3rem; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.15;">
+                    style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 3rem; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.15;">
                     See more. <br>Know more. <br>Protect more.
                 </h1>
                 <p class="hero-subhead"
                     style="color: var(--text-muted); font-size: 1.2rem; font-weight: 500; line-height: 1.6; margin-bottom: 2.5rem; max-width: 600px;">
-                    Real-time wastewater, grease and safety diagnostics for operational teams that cannot afford blind
-                    spots.
+                    Real-time wastewater, grease and safety diagnostics for operational teams that cannot afford blind spots.
                 </p>
 
                 <div class="hero-cta-actions" style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
@@ -99,8 +99,7 @@
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
                         <span
-                            style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Live
-                            Diagnostics</span>
+                            style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Live Diagnostics</span>
                         <span class="pulse-dot"
                             style="width: 8px; height: 8px; border-radius: 50%; background: #3A8A33; box-shadow: 0 0 8px #3A8A33; animation: blink 1.5s infinite;"></span>
                     </div>
@@ -111,8 +110,7 @@
                             style="width: 10px; height: 10px; border-radius: 50%; background: #1E4E96; box-shadow: 0 0 6px #1E4E96;">
                         </div>
                         <div style="flex: 1;">
-                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Wastewater Flow
-                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Wastewater Flow</div>
                             <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">7.4 pH <span
                                     style="font-size: 0.75rem; font-weight: 500; color: #3A8A33;">• Nominal</span></div>
                         </div>
@@ -124,11 +122,9 @@
                             style="width: 10px; height: 10px; border-radius: 50%; background: #FF5A00; box-shadow: 0 0 6px #FF5A00;">
                         </div>
                         <div style="flex: 1;">
-                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Grease Deposits
-                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Grease Deposits</div>
                             <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">14% <span
-                                    style="font-size: 0.75rem; font-weight: 500; color: #3A8A33;">• Safe Range</span>
-                            </div>
+                                    style="font-size: 0.75rem; font-weight: 500; color: #3A8A33;">• Safe Range</span></div>
                         </div>
                     </div>
 
@@ -138,44 +134,44 @@
                             style="width: 10px; height: 10px; border-radius: 50%; background: #3A8A33; box-shadow: 0 0 6px #3A8A33;">
                         </div>
                         <div style="flex: 1;">
-                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Risk Index
-                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Risk Index</div>
                             <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">0.02 <span
-                                    style="font-size: 0.75rem; font-weight: 500; color: #3A8A33;">• Very Low</span>
-                            </div>
+                                    style="font-size: 0.75rem; font-weight: 500; color: #3A8A33;">• Very Low</span></div>
                         </div>
                     </div>
+
                 </div>
             </div>
 
         </div>
-    </sect    <!-- SIIM Monitoring & Intelligence Propositions Section -->
-    <section id="monitoring" class="section-container monitoring-section" style="scroll-margin-top: 80px; padding: 5rem 0; background-color: var(--bg-main); border-bottom: 1px solid var(--border-color);">
+    </section>
+
+    <!-- Dual-Proposition Overview Section -->
+    <section class="section-container" style="scroll-margin-top: 80px; padding: 5rem 0; background-color: var(--bg-main); border-bottom: 1px solid var(--border-color);">
         <div class="container">
-            <!-- Header Group -->
-            <div class="monitoring-header-group" style="text-align: center; max-width: 840px; margin: 0 auto 3.5rem auto;">
-                <span class="monitoring-section-badge" style="color: #FF5A00; text-transform: uppercase; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; display: inline-block; padding: 0.35rem 1rem; background: rgba(255, 90, 0, 0.1); border: 1px solid rgba(255, 90, 0, 0.25); border-radius: 20px; margin-bottom: 0.75rem;">
-                    Continuous Visibility
+            <div style="text-align: center; max-width: 800px; margin: 0 auto 3.5rem auto;">
+                <span style="color: #FF5A00; text-transform: uppercase; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; display: inline-block; padding: 0.35rem 1rem; background: rgba(255, 90, 0, 0.1); border: 1px solid rgba(255, 90, 0, 0.25); border-radius: 20px; margin-bottom: 0.75rem;">
+                    Core Intelligence Propositions
                 </span>
                 <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; color: var(--text-main); margin-bottom: 1rem; line-height: 1.2;">
                     Two Systems. One Unified Intelligence Layer.
                 </h2>
-                <p style="color: var(--text-muted); font-size: 1.15rem; line-height: 1.6; font-weight: 500;">
-                    Understand what is happening inside your kitchen extract and drainage networks before developing conditions become operational disruptions.
+                <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; font-weight: 500;">
+                    Comprehensive real-time monitoring designed to eliminate operational blind spots across commercial kitchen extract and drainage networks.
                 </p>
             </div>
 
-            <!-- Proposition Cards Grid (2-Column Desktop / 1-Column Mobile) -->
-            <div class="monitoring-proposition-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2.5rem;">
+            <!-- Dual Proposition Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem;">
                 
-                <!-- Proposition Card 1: Grease & Extract Monitoring -->
-                <div class="proposition-card card-grease-extract" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 2.25rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
+                <!-- Proposition 1: Grease & Extract -->
+                <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 2.5rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.06);">
                     <div>
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
-                            <span class="prop-card-badge" style="color: #FF5A00; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; background: rgba(255, 90, 0, 0.12); padding: 0.3rem 0.85rem; border-radius: 12px; border: 1px solid rgba(255, 90, 0, 0.3);">
+                            <span style="color: #FF5A00; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; background: rgba(255, 90, 0, 0.12); padding: 0.3rem 0.85rem; border-radius: 12px; border: 1px solid rgba(255, 90, 0, 0.3);">
                                 Kitchen Ventilation Intelligence
                             </span>
-                            <div class="prop-icon-wrap" style="width: 42px; height: 42px; border-radius: 10px; background: rgba(255, 90, 0, 0.15); display: flex; align-items: center; justify-content: center; color: #FF5A00;">
+                            <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(255, 90, 0, 0.15); display: flex; align-items: center; justify-content: center; color: #FF5A00;">
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                                 </svg>
@@ -186,78 +182,24 @@
                             Continuous Extract Duct Visibility
                         </h3>
 
-                        <p style="color: var(--text-muted); font-size: 0.98rem; line-height: 1.65; margin-bottom: 1.75rem;">
-                            Move beyond periodic manual scrape inspections. SIIM continuously tracks grease accumulation rates, airflow velocities, and duct thermal profiles to safeguard compliance and prevent kitchen downtime.
+                        <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.65; margin-bottom: 2rem;">
+                            Track grease accumulation rates, airflow velocities, and duct thermal profiles in real-time to safeguard TR/19 compliance and eliminate kitchen fire hazards.
                         </p>
                     </div>
 
-                    <!-- Key Metrics Grid (6 Items) -->
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
-                        <h4 style="font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 1rem;">
-                            Telemetry Metrics Tracked
-                        </h4>
-                        <div class="metrics-grid-6" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
-                            
-                            <div class="metric-item-box">
-                                <div class="metric-item-label">
-                                    <span class="metric-dot dot-orange"></span>
-                                    Average Micron Level
-                                </div>
-                                <div class="metric-item-desc">Live mean reading across all duct-mounted sensors.</div>
-                            </div>
-
-                            <div class="metric-item-box">
-                                <div class="metric-item-label">
-                                    <span class="metric-dot dot-orange"></span>
-                                    Daily Micron Build-Up
-                                </div>
-                                <div class="metric-item-desc">Real-time accumulation rate and trend trajectory.</div>
-                            </div>
-
-                            <div class="metric-item-box">
-                                <div class="metric-item-label">
-                                    <span class="metric-dot dot-green"></span>
-                                    Days to Next Clean
-                                </div>
-                                <div class="metric-item-desc">Calculated dynamically from daily accumulation using TR/19-compliant logic.</div>
-                            </div>
-
-                            <div class="metric-item-box">
-                                <div class="metric-item-label">
-                                    <span class="metric-dot dot-red"></span>
-                                    Localised Sensor Warning
-                                </div>
-                                <div class="metric-item-desc">Automated alert flags when any single sensor approaches 500 microns, even if the overall duct average remains low.</div>
-                            </div>
-
-                            <div class="metric-item-box">
-                                <div class="metric-item-label">
-                                    <span class="metric-dot dot-orange"></span>
-                                    Extract Temperature
-                                </div>
-                                <div class="metric-item-desc">Thermal context identifying grease vaporisation patterns and fire risks.</div>
-                            </div>
-
-                            <div class="metric-item-box">
-                                <div class="metric-item-label">
-                                    <span class="metric-dot dot-cyan"></span>
-                                    Airflow Performance
-                                </div>
-                                <div class="metric-item-desc">Real-time velocity tracking to detect ventilation drops, fan degradation, or heavy particulate loading.</div>
-                            </div>
-
-                        </div>
-                    </div>
+                    <a href="monitoring.html" class="btn btn-outline" style="border: 2px solid #FF5A00; color: #FF5A00; font-weight: 700; padding: 0.75rem 1.5rem; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: background 0.2s;">
+                        Explore Kitchen Intelligence &rarr;
+                    </a>
                 </div>
 
-                <!-- Proposition Card 2: Wastewater & Drainage Monitoring -->
-                <div class="proposition-card card-wastewater-drainage" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 2.25rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
+                <!-- Proposition 2: Wastewater & Drainage -->
+                <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 2.5rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.06);">
                     <div>
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
-                            <span class="prop-card-badge" style="color: #06b6d4; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; background: rgba(6, 182, 212, 0.12); padding: 0.3rem 0.85rem; border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.3);">
+                            <span style="color: #06b6d4; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; background: rgba(6, 182, 212, 0.12); padding: 0.3rem 0.85rem; border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.3);">
                                 Drainage &amp; Trade Effluent Intelligence
                             </span>
-                            <div class="prop-icon-wrap" style="width: 42px; height: 42px; border-radius: 10px; background: rgba(6, 182, 212, 0.15); display: flex; align-items: center; justify-content: center; color: #06b6d4;">
+                            <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(6, 182, 212, 0.15); display: flex; align-items: center; justify-content: center; color: #06b6d4;">
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path>
                                 </svg>
@@ -268,525 +210,23 @@
                             Proactive Wastewater Condition Tracking
                         </h3>
 
-                        <p style="color: var(--text-muted); font-size: 0.98rem; line-height: 1.65; margin-bottom: 1.75rem;">
-                            Restaurants discharge fluctuating loads of fats, detergents, food solids, and cleaning chemicals. SIIM replaces single-point snapshot inspections with a continuous, time-stamped record of drain conditions leaving the facility.
+                        <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.65; margin-bottom: 2rem;">
+                            Continuous telemetry monitoring pH levels, flow rates, temperature, and pipe capacity to eliminate flooding risks, line blockages, and trade effluent penalties.
                         </p>
                     </div>
 
-                    <!-- Key Metrics Grid (5 Items) -->
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
-                        <h4 style="font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 1rem;">
-                            Telemetry Metrics Tracked
-                        </h4>
-                        <div class="metrics-grid-5" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
-                            
-                            <div class="metric-item-box">
-                                <div class="metric-item-label">
-                                    <span class="metric-dot dot-cyan"></span>
-                                    pH Condition
-                                </div>
-                                <div class="metric-item-desc">Rapid detection of abnormal acidic or alkaline discharges deviating from the site baseline.</div>
-                            </div>
-
-                            <div class="metric-item-box">
-                                <div class="metric-item-label">
-                                    <span class="metric-dot dot-orange"></span>
-                                    Wastewater Temperature
-                                </div>
-                                <div class="metric-item-desc">Thermal monitoring to provide context for hot water surges and chemical washouts.</div>
-                            </div>
-
-                            <div class="metric-item-box">
-                                <div class="metric-item-label">
-                                    <span class="metric-dot dot-cyan"></span>
-                                    Flow Velocity (m/s)
-                                </div>
-                                <div class="metric-item-desc">Measures wastewater speed through the monitored pipe run.</div>
-                            </div>
-
-                            <div class="metric-item-box">
-                                <div class="metric-item-label">
-                                    <span class="metric-dot dot-cyan"></span>
-                                    Flow Rate (L/s)
-                                </div>
-                                <div class="metric-item-desc">Real-time volumetric estimates to assess hydraulic demand.</div>
-                            </div>
-
-                            <div class="metric-item-box">
-                                <div class="metric-item-label">
-                                    <span class="metric-dot dot-red"></span>
-                                    Pipe Fill &amp; Restriction Risk
-                                </div>
-                                <div class="metric-item-desc">Identifies developing fatbergs, line chokes, and back-up risks before flooding occurs.</div>
-                            </div>
-
-                        </div>
-                    </div>
+                    <a href="monitoring.html" class="btn btn-outline" style="border: 2px solid #06b6d4; color: #06b6d4; font-weight: 700; padding: 0.75rem 1.5rem; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: background 0.2s;">
+                        Explore Wastewater Intelligence &rarr;
+                    </a>
                 </div>
 
             </div>
         </div>
     </section>
 
-    <!-- SIIM Operational Intelligence & Risk Reduction Section -->
-    <section id="intelligence" class="section-container intelligence-section" style="scroll-margin-top: 80px; padding: 5rem 0; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color);">
-        <div id="hardware" style="scroll-margin-top: 80px;"></div>
+    <!-- Consultation Form Section -->
+    <section id="quote" class="quote-section" style="padding: 5rem 0; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color);">
         <div class="container">
-            
-            <!-- Header Group -->
-            <div class="intelligence-header-group" style="text-align: center; max-width: 840px; margin: 0 auto 3.5rem auto;">
-                <span class="intelligence-section-badge" style="color: #38bdf8; text-transform: uppercase; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; display: inline-block; padding: 0.35rem 1rem; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 20px; margin-bottom: 0.75rem;">
-                    Operational Intelligence
-                </span>
-                <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; color: var(--text-main); margin-bottom: 1rem; line-height: 1.2;">
-                    Intelligence That Protects
-                </h2>
-                <p style="color: var(--text-muted); font-size: 1.15rem; line-height: 1.6; font-weight: 500;">
-                    A sensor reading is data. Knowing what that reading means is intelligence. SIIM bridges the gap between raw measurements and decisive risk management.
-                </p>
-            </div>
-
-            <!-- Five-Stage Operational Loop Pipeline -->
-            <div style="margin-bottom: 4.5rem;">
-                <h3 style="text-align: center; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 2rem;">
-                    The 5-Stage SIIM Risk Reduction Pipeline
-                </h3>
-
-                <div class="pipeline-steps-grid">
-                    
-                    <!-- Stage 1 -->
-                    <div class="pipeline-step-card">
-                        <div class="pipeline-step-number">01</div>
-                        <div class="pipeline-step-title">MONITOR</div>
-                        <p class="pipeline-step-desc">
-                            Continuous telemetry across kitchen extract runs and outgoing wastewater lines.
-                        </p>
-                    </div>
-
-                    <!-- Arrow Separator 1 -->
-                    <div class="pipeline-arrow-separator">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </div>
-
-                    <!-- Stage 2 -->
-                    <div class="pipeline-step-card">
-                        <div class="pipeline-step-number">02</div>
-                        <div class="pipeline-step-title">IDENTIFY</div>
-                        <p class="pipeline-step-desc">
-                            Baseline algorithms pinpoint anomalies, rapid build-up, and chemical deviations early.
-                        </p>
-                    </div>
-
-                    <!-- Arrow Separator 2 -->
-                    <div class="pipeline-arrow-separator">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </div>
-
-                    <!-- Stage 3 -->
-                    <div class="pipeline-step-card">
-                        <div class="pipeline-step-number">03</div>
-                        <div class="pipeline-step-title">ALERT</div>
-                        <p class="pipeline-step-desc">
-                            Automated smart notifications route directly to designated facility and engineering teams.
-                        </p>
-                    </div>
-
-                    <!-- Arrow Separator 3 -->
-                    <div class="pipeline-arrow-separator">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </div>
-
-                    <!-- Stage 4 -->
-                    <div class="pipeline-step-card">
-                        <div class="pipeline-step-number">04</div>
-                        <div class="pipeline-step-title">INTERVENE</div>
-                        <p class="pipeline-step-desc">
-                            Targeted maintenance, grease extraction, or chemical adjustment before failures occur.
-                        </p>
-                    </div>
-
-                    <!-- Arrow Separator 4 -->
-                    <div class="pipeline-arrow-separator">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </div>
-
-                    <!-- Stage 5 -->
-                    <div class="pipeline-step-card">
-                        <div class="pipeline-step-number">05</div>
-                        <div class="pipeline-step-title">EVIDENCE</div>
-                        <p class="pipeline-step-desc">
-                            Time-stamped historical logs provide indisputable audit trails for compliance and insurers.
-                        </p>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Smart Alerts Engine Showcase -->
-            <div class="smart-alerts-wrapper" style="border-top: 1px solid var(--border-color); padding-top: 3.5rem;">
-                <div style="text-align: center; max-width: 760px; margin: 0 auto 2.5rem auto;">
-                    <span style="color: #FF5A00; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 0.5rem;">
-                        Context-Rich Telemetry
-                    </span>
-                    <h3 style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.85rem; color: var(--text-main); margin-bottom: 0.75rem;">
-                        The Right Information. To The Right People. At The Right Time.
-                    </h3>
-                    <p style="color: var(--text-muted); font-size: 1rem; font-weight: 500;">
-                        Eliminating alert fatigue. Notifications are rich with operational context so teams can act immediately.
-                    </p>
-                </div>
-
-                <div class="alert-showcase-grid">
-                    
-                    <!-- Alert Card 1: Abnormal Wastewater Discharge -->
-                    <div class="alert-card-ui amber-alert-card">
-                        <div class="alert-card-header">
-                            <div class="alert-badge-wrap">
-                                <span class="alert-status-badge badge-amber">
-                                    <span class="status-pulse-dot dot-amber"></span>
-                                    AMBER / RISK ELEVATED
-                                </span>
-                            </div>
-                            <span class="alert-time-tag">Active • 11 mins</span>
-                        </div>
-
-                        <h4 class="alert-card-title">Abnormal Wastewater Discharge</h4>
-
-                        <div class="alert-details-list">
-                            <div class="alert-detail-row">
-                                <span class="alert-detail-label">What:</span>
-                                <span class="alert-detail-value">pH fallen from 7.2 to 4.8 (abnormal acidic surge)</span>
-                            </div>
-
-                            <div class="alert-detail-row">
-                                <span class="alert-detail-label">Where:</span>
-                                <span class="alert-detail-value">Ground Floor Main Scullery Drain Line</span>
-                            </div>
-
-                            <div class="alert-detail-row">
-                                <span class="alert-detail-label">Duration:</span>
-                                <span class="alert-detail-value">Condition active for 11 minutes</span>
-                            </div>
-                        </div>
-
-                        <div class="alert-action-box amber-action">
-                            <strong style="color: #f59e0b; display: block; margin-bottom: 0.25rem;">RECOMMENDED ACTION:</strong>
-                            <span>Investigate chemical cleaning discharge at pot-wash station.</span>
-                        </div>
-                    </div>
-
-                    <!-- Alert Card 2: Localised Extract Accumulation -->
-                    <div class="alert-card-ui red-alert-card">
-                        <div class="alert-card-header">
-                            <div class="alert-badge-wrap">
-                                <span class="alert-status-badge badge-red">
-                                    <span class="status-pulse-dot dot-red"></span>
-                                    RED / ACTION REQUIRED
-                                </span>
-                            </div>
-                            <span class="alert-time-tag">TR/19 Alert</span>
-                        </div>
-
-                        <h4 class="alert-card-title">Localised Extract Accumulation</h4>
-
-                        <div class="alert-details-list">
-                            <div class="alert-detail-row">
-                                <span class="alert-detail-label">What:</span>
-                                <span class="alert-detail-value">Sensor #4 reading 512µm (Threshold: 500µm)</span>
-                            </div>
-
-                            <div class="alert-detail-row">
-                                <span class="alert-detail-label">Where:</span>
-                                <span class="alert-detail-value">Extract Duct Canopy Riser #2</span>
-                            </div>
-
-                            <div class="alert-detail-row">
-                                <span class="alert-detail-label">Context:</span>
-                                <span class="alert-detail-value">Overall duct average is 280µm, but localized heat bend is accumulating at 3x normal rate.</span>
-                            </div>
-                        </div>
-
-                        <div class="alert-action-box red-action">
-                            <strong style="color: #ef4444; display: block; margin-bottom: 0.25rem;">RECOMMENDED ACTION:</strong>
-                            <span>Schedule localized grease extraction clean within 48 hours to preserve TR/19 compliance.</span>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- SIIM Network & Estate Governance Section -->
-    <section id="network" class="section-container network-section" style="scroll-margin-top: 80px; padding: 5rem 0; background-color: var(--bg-main); border-bottom: 1px solid var(--border-color);">
-        <div class="container">
-            
-            <!-- Header Group -->
-            <div class="network-header-group" style="text-align: center; max-width: 840px; margin: 0 auto 3rem auto;">
-                <span class="network-section-badge" style="color: #3A8A33; text-transform: uppercase; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; display: inline-block; padding: 0.35rem 1rem; background: rgba(58, 138, 51, 0.1); border: 1px solid rgba(58, 138, 51, 0.25); border-radius: 20px; margin-bottom: 0.75rem;">
-                    Estate Governance
-                </span>
-                <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; color: var(--text-main); margin-bottom: 1rem; line-height: 1.2;">
-                    From One Restaurant to a Full Estate
-                </h2>
-                <p style="color: var(--text-muted); font-size: 1.15rem; line-height: 1.6; font-weight: 500;">
-                    Scale seamlessly from single-site monitoring to comprehensive portfolio intelligence. Prioritise operational interventions across hundreds of locations before failures occur.
-                </p>
-            </div>
-
-            <!-- Estate Health Dashboard Bar (Tri-Color Status Breakdown) -->
-            <div class="estate-health-bar" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.75rem 2rem; margin-bottom: 3.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.06);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
-                    <div>
-                        <span style="font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted);">
-                            Enterprise Estate Health Bar
-                        </span>
-                        <h4 style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-top: 0.2rem;">
-                            Live Multi-Site Fleet Status (1,000 Locations Monitored)
-                        </h4>
-                    </div>
-                    <span style="font-size: 0.82rem; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 0.35rem 0.85rem; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.3);">
-                        ● 98.4% Estate Operational Status
-                    </span>
-                </div>
-
-                <div class="health-metric-pills-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
-                    
-                    <!-- Green Pill -->
-                    <div class="health-metric-pill pill-green" style="background: var(--bg-main); border: 1px solid var(--border-color); border-left: 5px solid #10b981; border-radius: 10px; padding: 1.1rem 1.25rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                            <span style="font-weight: 800; font-size: 1.4rem; color: #10b981;">984 Sites</span>
-                            <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #10b981; background: rgba(16, 185, 129, 0.15); padding: 0.2rem 0.6rem; border-radius: 12px;">NORMAL</span>
-                        </div>
-                        <p style="font-size: 0.83rem; color: var(--text-muted); line-height: 1.45; margin: 0;">
-                            Operating stably within established baselines.
-                        </p>
-                    </div>
-
-                    <!-- Amber Pill -->
-                    <div class="health-metric-pill pill-amber" style="background: var(--bg-main); border: 1px solid var(--border-color); border-left: 5px solid #f59e0b; border-radius: 10px; padding: 1.1rem 1.25rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                            <span style="font-weight: 800; font-size: 1.4rem; color: #f59e0b;">12 Sites</span>
-                            <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #f59e0b; background: rgba(245, 158, 11, 0.15); padding: 0.2rem 0.6rem; border-radius: 12px;">REVIEW</span>
-                        </div>
-                        <p style="font-size: 0.83rem; color: var(--text-muted); line-height: 1.45; margin: 0;">
-                            Trending towards threshold limits or early anomalies.
-                        </p>
-                    </div>
-
-                    <!-- Red Pill -->
-                    <div class="health-metric-pill pill-red" style="background: var(--bg-main); border: 1px solid var(--border-color); border-left: 5px solid #ef4444; border-radius: 10px; padding: 1.1rem 1.25rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                            <span style="font-weight: 800; font-size: 1.4rem; color: #ef4444;">4 Sites</span>
-                            <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #ef4444; background: rgba(239, 68, 68, 0.15); padding: 0.2rem 0.6rem; border-radius: 12px;">ACTION REQUIRED</span>
-                        </div>
-                        <p style="font-size: 0.83rem; color: var(--text-muted); line-height: 1.45; margin: 0;">
-                            Critical condition active; immediate maintenance dispatched.
-                        </p>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- 4-Column Role-Based Permission Matrix -->
-            <div>
-                <div style="text-align: center; max-width: 700px; margin: 0 auto 2.5rem auto;">
-                    <span style="color: #FF5A00; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 0.35rem;">
-                        Access Control Framework
-                    </span>
-                    <h3 style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.85rem; color: var(--text-main);">
-                        Role-Based Telemetry Governance
-                    </h3>
-                </div>
-
-                <div class="roles-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.75rem;">
-                    
-                    <!-- Role 1 -->
-                    <div class="role-card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div>
-                            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(255, 90, 0, 0.15); display: flex; align-items: center; justify-content: center; color: #FF5A00; margin-bottom: 1.25rem;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="2" y1="12" x2="22" y2="12"></line>
-                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                                </svg>
-                            </div>
-                            <h4 style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.75rem;">
-                                National / Estate Manager
-                            </h4>
-                            <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin: 0;">
-                                Complete portfolio visibility, cross-site trend benchmarking, and centralized compliance reporting.
-                            </p>
-                        </div>
-                        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.78rem; font-weight: 700; color: #FF5A00;">
-                            TIER 1 • FULL ESTATE ACCESS
-                        </div>
-                    </div>
-
-                    <!-- Role 2 -->
-                    <div class="role-card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div>
-                            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(56, 189, 248, 0.15); display: flex; align-items: center; justify-content: center; color: #38bdf8; margin-bottom: 1.25rem;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="3" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="14" width="7" height="7"></rect>
-                                    <rect x="3" y="14" width="7" height="7"></rect>
-                                </svg>
-                            </div>
-                            <h4 style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.75rem;">
-                                Regional Manager
-                            </h4>
-                            <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin: 0;">
-                                Regional cluster performance, recurring site risk analysis, and contractor SLA verification.
-                            </p>
-                        </div>
-                        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.78rem; font-weight: 700; color: #38bdf8;">
-                            TIER 2 • REGIONAL CLUSTER ACCESS
-                        </div>
-                    </div>
-
-                    <!-- Role 3 -->
-                    <div class="role-card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div>
-                            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; color: #10b981; margin-bottom: 1.25rem;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                                </svg>
-                            </div>
-                            <h4 style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.75rem;">
-                                Site Manager
-                            </h4>
-                            <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin: 0;">
-                                Real-time unit telemetry, localized grease/pH alarms, and rapid on-site incident response.
-                            </p>
-                        </div>
-                        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.78rem; font-weight: 700; color: #10b981;">
-                            TIER 3 • SINGLE UNIT ACCESS
-                        </div>
-                    </div>
-
-                    <!-- Role 4 -->
-                    <div class="role-card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div>
-                            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(168, 85, 247, 0.15); display: flex; align-items: center; justify-content: center; color: #a855f7; margin-bottom: 1.25rem;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                </svg>
-                            </div>
-                            <h4 style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.75rem;">
-                                Service Partner &amp; Auditor
-                            </h4>
-                            <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin: 0;">
-                                Authorized diagnostic streams, verified TR/19 cleaning logs, and independent audit trails.
-                            </p>
-                        </div>
-                        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.78rem; font-weight: 700; color: #a855f7;">
-                            TIER 4 • AUDIT &amp; CONTRACTOR ACCESS
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- SIIM Operational & Technical Support Section -->
-    <section id="support" class="section-container support-section" style="scroll-margin-top: 80px; padding: 5rem 0; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color);">
-        <div class="container">
-            
-            <!-- Header Group -->
-            <div class="support-header-group" style="text-align: center; max-width: 840px; margin: 0 auto 3.5rem auto;">
-                <span class="support-section-badge" style="color: #FF5A00; text-transform: uppercase; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; display: inline-block; padding: 0.35rem 1rem; background: rgba(255, 90, 0, 0.1); border: 1px solid rgba(255, 90, 0, 0.25); border-radius: 20px; margin-bottom: 0.75rem;">
-                    Assistance &amp; Operations
-                </span>
-                <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; color: var(--text-main); margin-bottom: 1rem; line-height: 1.2;">
-                    SIIM Operational &amp; Technical Support
-                </h2>
-                <p style="color: var(--text-muted); font-size: 1.15rem; line-height: 1.6; font-weight: 500;">
-                    Dedicated engineering assistance and rapid incident escalation for facilities and estates.
-                </p>
-            </div>
-
-            <!-- 3 Support Channel Cards -->
-            <div class="support-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 4rem;">
-                
-                <!-- Card 1 -->
-                <div class="support-channel-card" style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
-                    <div>
-                        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(56, 189, 248, 0.15); display: flex; align-items: center; justify-content: center; color: #38bdf8; margin-bottom: 1.25rem;">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                        </div>
-                        <h3 style="font-family: 'Montserrat', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">
-                            Technical Operations Center
-                        </h3>
-                        <p style="font-weight: 700; font-size: 0.95rem; color: #38bdf8; margin-bottom: 0.85rem;">
-                            Bradford Innovation Hub, West Yorkshire, United Kingdom
-                        </p>
-                        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">
-                            Telemetry gateway diagnostics, sensor pairing, and cloud network support.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Card 2 -->
-                <div class="support-channel-card" style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
-                    <div>
-                        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; color: #ef4444; margin-bottom: 1.25rem;">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                            </svg>
-                        </div>
-                        <h3 style="font-family: 'Montserrat', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">
-                            24/7 Rapid Response Desk
-                        </h3>
-                        <p style="font-weight: 700; font-size: 1rem; color: #ef4444; margin-bottom: 0.85rem;">
-                            Direct Landline: 0800 917 5684
-                        </p>
-                        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">
-                            Immediate escalation assistance for Red-tier airflow drops and wastewater blockages.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="support-channel-card" style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
-                    <div>
-                        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 90, 0, 0.15); display: flex; align-items: center; justify-content: center; color: #FF5A00; margin-bottom: 1.25rem;">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                <polyline points="22,6 12,13 2,6"></polyline>
-                            </svg>
-                        </div>
-                        <h3 style="font-family: 'Montserrat', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">
-                            Dedicated Support Gateway
-                        </h3>
-                        <p style="font-weight: 700; font-size: 0.95rem; color: #FF5A00; margin-bottom: 0.85rem;">
-                            contact@siimtelemetry.com
-                        </p>
-                        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">
-                            Data export queries, TR/19 compliance reporting, and enterprise onboarding.
-                        </p>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Existing Contact Form Container -->
             <div class="quote-container" style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 16px; padding: 2.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.06);">
 
                 <!-- Left Side: Text and Hours -->
@@ -885,8 +325,8 @@
     </section>
 
     <!-- Main Footer -->
-    <section id="footer" class="main-footer">
-        <div class="container">
+    <footer id="footer" class="main-footer footer-container">
+        <div class="container footer-content">
 
             <div class="footer-grid">
                 <!-- First Half: Big Sized Logo -->
@@ -971,11 +411,9 @@
             </div>
 
         </div>
-    </section>
+    </footer>
 
-
-
-    <script src="js/main.js?v=22"></script>
+    <script src="js/main.js?v=23"></script>
 </body>
 
 </html>
