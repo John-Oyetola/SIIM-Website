@@ -149,102 +149,181 @@
             </div>
 
         </div>
-    </section>
-
-    <!-- SIIM Core Pillars Section -->
-    <section id="monitoring" class="pillars-section" style="scroll-margin-top: 80px;">
+    </sect    <!-- SIIM Monitoring & Intelligence Propositions Section -->
+    <section id="monitoring" class="section-container monitoring-section" style="scroll-margin-top: 80px; padding: 5rem 0; background-color: var(--bg-main); border-bottom: 1px solid var(--border-color);">
         <div class="container">
-            <h2 class="pillars-main-title">SIIM Core Technology Pillars</h2>
-            <p class="pillars-subtitle">Our 5 core monitoring capabilities designed to deliver intelligence that
-                protects.</p>
+            <!-- Header Group -->
+            <div class="monitoring-header-group" style="text-align: center; max-width: 840px; margin: 0 auto 3.5rem auto;">
+                <span class="monitoring-section-badge" style="color: #FF5A00; text-transform: uppercase; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; display: inline-block; padding: 0.35rem 1rem; background: rgba(255, 90, 0, 0.1); border: 1px solid rgba(255, 90, 0, 0.25); border-radius: 20px; margin-bottom: 0.75rem;">
+                    Continuous Visibility
+                </span>
+                <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; color: var(--text-main); margin-bottom: 1rem; line-height: 1.2;">
+                    Two Systems. One Unified Intelligence Layer.
+                </h2>
+                <p style="color: var(--text-muted); font-size: 1.15rem; line-height: 1.6; font-weight: 500;">
+                    Understand what is happening inside your kitchen extract and drainage networks before developing conditions become operational disruptions.
+                </p>
+            </div>
 
-            <div class="pillars-grid">
-                <!-- Pillar 1 -->
-                <div class="pillar-card border-wastewater">
-                    <div class="pillar-icon-wrap">
-                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            class="pillar-svg svg-wastewater">
-                            <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5" />
-                            <path d="M50 22C50 22 32 44 32 56C32 66 40 74 50 74C60 74 68 66 68 56C68 44 50 22 50 22Z"
-                                fill="currentColor" />
-                            <path d="M36 62Q43 58 50 62Q57 66 64 62" stroke="#FFFFFF" stroke-width="3"
-                                stroke-linecap="round" />
-                        </svg>
+            <!-- Proposition Cards Grid (2-Column Desktop / 1-Column Mobile) -->
+            <div class="monitoring-proposition-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2.5rem;">
+                
+                <!-- Proposition Card 1: Grease & Extract Monitoring -->
+                <div class="proposition-card card-grease-extract" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 2.25rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
+                    <div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                            <span class="prop-card-badge" style="color: #FF5A00; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; background: rgba(255, 90, 0, 0.12); padding: 0.3rem 0.85rem; border-radius: 12px; border: 1px solid rgba(255, 90, 0, 0.3);">
+                                Kitchen Ventilation Intelligence
+                            </span>
+                            <div class="prop-icon-wrap" style="width: 42px; height: 42px; border-radius: 10px; background: rgba(255, 90, 0, 0.15); display: flex; align-items: center; justify-content: center; color: #FF5A00;">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <h3 style="font-family: 'Montserrat', sans-serif; font-size: 1.65rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.85rem;">
+                            Continuous Extract Duct Visibility
+                        </h3>
+
+                        <p style="color: var(--text-muted); font-size: 0.98rem; line-height: 1.65; margin-bottom: 1.75rem;">
+                            Move beyond periodic manual scrape inspections. SIIM continuously tracks grease accumulation rates, airflow velocities, and duct thermal profiles to safeguard compliance and prevent kitchen downtime.
+                        </p>
                     </div>
-                    <h3>Wastewater Monitoring</h3>
-                    <p>Advanced liquid telemetry tracking pH levels, chemical contaminants, and flow blockages
-                        dynamically.</p>
+
+                    <!-- Key Metrics Grid (6 Items) -->
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                        <h4 style="font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 1rem;">
+                            Telemetry Metrics Tracked
+                        </h4>
+                        <div class="metrics-grid-6" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                            
+                            <div class="metric-item-box">
+                                <div class="metric-item-label">
+                                    <span class="metric-dot dot-orange"></span>
+                                    Average Micron Level
+                                </div>
+                                <div class="metric-item-desc">Live mean reading across all duct-mounted sensors.</div>
+                            </div>
+
+                            <div class="metric-item-box">
+                                <div class="metric-item-label">
+                                    <span class="metric-dot dot-orange"></span>
+                                    Daily Micron Build-Up
+                                </div>
+                                <div class="metric-item-desc">Real-time accumulation rate and trend trajectory.</div>
+                            </div>
+
+                            <div class="metric-item-box">
+                                <div class="metric-item-label">
+                                    <span class="metric-dot dot-green"></span>
+                                    Days to Next Clean
+                                </div>
+                                <div class="metric-item-desc">Calculated dynamically from daily accumulation using TR/19-compliant logic.</div>
+                            </div>
+
+                            <div class="metric-item-box">
+                                <div class="metric-item-label">
+                                    <span class="metric-dot dot-red"></span>
+                                    Localised Sensor Warning
+                                </div>
+                                <div class="metric-item-desc">Automated alert flags when any single sensor approaches 500 microns, even if the overall duct average remains low.</div>
+                            </div>
+
+                            <div class="metric-item-box">
+                                <div class="metric-item-label">
+                                    <span class="metric-dot dot-orange"></span>
+                                    Extract Temperature
+                                </div>
+                                <div class="metric-item-desc">Thermal context identifying grease vaporisation patterns and fire risks.</div>
+                            </div>
+
+                            <div class="metric-item-box">
+                                <div class="metric-item-label">
+                                    <span class="metric-dot dot-cyan"></span>
+                                    Airflow Performance
+                                </div>
+                                <div class="metric-item-desc">Real-time velocity tracking to detect ventilation drops, fan degradation, or heavy particulate loading.</div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Pillar 2 -->
-                <div class="pillar-card border-grease">
-                    <div class="pillar-icon-wrap">
-                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            class="pillar-svg svg-grease">
-                            <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5" />
-                            <path d="M50 18C50 18 68 42 68 58C68 70 58 78 50 78C42 78 32 70 32 58C32 40 50 18 50 18Z"
-                                fill="currentColor" />
-                            <path d="M50 38C50 38 58 52 58 62C58 68 54 72 50 72C46 72 42 68 42 62C42 52 50 38 50 38Z"
-                                fill="#FFFFFF" />
-                        </svg>
+                <!-- Proposition Card 2: Wastewater & Drainage Monitoring -->
+                <div class="proposition-card card-wastewater-drainage" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 2.25rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
+                    <div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                            <span class="prop-card-badge" style="color: #06b6d4; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; background: rgba(6, 182, 212, 0.12); padding: 0.3rem 0.85rem; border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.3);">
+                                Drainage &amp; Trade Effluent Intelligence
+                            </span>
+                            <div class="prop-icon-wrap" style="width: 42px; height: 42px; border-radius: 10px; background: rgba(6, 182, 212, 0.15); display: flex; align-items: center; justify-content: center; color: #06b6d4;">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <h3 style="font-family: 'Montserrat', sans-serif; font-size: 1.65rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.85rem;">
+                            Proactive Wastewater Condition Tracking
+                        </h3>
+
+                        <p style="color: var(--text-muted); font-size: 0.98rem; line-height: 1.65; margin-bottom: 1.75rem;">
+                            Restaurants discharge fluctuating loads of fats, detergents, food solids, and cleaning chemicals. SIIM replaces single-point snapshot inspections with a continuous, time-stamped record of drain conditions leaving the facility.
+                        </p>
                     </div>
-                    <h3>Grease & Heat Monitoring</h3>
-                    <p>Continuous infrared diagnostics to monitor grease deposits and thermodynamic variations in
-                        real-time.</p>
+
+                    <!-- Key Metrics Grid (5 Items) -->
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                        <h4 style="font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 1rem;">
+                            Telemetry Metrics Tracked
+                        </h4>
+                        <div class="metrics-grid-5" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                            
+                            <div class="metric-item-box">
+                                <div class="metric-item-label">
+                                    <span class="metric-dot dot-cyan"></span>
+                                    pH Condition
+                                </div>
+                                <div class="metric-item-desc">Rapid detection of abnormal acidic or alkaline discharges deviating from the site baseline.</div>
+                            </div>
+
+                            <div class="metric-item-box">
+                                <div class="metric-item-label">
+                                    <span class="metric-dot dot-orange"></span>
+                                    Wastewater Temperature
+                                </div>
+                                <div class="metric-item-desc">Thermal monitoring to provide context for hot water surges and chemical washouts.</div>
+                            </div>
+
+                            <div class="metric-item-box">
+                                <div class="metric-item-label">
+                                    <span class="metric-dot dot-cyan"></span>
+                                    Flow Velocity (m/s)
+                                </div>
+                                <div class="metric-item-desc">Measures wastewater speed through the monitored pipe run.</div>
+                            </div>
+
+                            <div class="metric-item-box">
+                                <div class="metric-item-label">
+                                    <span class="metric-dot dot-cyan"></span>
+                                    Flow Rate (L/s)
+                                </div>
+                                <div class="metric-item-desc">Real-time volumetric estimates to assess hydraulic demand.</div>
+                            </div>
+
+                            <div class="metric-item-box">
+                                <div class="metric-item-label">
+                                    <span class="metric-dot dot-red"></span>
+                                    Pipe Fill &amp; Restriction Risk
+                                </div>
+                                <div class="metric-item-desc">Identifies developing fatbergs, line chokes, and back-up risks before flooding occurs.</div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Pillar 3 -->
-                <div class="pillar-card border-risk">
-                    <div class="pillar-icon-wrap">
-                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            class="pillar-svg svg-risk">
-                            <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5" />
-                            <path d="M50 24L72 32V54C72 68 62 76 50 80C38 76 28 68 28 54V32L50 24Z"
-                                stroke="currentColor" stroke-width="5" fill="none" stroke-linejoin="round" />
-                            <path d="M42 50L48 56L60 42" stroke="currentColor" stroke-width="6" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <h3>Risk Reduction</h3>
-                    <p>Intelligent algorithms to identify potential safety concerns and mechanical failures before they
-                        impact your site.</p>
-                </div>
-
-                <!-- Pillar 4 -->
-                <div class="pillar-card border-alerts">
-                    <div class="pillar-icon-wrap">
-                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            class="pillar-svg svg-alerts">
-                            <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5" />
-                            <circle cx="50" cy="74" r="6" fill="currentColor" />
-                            <path d="M34 54C42 45 58 45 66 54" stroke="currentColor" stroke-width="5"
-                                stroke-linecap="round" />
-                            <path d="M22 40C36 26 64 26 78 40" stroke="currentColor" stroke-width="5"
-                                stroke-linecap="round" />
-                        </svg>
-                    </div>
-                    <h3>Smart Alerts</h3>
-                    <p>Automated push telemetry notifying field engineers immediately when operational metrics drift
-                        from baseline parameters.</p>
-                </div>
-
-                <!-- Pillar 5 -->
-                <div class="pillar-card border-intelligence">
-                    <div class="pillar-icon-wrap">
-                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            class="pillar-svg svg-intelligence">
-                            <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5" />
-                            <rect x="32" y="52" width="8" height="22" rx="2" fill="currentColor" />
-                            <rect x="46" y="40" width="8" height="34" rx="2" fill="currentColor" />
-                            <rect x="60" y="28" width="8" height="46" rx="2" fill="currentColor" />
-                            <path d="M32 48L46 34L60 22M60 22H50M60 22V32" stroke="currentColor" stroke-width="4"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <h3>Intelligence That Protects</h3>
-                    <p>Encrypted cloud analytics combined with machine learning to protect assets, personnel, and
-                        compliance.</p>
-                </div>
             </div>
         </div>
     </section>

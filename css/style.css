@@ -4941,3 +4941,72 @@ html {
 .nav-links li a {
     white-space: nowrap !important;
 }
+
+/* === SECTION 12: Detailed Monitoring Propositions & Metrics Styling === */
+.metric-item-box {
+    background: rgba(0, 17, 31, 0.04);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark-theme .metric-item-box {
+    background: rgba(0, 12, 24, 0.45);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.metric-item-box:hover {
+    border-color: #FF5A00;
+    transform: translateY(-2px);
+}
+
+.metric-item-label {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.35rem;
+}
+
+.metric-item-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.metric-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.metric-dot.dot-orange {
+    background: #FF5A00;
+    box-shadow: 0 0 6px rgba(255, 90, 0, 0.6);
+}
+
+.metric-dot.dot-green {
+    background: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+
+.metric-dot.dot-red {
+    background: #ef4444;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+}
+
+.metric-dot.dot-cyan {
+    background: #06b6d4;
+    box-shadow: 0 0 6px rgba(6, 182, 212, 0.6);
+}
+
+@media (max-width: 768px) {
+    .monitoring-proposition-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
