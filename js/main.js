@@ -169,6 +169,9 @@ window.renderDynamicNavbar = function() {
                 <li><a href="index.html" class="nav-link" id="navHomeLink">Home</a></li>
                 ${pendingApprovalsHtml}
                 <li><a href="support.html" class="nav-link">Support</a></li>
+                <li class="drawer-cta-item">
+                    <button type="button" class="drawer-cta drawer-cta-logout" id="drawerLogoutBtn">Logout</button>
+                </li>
             `;
         }
 
@@ -185,6 +188,13 @@ window.renderDynamicNavbar = function() {
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.onclick = function(e) {
+                if (window.logout) window.logout(e);
+            };
+        }
+
+        const drawerLogoutBtn = document.getElementById('drawerLogoutBtn');
+        if (drawerLogoutBtn) {
+            drawerLogoutBtn.onclick = function(e) {
                 if (window.logout) window.logout(e);
             };
         }
@@ -238,6 +248,9 @@ window.renderDynamicNavbar = function() {
                     </a>
                 </li>
                 <li><a href="support.html" class="nav-link ${currentPage === 'support.html' ? 'active' : ''}">Support</a></li>
+                <li class="drawer-cta-item">
+                    <button type="button" class="drawer-cta drawer-cta-logout" id="drawerLogoutBtnAdmin">Logout</button>
+                </li>
             `;
         }
 
@@ -253,6 +266,13 @@ window.renderDynamicNavbar = function() {
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.onclick = function(e) {
+                if (window.logout) window.logout(e);
+            };
+        }
+
+        const drawerLogoutBtnAdmin = document.getElementById('drawerLogoutBtnAdmin');
+        if (drawerLogoutBtnAdmin) {
+            drawerLogoutBtnAdmin.onclick = function(e) {
                 if (window.logout) window.logout(e);
             };
         }
@@ -275,6 +295,9 @@ window.renderDynamicNavbar = function() {
             navLinksContainer.innerHTML = `
                 <li><a href="index.html" class="nav-link ${currentPage === 'index.html' ? 'active' : ''}">Home</a></li>
                 <li><a href="engineer-portal.html" class="nav-link ${currentPage === 'engineer-portal.html' ? 'active' : ''}" id="navEngineerPortal">Engineer Portal</a></li>
+                <li class="drawer-cta-item">
+                    <button type="button" class="drawer-cta drawer-cta-logout" id="drawerLogoutBtnEng" onclick="if (window.logout) window.logout(event);">Logout</button>
+                </li>
             `;
         }
         if (rightContainer) {
@@ -299,17 +322,23 @@ window.renderDynamicNavbar = function() {
 
         if (isAuthPage) {
             // Auth pages: Clean header with Support, Day/Night toggle, and contextual CTA
+            let authCta = '';
+            let drawerCta = '';
+            if (currentPage === 'login.html') {
+                authCta = `<a href="signup.html" class="btn btn-primary nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Create Account</a>`;
+                drawerCta = `<a href="signup.html" class="drawer-cta drawer-cta-signin">Create Account</a>`;
+            } else {
+                authCta = `<a href="login.html" class="btn btn-outline nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Sign In</a>`;
+                drawerCta = `<a href="login.html" class="drawer-cta drawer-cta-signin">Sign In</a>`;
+            }
+
             if (navLinksContainer) {
                 navLinksContainer.innerHTML = `
                     <li><a href="support.html" class="nav-link">Support</a></li>
+                    <li class="drawer-cta-item">
+                        ${drawerCta}
+                    </li>
                 `;
-            }
-
-            let authCta = '';
-            if (currentPage === 'login.html') {
-                authCta = `<a href="signup.html" class="btn btn-primary nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Create Account</a>`;
-            } else {
-                authCta = `<a href="login.html" class="btn btn-outline nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Sign In</a>`;
             }
 
             if (rightContainer) {
@@ -330,6 +359,9 @@ window.renderDynamicNavbar = function() {
                     <li><a href="intelligence.html" class="nav-link ${currentPage === 'intelligence.html' ? 'active' : ''}">Intelligence</a></li>
                     <li><a href="network.html" class="nav-link ${currentPage === 'network.html' ? 'active' : ''}">Network</a></li>
                     <li><a href="support.html" class="nav-link ${currentPage === 'support.html' ? 'active' : ''}">Support</a></li>
+                    <li class="drawer-cta-item">
+                        <a href="login.html" class="drawer-cta drawer-cta-signin">Sign In</a>
+                    </li>
                 `;
             }
 
@@ -851,38 +883,69 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Close mobile nav when clicking any link and handle smooth scroll
-    const navLinksList = document.querySelectorAll('.nav-links a');
-    const navToggles = document.querySelectorAll('.hamburger-toggle');
-    navLinksList.forEach(link => {
-        link.addEventListener('click', (e) => {
+    // === Complete Mobile Navigation Drawer Controller ===
+    function setMobileMenuOpen(isOpen) {
+        document.querySelectorAll('.hamburger-toggle').forEach(toggle => {
+            toggle.checked = isOpen;
+        });
+        document.querySelectorAll('.hamburger-btn').forEach(btn => {
+            if (isOpen) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+        document.querySelectorAll('.nav-links, .main-header-nav').forEach(container => {
+            if (isOpen) container.classList.add('active');
+            else container.classList.remove('active');
+        });
+    }
+
+    // Toggle listeners for checkbox changes
+    document.querySelectorAll('.hamburger-toggle').forEach(toggle => {
+        toggle.addEventListener('change', () => {
+            setMobileMenuOpen(toggle.checked);
+        });
+    });
+
+    // Explicit click handling on hamburger buttons
+    document.querySelectorAll('.hamburger-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            setTimeout(() => {
+                const anyChecked = Array.from(document.querySelectorAll('.hamburger-toggle')).some(t => t.checked);
+                setMobileMenuOpen(anyChecked);
+            }, 20);
+        });
+    });
+
+    // Delegated click handler on document to close mobile nav and handle smooth scrolling
+    document.addEventListener('click', (e) => {
+        const linkOrCta = e.target.closest('.nav-links a, .nav-links button, .drawer-cta');
+        if (linkOrCta) {
             // Close mobile menu
-            navToggles.forEach(toggle => toggle.checked = false);
-            
+            setMobileMenuOpen(false);
+
             // Extract the target hash (e.g. #quote)
-            const href = link.getAttribute('href');
-            if (href) {
+            const href = linkOrCta.getAttribute('href');
+            if (href && (href.startsWith('#') || href.includes('#'))) {
                 let targetId = '';
                 if (href.startsWith('#')) {
                     targetId = href;
-                } else if (href.includes('#')) {
-                    // Extract hash if it starts with index.html#quote
-                    const urlObj = new URL(href, window.location.href);
-                    if (urlObj.pathname === window.location.pathname) {
-                        targetId = urlObj.hash;
-                    }
+                } else {
+                    try {
+                        const urlObj = new URL(href, window.location.href);
+                        if (urlObj.pathname === window.location.pathname) {
+                            targetId = urlObj.hash;
+                        }
+                    } catch (err) {}
                 }
-                
-                if (targetId) {
+
+                if (targetId && targetId !== '#') {
                     const targetEl = document.querySelector(targetId);
                     if (targetEl) {
                         e.preventDefault();
-                        // Small timeout lets the menu closing animation start before jumping
                         setTimeout(() => targetEl.scrollIntoView({ behavior: 'smooth' }), 150);
                     }
                 }
             }
-        });
+        }
     });
 
     // Global Search Logic

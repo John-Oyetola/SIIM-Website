@@ -415,8 +415,19 @@ address,
     /* Regular for body copy */
 }
 
+html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+}
+
+.container, .hero-section, .portal-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
 html {
-    overflow-x: hidden;
     scroll-behavior: smooth;
 }
 
@@ -425,7 +436,6 @@ body {
     color: var(--text-main);
     line-height: 1.6;
     transition: background-color var(--transition-anim);
-    overflow-x: hidden;
 }
 
 a {
@@ -2695,45 +2705,6 @@ body.dark-theme .quote-success-msg {
    ===================================================== */
 @media (max-width: 768px) {
 
-    /* Show hamburger, hide desktop nav */
-    .hamburger-btn {
-        display: flex;
-    }
-
-    .nav-links {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 255, 255, 0.98);
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 2rem;
-        z-index: 150;
-        font-size: 1.3rem;
-    }
-
-    .hamburger-toggle:checked~nav .nav-links,
-    .hamburger-toggle:checked~.nav-links {
-        display: flex;
-    }
-
-    /* X icon when open */
-    .hamburger-toggle:checked~.hamburger-btn span:nth-child(1) {
-        transform: rotate(45deg) translate(6px, 6px);
-    }
-
-    .hamburger-toggle:checked~.hamburger-btn span:nth-child(2) {
-        opacity: 0;
-    }
-
-    .hamburger-toggle:checked~.hamburger-btn span:nth-child(3) {
-        transform: rotate(-45deg) translate(6px, -6px);
-    }
-
     /* Typography shrink */
     h1 {
         font-size: 1.8rem;
@@ -2745,57 +2716,6 @@ body.dark-theme .quote-success-msg {
 
     h3 {
         font-size: 1.2rem;
-    }
-
-    /* Header: logo centered, hamburger top-right */
-    .nav-container {
-        flex-wrap: wrap;
-        justify-content: center;
-        position: relative;
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-    }
-
-    .logo,
-    .logo-container,
-    .nav-brand,
-    .navbar-brand {
-        order: 1;
-        flex: 1 1 100%;
-        text-align: center;
-        display: flex;
-        justify-content: center;
-        margin-right: 0 !important;
-    }
-
-    .header-logo {
-        height: 160px;
-    }
-
-    .hamburger-btn {
-        position: absolute;
-        top: 50%;
-        right: 0;
-        transform: translateY(-50%);
-    }
-
-    .nav-button-group {
-        order: 2;
-        gap: 0.5rem;
-        flex: 1 1 100%;
-        justify-content: flex-end;
-        display: flex;
-        margin-top: -0.3rem;
-    }
-
-    .role-badge {
-        font-size: 0.75rem;
-        padding: 0.15rem 0.4rem;
-    }
-
-    .btn-logout {
-        padding: 0.3rem 0.6rem;
-        font-size: 0.85rem;
     }
 
     /* Hide search bar on mobile */
@@ -4979,52 +4899,303 @@ body.dark-theme .badge-danger {
     shape-rendering: crispEdges !important;
 }
 
-/* === SECTION 10: Unified Mobile Header Row & Navigation Layout === */
-@media (max-width: 768px) {
+/* === SECTION 10: Unified Emergency Mobile Navigation & Viewport Fix (@media max-width: 992px) === */
+@media (max-width: 992px) {
+    /* 1. Mobile Header Layout: 64px sticky bar */
+    .main-header,
+    .site-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        padding: 10px 16px !important;
+        height: 64px !important;
+        min-height: 64px !important;
+        max-height: 64px !important;
+        position: sticky !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 1000 !important;
+        background: var(--bg-surface, #070e17) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-sizing: border-box !important;
+    }
+
+    .main-header .nav-container,
     .site-header .nav-container,
-    .main-header .nav-container {
+    .site-header-container,
+    .nav-container {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
-        align-items: center !important;
         justify-content: space-between !important;
-        padding-top: 0.6rem !important;
-        padding-bottom: 0.6rem !important;
+        align-items: center !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
     }
 
+    /* TOP BAR CONTENTS ON MOBILE (STRICT):
+       1. Left: SIIM Logo (height: 32px, max-width: 110px, object-fit: contain) */
     .site-header .logo,
-    .main-header .logo {
+    .main-header .logo,
+    .nav-brand,
+    .navbar-brand,
+    .logo-container,
+    .logo {
         order: 1 !important;
         flex: 0 0 auto !important;
         display: flex !important;
         align-items: center !important;
-        margin-right: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
+    .site-header .header-logo-img,
+    .main-header .header-logo-img,
+    .header-logo-img,
+    .header-logo,
+    .logo-container img,
+    .logo img {
+        height: 32px !important;
+        max-height: 32px !important;
+        max-width: 110px !important;
+        width: auto !important;
+        object-fit: contain !important;
+        margin: 0 !important;
+    }
+
+    /* 2. Right: A compact flex container holding ONLY Theme Toggle button and Hamburger Menu icon (#navToggle) */
     .site-header .header-actions,
     .main-header .header-actions,
     .site-header .nav-right-controls,
-    .main-header .nav-right-controls {
+    .main-header .nav-right-controls,
+    .nav-right-controls,
+    .header-actions {
         order: 2 !important;
         display: flex !important;
         align-items: center !important;
-        gap: 0.5rem !important;
         margin-left: auto !important;
-        margin-right: 0.5rem !important;
+        margin-right: 8px !important;
+        gap: 8px !important;
+        padding: 0 !important;
+        flex: 0 0 auto !important;
     }
 
+    .theme-toggle-switch {
+        padding: 4px !important;
+        gap: 0 !important;
+    }
+
+    .theme-toggle-switch .switch-label {
+        display: none !important;
+    }
+
+    .hamburger-btn,
     .site-header .hamburger-btn,
     .main-header .hamburger-btn {
         order: 3 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 5px !important;
+        width: 36px !important;
+        height: 36px !important;
+        margin: 0 !important;
+        padding: 4px !important;
         position: static !important;
         transform: none !important;
-        display: flex !important;
-        align-items: center !important;
+        background: transparent !important;
+        border: none !important;
+        cursor: pointer !important;
+        z-index: 1001 !important;
+        flex-shrink: 0 !important;
     }
 
-    .nav-cta-btn {
-        padding: 0.35rem 0.75rem !important;
-        font-size: 13px !important;
+    .hamburger-btn span {
+        display: block !important;
+        width: 22px !important;
+        height: 2px !important;
+        background: var(--text-main, #ffffff) !important;
+        border-radius: 2px !important;
+        transition: transform 0.3s ease, opacity 0.3s ease !important;
+    }
+
+    /* Hamburger X icon state */
+    .hamburger-toggle:checked ~ .hamburger-btn span:nth-child(1),
+    .hamburger-btn.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px) !important;
+    }
+
+    .hamburger-toggle:checked ~ .hamburger-btn span:nth-child(2),
+    .hamburger-btn.active span:nth-child(2) {
+        opacity: 0 !important;
+    }
+
+    .hamburger-toggle:checked ~ .hamburger-btn span:nth-child(3),
+    .hamburger-btn.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(5px, -5px) !important;
+    }
+
+    /* Hide desktop nav links and action buttons directly in the top bar row on screens <= 992px */
+    .nav-links:not(.active),
+    .nav-cta-btn,
+    #navCtaBtn,
+    .btn-auth-nav,
+    .nav-right > .btn-login,
+    .nav-right > #logoutBtn,
+    .nav-right-controls > .btn-login,
+    .nav-right-controls > #logoutBtn,
+    .nav-right-controls > .btn-logout,
+    .nav-right-controls > .nav-cta-btn,
+    .nav-right-controls-group > .btn-login,
+    .nav-right-controls-group > #logoutBtn,
+    .nav-right-controls-group > .btn-logout,
+    .nav-right-controls-group > .nav-cta-btn,
+    .header-actions > .btn-login,
+    .header-actions > #logoutBtn,
+    .header-actions > .btn-logout,
+    .header-actions > .nav-cta-btn,
+    .header-actions > .btn-outline,
+    .header-actions > .btn-primary,
+    .user-profile-badge,
+    .profile-widget,
+    .nav-button-group {
+        display: none !important;
+    }
+
+    /* 2. Fix Mobile Hamburger Drawer: fully opaque solid background */
+    .nav-links.active,
+    .mobile-nav.active,
+    .nav-drawer.active,
+    .hamburger-toggle:checked ~ nav .nav-links,
+    .hamburger-toggle:checked ~ .main-header-nav .nav-links,
+    .hamburger-toggle:checked ~ .nav-links {
+        display: flex !important;
+        flex-direction: column !important;
+        position: fixed !important;
+        top: 64px !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: calc(100vh - 64px) !important;
+        height: calc(100dvh - 64px) !important;
+        background: #09111c !important; /* Fully opaque background */
+        padding: 24px 20px 40px !important;
+        z-index: 99999 !important;
+        overflow-y: auto !important;
+        gap: 12px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+        box-sizing: border-box !important;
+    }
+
+    .nav-links.active li,
+    .hamburger-toggle:checked ~ nav .nav-links li,
+    .hamburger-toggle:checked ~ .main-header-nav .nav-links li,
+    .hamburger-toggle:checked ~ .nav-links li {
+        width: 100% !important;
+        list-style: none !important;
+    }
+
+    .nav-links.active a,
+    .hamburger-toggle:checked ~ nav .nav-links a,
+    .hamburger-toggle:checked ~ .main-header-nav .nav-links a,
+    .hamburger-toggle:checked ~ .nav-links a {
+        display: block !important;
+        width: 100% !important;
+        font-size: 1.2rem !important;
+        font-weight: 600 !important;
+        padding: 14px 16px !important;
+        border-radius: 8px !important;
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.04) !important;
+        text-decoration: none !important;
+        box-sizing: border-box !important;
+    }
+
+    .nav-links.active a.active,
+    .hamburger-toggle:checked ~ nav .nav-links a.active,
+    .hamburger-toggle:checked ~ .main-header-nav .nav-links a.active,
+    .hamburger-toggle:checked ~ .nav-links a.active {
+        color: var(--primary-orange, #ff6600) !important;
+        background: rgba(255, 102, 0, 0.12) !important;
+        border-left: 4px solid var(--primary-orange, #ff6600) !important;
+    }
+
+    /* Pending Approvals link inside mobile drawer */
+    .nav-links.active a.pending-approvals-link,
+    .hamburger-toggle:checked ~ nav .nav-links a.pending-approvals-link,
+    .hamburger-toggle:checked ~ .nav-links a.pending-approvals-link {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+
+    /* Bottom Action Button Inside Drawer */
+    .drawer-cta-item,
+    .nav-links.active li.drawer-cta-item,
+    .hamburger-toggle:checked ~ nav .nav-links li.drawer-cta-item,
+    .hamburger-toggle:checked ~ .nav-links li.drawer-cta-item {
+        display: block !important;
+        width: 100% !important;
+        margin-top: auto !important;
+        padding-top: 16px !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        list-style: none !important;
+        box-sizing: border-box !important;
+    }
+
+    .drawer-cta,
+    .nav-links.active .drawer-cta,
+    .hamburger-toggle:checked ~ nav .nav-links .drawer-cta,
+    .hamburger-toggle:checked ~ .nav-links .drawer-cta {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        padding: 14px 20px !important;
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        border-radius: 8px !important;
+        text-align: center !important;
+        text-decoration: none !important;
+        cursor: pointer !important;
+        border: none !important;
+        box-sizing: border-box !important;
+        transition: background 0.2s ease, transform 0.15s ease !important;
+    }
+
+    .drawer-cta-signin {
+        background: var(--primary-orange, #ff6600) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 14px rgba(255, 102, 0, 0.4) !important;
+    }
+
+    .drawer-cta-signin:hover {
+        background: #e65c00 !important;
+        transform: translateY(-1px) !important;
+    }
+
+    .drawer-cta-logout {
+        background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4) !important;
+    }
+
+    .drawer-cta-logout:hover {
+        background: linear-gradient(135deg, #b91c1c, #dc2626) !important;
+        transform: translateY(-1px) !important;
+    }
+}
+
+@media (min-width: 993px) {
+    .drawer-cta-item,
+    li.drawer-cta-item {
+        display: none !important;
     }
 }
 
