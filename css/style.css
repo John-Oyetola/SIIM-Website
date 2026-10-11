@@ -5230,3 +5230,47 @@ body.dark-theme .alert-card-ui {
         margin: 0.25rem 0;
     }
 }
+
+/* === SECTION 14: Estate Network & Technical Support Styling === */
+
+.estate-health-bar {
+    transition: transform 0.2s ease;
+}
+
+.health-metric-pill {
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.health-metric-pill:hover {
+    transform: translateY(-2px);
+}
+
+.role-card {
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.role-card:hover {
+    border-color: #FF5A00;
+    transform: translateY(-3px);
+}
+
+.support-channel-card {
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.support-channel-card:hover {
+    border-color: #FF5A00;
+    transform: translateY(-3px);
+}
+
+@media (max-width: 768px) {
+    .estate-health-bar {
+        padding: 1.25rem !important;
+    }
+    
+    .health-metric-pills-grid,
+    .roles-grid,
+    .support-cards-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
