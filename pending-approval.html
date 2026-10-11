@@ -19,7 +19,27 @@
                     <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="header-logo-img">
                 </div>
             </a>
+            <input type="checkbox" id="navToggle" class="hamburger-toggle">
+            <label for="navToggle" class="hamburger-btn" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </label>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                </ul>
+            </nav>
             <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <button id="themeToggleBtn" class="theme-toggle-switch" aria-label="Toggle theme">
+                    <span class="switch-label">Night Mode</span>
+                    <div class="switch-knob">
+                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"></circle>
+                        </svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </div>
+                </button>
                 <a href="login.html" class="btn btn-outline" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Sign In</a>
             </div>
         </div>
@@ -82,6 +102,7 @@
         </div>
     </section>
 
+    <script src="js/main.js?v=23"></script>
 </body>
 
 </html>

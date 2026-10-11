@@ -60,10 +60,9 @@ window.renderDynamicNavbar = function() {
             <li><a href="engineer-portal.html" class="nav-link" id="navEngineerPortal">Engineer Portal</a></li>
         `;
     } else if (role === 'client') {
-        // CLIENT NAVBAR ([Home] [My Facility])
+        // CLIENT NAVBAR ([Home])
         navHtml = `
             <li><a href="index.html" class="nav-link">Home</a></li>
-            <li><a href="${facilityUrl}" class="nav-link" id="navMyFacility">My Facility</a></li>
         `;
     } else {
         // Unauthenticated Navigation
@@ -961,63 +960,7 @@ function logout(e) {
 }
 window.logout = logout;
 
-// === Full Site Google Translate Integration ===
-window.googleTranslateElementInit = function() {
-    new google.translate.TranslateElement({
-        pageLanguage: 'en',
-        includedLanguages: 'en,fr,es,de,it,pt,zh-CN,ja,ar,hi',
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-        autoDisplay: false
-    }, 'google_translate_element');
-};
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Remove the old custom lang toggle if it exists
-    const oldToggle = document.getElementById('langToggle');
-    if (oldToggle) {
-        oldToggle.remove();
-    }
-
-    // 2. Create the Google Translate element container
-    const translateDiv = document.createElement('div');
-    translateDiv.id = 'google_translate_element';
-    // Style it to fit neatly in the header
-    translateDiv.style.display = 'inline-block';
-    translateDiv.style.marginRight = '10px';
-    translateDiv.style.verticalAlign = 'middle';
-    translateDiv.style.overflow = 'hidden';
-
-    // 3. Insert it into the header (before themeToggleBtn)
-    const themeBtn = document.getElementById('themeToggleBtn');
-    if (themeBtn && themeBtn.parentNode) {
-        themeBtn.parentNode.insertBefore(translateDiv, themeBtn);
-    }
-
-    // 4. Inject the Google Translate Script
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    document.body.appendChild(script);
-    
-    // 5. Hide the Google Translate banner completely
-    const style = document.createElement('style');
-    style.innerHTML = `
-        /* Hide the top translation banner */
-        .goog-te-banner-frame.skiptranslate, .goog-te-banner-frame, iframe.goog-te-banner-frame { display: none !important; visibility: hidden !important; }
-        /* Prevent body from shifting down */
-        body { top: 0px !important; position: static !important; }
-        html { top: 0px !important; position: static !important; }
-        /* Hide the original text popup on hover */
-        #goog-gt-tt, .goog-te-balloon-frame { display: none !important; visibility: hidden !important; }
-        /* Remove the yellow highlight on translated text */
-        .goog-text-highlight { background: none !important; background-color: transparent !important; box-shadow: none !important; border: none !important; }
-        /* Clean up the dropdown widget styling */
-        .goog-te-gadget-icon { display: none; }
-        .goog-te-gadget-simple { background-color: transparent !important; border: 1px solid rgba(128,128,128,0.3) !important; padding: 4px 8px !important; border-radius: 4px; font-family: 'Inter', sans-serif !important; }
-        .goog-te-gadget-simple span { color: var(--text-main) !important; }
-    `;
-    document.head.appendChild(style);
-});
 
 // ======================================================================
 // PENDING APPROVALS MODAL ENGINE & LIVE ROLE MANAGEMENT

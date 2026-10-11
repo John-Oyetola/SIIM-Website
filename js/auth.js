@@ -51,125 +51,76 @@ window.handleRoleRouting = function(user) {
     }
 };
 
-// 2. Strict Supabase Email & Password Sign In (NO MFA required for daily logins)
+// 2. Strict Supabase Email & Password Sign In (Synchronous Gate)
 window.signInWithEmail = async function(email, password) {
-    let client = null;
+    const supabaseClient = getSupabase();
+
+    // 1. Authenticate credentials
+    const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (authErr || !authData || !authData.user) {
+        throw new Error((authErr && authErr.message) ? authErr.message : 'Invalid login credentials.');
+    }
+
+    const userId = authData.user.id;
+    let profile = null;
+
+    // 2. Explicitly query public.profiles using the authenticated user id
     try {
-        client = getSupabase();
-    } catch (e) {}
-
-    let userObj = null;
-    let authError = null;
-
-    if (client) {
-        try {
-            const { data, error } = await client.auth.signInWithPassword({ email, password });
-            if (error) {
-                authError = error;
-            } else if (data && data.user) {
-                userObj = data.user;
-            }
-        } catch (err) {
-            authError = err;
-        }
-    }
-
-    if (authError && (!userObj || !userObj.id)) {
-        throw new Error(authError.message || 'Invalid login credentials.');
-    }
-
-    let role = null;
-    let siteId = null;
-    let company = null;
-    let fullName = null;
-    let status = null;
-    let isApproved = true;
-
-    if (userObj && client) {
-        try {
-            const { data: profile } = await client.from('profiles').select('*').eq('id', userObj.id).single();
-            if (profile) {
-                if (profile.role) role = profile.role;
-                if (profile.site_id) siteId = profile.site_id;
-                if (profile.company) company = profile.company;
-                if (profile.full_name) fullName = profile.full_name;
-                if (profile.status) status = profile.status;
-
-                if (profile.status === 'pending' || profile.role === 'pending' || profile.is_approved === false || (profile.status && profile.status !== 'approved' && profile.status !== 'active')) {
-                    isApproved = false;
-                }
-            } else {
-                const meta = userObj.user_metadata || {};
-                if (meta.role === 'pending' || meta.status === 'pending' || meta.is_approved === false) {
-                    isApproved = false;
-                }
-            }
-        } catch (e) {}
-    }
-
-    // Check local fallback registrations if profile was not fetched or offline
-    try {
-        const localUsers = JSON.parse(localStorage.getItem('siim_registered_users') || '[]');
-        const matchedLocal = localUsers.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
-        if (matchedLocal) {
-            if (matchedLocal.status === 'pending' || matchedLocal.role === 'pending' || matchedLocal.is_approved === false) {
-                isApproved = false;
-            }
-            if (matchedLocal.role) role = matchedLocal.role;
-            if (matchedLocal.site_id) siteId = matchedLocal.site_id;
-            if (matchedLocal.company) company = matchedLocal.company;
-            if (matchedLocal.full_name) fullName = matchedLocal.full_name;
-        }
+        const { data, error } = await supabaseClient
+            .from('profiles')
+            .select('role, status, is_approved, full_name, company, site_id')
+            .eq('id', userId)
+            .single();
+        if (data) profile = data;
     } catch (e) {}
 
     // Special bypass for administrative test accounts
-    if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('john')) {
-        isApproved = true;
-        if (!role || role === 'pending') role = 'admin';
-        status = 'active';
-    }
+    const isTestAdmin = email.toLowerCase().includes('admin') || email.toLowerCase().includes('john');
 
-    if (!isApproved || status === 'pending' || role === 'pending') {
-        if (client && client.auth) {
-            await client.auth.signOut().catch(() => {});
-        }
+    // 3. Strict gate check
+    const isPending = !isTestAdmin && (!profile || profile.status === 'pending' || profile.role === 'pending' || profile.is_approved === false);
+
+    if (isPending) {
+        // Instantly wipe session from Supabase and client storage
+        await supabaseClient.auth.signOut().catch(() => {});
+        localStorage.clear();
         sessionStorage.clear();
-        localStorage.removeItem('siim_user_role');
-        localStorage.removeItem('heyServiceRole');
-        throw new Error("Your account is currently pending authorization from the Stratton Innovation Intelligent Monitoring (SIIM) team. Please check your email for activation confirmation before signing in.");
+        throw new Error("Access Denied: Your account is currently pending authorization from the Stratton Innovation Intelligent Monitoring (SIIM) team. Please wait for email confirmation before logging in.");
     }
 
-    if (!role) {
-        if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('john')) role = 'admin';
-        else if (email.toLowerCase().includes('engineer')) role = 'engineer';
-        else role = 'client';
+    const role = (profile && profile.role && profile.role !== 'pending') ? profile.role : (isTestAdmin ? 'admin' : 'client');
+    const fullName = (profile && profile.full_name) ? profile.full_name : (authData.user.user_metadata?.full_name || email.split('@')[0]);
+    const company = (profile && profile.company) ? profile.company : (authData.user.user_metadata?.company || 'SIIM Client');
+    const siteId = (profile && profile.site_id) ? profile.site_id : (localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds');
+
+    // 4. Only if status is explicitly approved/active, route based on role
+    if (role === 'admin' || role === 'engineer' || role === 'client') {
+        const activeUser = {
+            email: email,
+            full_name: fullName,
+            role: role,
+            siteId: siteId,
+            site_id: siteId,
+            company: company
+        };
+
+        localStorage.setItem('siim_user_role', role);
+        localStorage.setItem('heyServiceRole', role);
+        localStorage.setItem('heyServiceUser', activeUser.email);
+        localStorage.setItem('heyServiceFullName', activeUser.full_name);
+        localStorage.setItem('heyServiceCompany', activeUser.company);
+        localStorage.setItem('heyServiceSiteId', activeUser.siteId);
+
+        sessionStorage.removeItem('siim_logged_out');
+
+        window.location.href = 'systems.html';
+        return { user: activeUser };
+    } else {
+        await supabaseClient.auth.signOut().catch(() => {});
+        localStorage.clear();
+        sessionStorage.clear();
+        throw new Error("Access Denied: No valid portal role assigned to this account.");
     }
-
-    if (!siteId) siteId = localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds';
-    if (!company) company = 'SIIM Monitored Facility';
-    if (!fullName) fullName = email.split('@')[0];
-
-    const activeUser = {
-        email: email,
-        full_name: fullName,
-        role: role,
-        siteId: siteId,
-        site_id: siteId,
-        company: company
-    };
-
-    localStorage.setItem('heyServiceUser', activeUser.email);
-    localStorage.setItem('heyServiceFullName', activeUser.full_name);
-
-    sessionStorage.setItem('pendingUserEmail', activeUser.email);
-    sessionStorage.setItem('pendingUserFullName', activeUser.full_name);
-    sessionStorage.setItem('pendingUserRole', activeUser.role);
-    sessionStorage.setItem('pendingUserSiteId', activeUser.siteId);
-    sessionStorage.setItem('pendingUserCompany', activeUser.company);
-
-    // Route directly based on role without MFA challenge
-    window.handleRoleRouting(activeUser);
-    return { user: activeUser };
 };
 
 // 3. Supabase Email Registration (Step 1: Create Account)
