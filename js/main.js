@@ -22,7 +22,7 @@ window.ensureAdminModalsExist = function() {
 // Dynamic Role-Aware Navbar Generator
 window.renderDynamicNavbar = function() {
     const currentPath = window.location.pathname.toLowerCase();
-    const isPublicPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('fmp%20website/') || currentPath.endsWith('fmp website/') || currentPath.endsWith('login.html') || currentPath.endsWith('solutions.html') || currentPath.endsWith('technology.html') || currentPath.endsWith('contact.html');
+    const isPublicPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('fmp%20website/') || currentPath.endsWith('fmp website/') || currentPath.endsWith('login.html') || currentPath.endsWith('signup.html') || currentPath.endsWith('pending-approval.html') || currentPath.endsWith('demo.html') || currentPath.endsWith('demo-dashboard.html') || currentPath.endsWith('solutions.html') || currentPath.endsWith('technology.html') || currentPath.endsWith('contact.html');
     if (isPublicPage) {
         return;
     }
@@ -68,7 +68,10 @@ window.renderDynamicNavbar = function() {
         // Unauthenticated Navigation
         navHtml = `
             <li><a href="index.html" class="nav-link">Home</a></li>
-            <li><a href="login.html" class="nav-link">Sign In</a></li>
+            <li><a href="index.html#monitoring" class="nav-link">Monitoring</a></li>
+            <li><a href="index.html#hardware" class="nav-link">Hardware</a></li>
+            <li><a href="index.html#network" class="nav-link">Network</a></li>
+            <li><a href="index.html#support" class="nav-link">Support</a></li>
         `;
     }
 
@@ -100,7 +103,7 @@ window.renderDynamicNavbar = function() {
 // Right-Side Controls & User Avatar Component
 window.renderNavRightControls = function() {
     const currentPath = window.location.pathname.toLowerCase();
-    const isPublicPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('fmp%20website/') || currentPath.endsWith('fmp website/') || currentPath.endsWith('login.html') || currentPath.endsWith('solutions.html') || currentPath.endsWith('technology.html') || currentPath.endsWith('contact.html');
+    const isPublicPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('fmp%20website/') || currentPath.endsWith('fmp website/') || currentPath.endsWith('login.html') || currentPath.endsWith('signup.html') || currentPath.endsWith('pending-approval.html') || currentPath.endsWith('demo.html') || currentPath.endsWith('demo-dashboard.html') || currentPath.endsWith('solutions.html') || currentPath.endsWith('technology.html') || currentPath.endsWith('contact.html');
     if (isPublicPage) {
         return;
     }

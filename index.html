@@ -15,28 +15,39 @@
 <body>
 
     <!-- Top Section (Hero/Header) -->
-    <header class="main-header">
-        <div class="container nav-container">
+    <header class="main-header site-header">
+        <div class="container nav-container" style="justify-content: space-between;">
             <a href="index.html" class="logo">
                 <div class="logo-container">
-                    <img src="Images/logo_siim_final.png" alt="SIIM Logo" class="header-logo-img">
+                    <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="header-logo-img">
                 </div>
             </a>
-            <input type="checkbox" id="navToggleIndex" class="hamburger-toggle">
-            <label for="navToggleIndex" class="hamburger-btn" aria-label="Toggle navigation">
+            <input type="checkbox" id="navToggle" class="hamburger-toggle">
+            <label for="navToggle" class="hamburger-btn" aria-label="Toggle navigation">
                 <span></span><span></span><span></span>
             </label>
             <nav>
-                <ul class="nav-links" id="dynamicNavLinks">
+                <ul class="nav-links">
                     <li><a href="index.html" class="nav-link active">Home</a></li>
-                    <li><a href="solutions.html" class="nav-link">Solutions</a></li>
-                    <li><a href="technology.html" class="nav-link">Technology</a></li>
-                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="#monitoring" class="nav-link">Monitoring</a></li>
+                    <li><a href="#hardware" class="nav-link">Hardware</a></li>
+                    <li><a href="#network" class="nav-link">Network</a></li>
+                    <li><a href="#support" class="nav-link">Support</a></li>
                 </ul>
             </nav>
-            <div class="nav-right-controls" id="navRightControls">
-                <a href="login.html" class="btn-logout" style="border-color: #f97316; color: #f97316;">Sign In</a>
-                <button id="themeToggleBtn" class="btn-theme-toggle">NIGHT MODE</button>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <button id="themeToggleBtn" class="theme-toggle-switch" aria-label="Toggle theme">
+                    <span class="switch-label">Night Mode</span>
+                    <div class="switch-knob">
+                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"></circle>
+                        </svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </div>
+                </button>
+                <a href="login.html" class="btn btn-outline nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Sign In</a>
             </div>
         </div>
     </header>
@@ -141,7 +152,7 @@
     </section>
 
     <!-- SIIM Core Pillars Section -->
-    <section class="pillars-section">
+    <section id="monitoring" class="pillars-section">
         <div class="container">
             <h2 class="pillars-main-title">SIIM Core Technology Pillars</h2>
             <p class="pillars-subtitle">Our 5 core monitoring capabilities designed to deliver intelligence that
@@ -238,8 +249,54 @@
         </div>
     </section>
 
+    <!-- Hardware & Edge Sensors Section -->
+    <section id="hardware" class="hardware-section" style="padding: 5rem 0; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color);">
+        <div class="container">
+            <div style="text-align: center; max-width: 700px; margin: 0 auto 3rem auto;">
+                <span style="color: #FF5A00; text-transform: uppercase; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px;">Industrial Edge Telemetry</span>
+                <h2 style="font-size: 2.2rem; font-weight: 800; color: var(--text-main); margin-top: 0.5rem;">SIIM Hardware &amp; Sensor Nodes</h2>
+                <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.75rem;">Ruggedized IP68-certified sensor packages engineered for extreme commercial kitchen &amp; industrial wastewater environments.</p>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+                <div style="background: var(--bg-main); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.25rem; font-weight: 700; color: #FF5A00; margin-bottom: 0.5rem;">Optical &amp; Infrared Thermal Sensors</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Monitors grease film thickness, temperature spikes, and ductwork build-up in real-time with sub-millimeter precision.</p>
+                </div>
+                <div style="background: var(--bg-main); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.25rem; font-weight: 700; color: #1E4E96; margin-bottom: 0.5rem;">Wastewater &amp; pH Telemetry Nodes</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Continuous fluid flow rate analysis, pH tracking, and automated blockage alert detection for compliance reporting.</p>
+                </div>
+                <div style="background: var(--bg-main); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.25rem; font-weight: 700; color: #3A8A33; margin-bottom: 0.5rem;">Sub-GHz LoRaWAN &amp; Cellular Edge</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Ultra-low latency wireless mesh connectivity delivering 99.99% uptime telemetry directly to the SIIM cloud portal.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Network & Telemetry Infrastructure Section -->
+    <section id="network" class="network-section" style="padding: 5rem 0; background-color: var(--bg-main); border-bottom: 1px solid var(--border-color);">
+        <div class="container">
+            <div style="text-align: center; max-width: 700px; margin: 0 auto 3rem auto;">
+                <span style="color: #38bdf8; text-transform: uppercase; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px;">Encrypted Cloud Telemetry</span>
+                <h2 style="font-size: 2.2rem; font-weight: 800; color: var(--text-main); margin-top: 0.5rem;">SIIM Mesh Network Architecture</h2>
+                <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.75rem;">End-to-end encrypted telemetry routing from site sensors to national operational risk centers.</p>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+                <div style="background: var(--bg-card); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">TLS 1.3 Encrypted Channels</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Bank-grade encryption protecting all sensor data in transit and at rest across multi-site enterprise estates.</p>
+                </div>
+                <div style="background: var(--bg-card); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">Instant Field Dispatch Gateway</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Automated alert dispatch routing high-priority anomalies directly to certified field engineers for rapid resolution.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Contact Form & Hours Section -->
-    <section id="quote" class="quote-section">
+    <section id="support" class="quote-section">
         <div class="container">
             <div class="quote-container">
 

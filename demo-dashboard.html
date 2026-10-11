@@ -217,52 +217,39 @@
     </div>
 
     <!-- Header / Navbar -->
-    <header class="main-header">
-        <div class="container nav-container">
+    <header class="main-header site-header">
+        <div class="container nav-container" style="justify-content: space-between;">
             <a href="index.html" class="logo">
-                <!-- Inline SVG Emblem & SIIM text logo (Horizontal) -->
-                <svg viewBox="0 0 710 240" fill="none" xmlns="http://www.w3.org/2000/svg" class="header-logo-img" style="height: 48px; width: auto;">
-                    <path d="M180 20C91.6 20 20 91.6 20 180C20 207.4 26.9 233.2 39 255.8" stroke="#FF5A00" stroke-width="8" stroke-linecap="round"/>
-                    <path d="M48 270C80.3 312.6 131.9 340 180 340C268.4 340 340 268.4 340 180C340 119.5 306.4 66.8 256.7 39.5" stroke="#1E4E96" stroke-width="8" stroke-linecap="round"/>
-                    <circle cx="180" cy="180" r="140" stroke="#00111F" stroke-width="12"/>
-                    <path d="M110 180C110 141.3 141.3 110 180 110C218.7 110 250 141.3 250 180C250 218.7 218.7 250 180 250" stroke="#3A8A33" stroke-width="6"/>
-                    <text x="380" y="210" fill="currentColor" font-family="'Montserrat', sans-serif" font-weight="900" font-size="120" letter-spacing="10">SIIM</text>
-                </svg>
+                <div class="logo-container">
+                    <img src="Images/logo_siim_final_dark.png" alt="SIIM Logo" class="header-logo-img">
+                </div>
             </a>
-            
+            <input type="checkbox" id="navToggle" class="hamburger-toggle">
+            <label for="navToggle" class="hamburger-btn" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </label>
             <nav>
                 <ul class="nav-links">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="index.html#quote">Contact</a></li>
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="index.html#monitoring" class="nav-link">Monitoring</a></li>
+                    <li><a href="index.html#hardware" class="nav-link">Hardware</a></li>
+                    <li><a href="index.html#network" class="nav-link">Network</a></li>
+                    <li><a href="index.html#support" class="nav-link">Support</a></li>
                 </ul>
             </nav>
-
-            <div class="header-actions">
-                <select id="langToggle" class="lang-toggle-btn" aria-label="Select Language" title="Select Language">
-                    <option value="en">EN</option>
-                    <option value="fr">FR</option>
-                    <option value="es">ES</option>
-                </select>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
                 <button id="themeToggleBtn" class="theme-toggle-switch" aria-label="Toggle theme">
                     <span class="switch-label">Night Mode</span>
                     <div class="switch-knob">
                         <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="5"></circle>
-                            <line x1="12" y1="1" x2="12" y2="3"></line>
-                            <line x1="12" y1="21" x2="12" y2="23"></line>
-                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                            <line x1="1" y1="12" x2="3" y2="12"></line>
-                            <line x1="21" y1="12" x2="23" y2="12"></line>
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                         </svg>
                         <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                         </svg>
                     </div>
                 </button>
-                <a href="index.html" class="client-login-btn" onclick="window.exitDemo(event)">Exit Demo</a>
+                <a href="login.html" class="btn btn-outline nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Sign In</a>
             </div>
         </div>
     </header>
