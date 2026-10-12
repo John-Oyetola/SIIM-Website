@@ -478,3 +478,26 @@ window.logout = function(e) {
 
     window.location.href = 'login.html';
 };
+
+// 9. Global Password Visibility Eye Toggle Delegation
+document.addEventListener('click', function(e) {
+    const toggleBtn = e.target.closest('#togglePasswordBtn, #toggleSignupPassword, .toggle-password-btn, .toggle-password, .password-toggle-btn');
+    if (toggleBtn) {
+        e.preventDefault();
+        const container = toggleBtn.closest('.input-group, .password-wrapper, .password-input-wrapper, .field-wrapper') || toggleBtn.parentElement;
+        if (!container) return;
+        const input = container.querySelector('input[type="password"], input[type="text"]');
+        if (input) {
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            toggleBtn.classList.toggle('active', isPassword);
+
+            const eyeOpen = toggleBtn.querySelector('.eye-icon');
+            const eyeOff = toggleBtn.querySelector('.eye-off-icon');
+            if (eyeOpen && eyeOff) {
+                eyeOpen.style.display = isPassword ? 'none' : 'block';
+                eyeOff.style.display = isPassword ? 'block' : 'none';
+            }
+        }
+    }
+});
