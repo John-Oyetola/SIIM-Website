@@ -5609,3 +5609,23 @@ body.dark-theme .alert-card-ui {
     display: inline-flex;
     align-items: center;
 }
+
+/* === SECTION 13: CSS Interaction Enforcement for Day/Night Theme Toggle === */
+#themeToggleBtn,
+.theme-toggle,
+.theme-toggle-btn,
+.theme-toggle-switch,
+.btn-theme-toggle {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    user-select: none;
+    z-index: 1002 !important;
+}
+
+#themeToggleBtn *,
+.theme-toggle *,
+.theme-toggle-btn *,
+.theme-toggle-switch *,
+.btn-theme-toggle * {
+    pointer-events: none; /* Passes click directly to the parent button */
+}

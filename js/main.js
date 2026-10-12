@@ -1,5 +1,81 @@
 // Hey Service - Main JavaScript
 
+// Theme Initialization on Script Execution
+(function initTheme() {
+    const savedTheme = localStorage.getItem('siim_theme') || localStorage.getItem('heyServiceTheme') || 'dark';
+    const isDark = savedTheme === 'dark';
+    document.documentElement.classList.toggle('dark-theme', isDark);
+    document.documentElement.classList.toggle('light-theme', !isDark);
+    if (document.body) {
+        document.body.classList.toggle('dark-theme', isDark);
+        document.body.classList.toggle('light-theme', !isDark);
+    }
+})();
+
+const LOGO_HEADER_LIGHT = 'Images/logo_siim_final.png';
+const LOGO_HEADER_DARK  = 'Images/logo_siim_final_dark.png';
+const LOGO_FOOTER = 'Images/logo_siim_final_dark.png';
+
+window.applyLogos = function(isDark) {
+    document.querySelectorAll('.logo-container img').forEach(img => {
+        img.src = isDark ? LOGO_HEADER_DARK : LOGO_HEADER_LIGHT;
+    });
+    document.querySelectorAll('.footer-logo-container-rebranded img').forEach(img => {
+        img.src = LOGO_FOOTER;
+    });
+};
+
+window.updateToggleSwitch = function(isDark) {
+    document.querySelectorAll('.theme-toggle-switch .switch-label, .theme-label, .theme-toggle-text').forEach(label => {
+        label.textContent = isDark ? 'Night Mode' : 'Day Mode';
+    });
+    document.querySelectorAll('.btn-theme-toggle').forEach(btn => {
+        if (!btn.querySelector('.switch-label')) {
+            btn.textContent = isDark ? 'NIGHT MODE' : 'DAY MODE';
+        }
+    });
+};
+
+// Global Event Delegation for Day/Night Theme Toggle
+document.addEventListener('click', function(e) {
+    const toggleBtn = e.target.closest('#themeToggleBtn, .theme-toggle, .theme-toggle-btn, .theme-toggle-switch, .btn-theme-toggle');
+    if (toggleBtn) {
+        e.preventDefault();
+        const isDark = document.documentElement.classList.toggle('dark-theme');
+        document.documentElement.classList.toggle('light-theme', !isDark);
+        if (document.body) {
+            document.body.classList.toggle('dark-theme', isDark);
+            document.body.classList.toggle('light-theme', !isDark);
+        }
+
+        const newTheme = isDark ? 'dark' : 'light';
+        localStorage.setItem('siim_theme', newTheme);
+        localStorage.setItem('heyServiceTheme', newTheme);
+
+        // Update icon/text on all theme toggle buttons across the page
+        document.querySelectorAll('#themeToggleBtn, .theme-toggle, .theme-toggle-btn, .theme-toggle-switch, .btn-theme-toggle').forEach(btn => {
+            const label = btn.querySelector('.theme-label, .theme-toggle-text, .switch-label');
+            if (label) {
+                label.textContent = isDark ? 'NIGHT MODE' : 'DAY MODE';
+            }
+            const icon = btn.querySelector('.theme-icon, .toggle-icon');
+            if (icon) {
+                icon.textContent = isDark ? '🌙' : '☀️';
+            }
+            if (btn.classList.contains('btn-theme-toggle') && !btn.querySelector('.theme-label, .switch-label')) {
+                btn.textContent = isDark ? 'NIGHT MODE' : 'DAY MODE';
+            }
+        });
+
+        if (typeof window.applyLogos === 'function') {
+            window.applyLogos(isDark);
+        }
+        if (typeof window.updateToggleSwitch === 'function') {
+            window.updateToggleSwitch(isDark);
+        }
+    }
+});
+
 // Exit Demo Mode function
 window.exitDemo = function(e) {
     if (e) e.preventDefault();
@@ -716,51 +792,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Dark Mode Toggle Logic
-    const themeToggleBtn = document.getElementById('themeToggleBtn');
-
-    const LOGO_HEADER_LIGHT = 'Images/logo_siim_final.png';
-    const LOGO_HEADER_DARK  = 'Images/logo_siim_final_dark.png';
-    window.applyLogos = function(isDark) {
-        document.querySelectorAll('.logo-container img').forEach(img => {
-            img.src = isDark ? LOGO_HEADER_DARK : LOGO_HEADER_LIGHT;
-        });
-        document.querySelectorAll('.footer-logo-container-rebranded img').forEach(img => {
-            img.src = LOGO_FOOTER;
-        });
-    };
-
-    window.updateToggleSwitch = function(isDark) {
-        const switchLabel = document.querySelector('.theme-toggle-switch .switch-label');
-        if (switchLabel) {
-            switchLabel.textContent = isDark ? 'Night Mode' : 'Day Mode';
-        }
-    };
-
     // Apply theme + logos on page load
-    const savedTheme = localStorage.getItem('heyServiceTheme');
-    
-    // Default to dark theme for ALL pages if savedTheme is not set (or is set to 'dark')
-    if (savedTheme === 'dark' || savedTheme === null) {
-        document.body.classList.add('dark-theme');
-    } else {
-        document.body.classList.remove('dark-theme');
+    const savedTheme = localStorage.getItem('siim_theme') || localStorage.getItem('heyServiceTheme') || 'dark';
+    const isCurrentlyDark = savedTheme === 'dark';
+    document.documentElement.classList.toggle('dark-theme', isCurrentlyDark);
+    document.documentElement.classList.toggle('light-theme', !isCurrentlyDark);
+    if (document.body) {
+        document.body.classList.toggle('dark-theme', isCurrentlyDark);
+        document.body.classList.toggle('light-theme', !isCurrentlyDark);
     }
-    const isCurrentlyDark = document.body.classList.contains('dark-theme');
-    window.applyLogos(isCurrentlyDark);
-    window.updateToggleSwitch(isCurrentlyDark);
-
-    // Global document delegated listener for theme toggling
-    document.addEventListener('click', (e) => {
-        const toggleBtn = e.target.closest('#themeToggleBtn, .btn-theme-toggle, .theme-toggle-switch');
-        if (toggleBtn) {
-            document.body.classList.toggle('dark-theme');
-            const isDark = document.body.classList.contains('dark-theme');
-            localStorage.setItem('heyServiceTheme', isDark ? 'dark' : 'light');
-            if (typeof window.applyLogos === 'function') window.applyLogos(isDark);
-            if (typeof window.updateToggleSwitch === 'function') window.updateToggleSwitch(isDark);
-        }
-    });
+    if (typeof window.applyLogos === 'function') window.applyLogos(isCurrentlyDark);
+    if (typeof window.updateToggleSwitch === 'function') window.updateToggleSwitch(isCurrentlyDark);
 
     // Update user badge elements to display strictly full name without raw email or appended roles
     let displayName = localStorage.getItem('heyServiceFullName');
