@@ -107,46 +107,61 @@ window.getSIIMSession = function() {
         if (raw) {
             const parsed = JSON.parse(raw);
             if (parsed && (parsed.role || (parsed.user && parsed.user.role))) {
-                const role = parsed.role || parsed.user.role;
-                const fullName = parsed.fullName || (parsed.user && (parsed.user.full_name || parsed.user.name)) || localStorage.getItem('heyServiceFullName') || 'John Oyetola Admin';
-                const email = parsed.email || (parsed.user && parsed.user.email) || localStorage.getItem('heyServiceUser') || 'admin@siimtelemetry.com';
+                const role = ((parsed.role || parsed.user.role) || '').toLowerCase().trim();
+                const fullName = parsed.fullName || (parsed.user && (parsed.user.full_name || parsed.user.name)) || localStorage.getItem('heyServiceFullName') || 'User';
+                const email = parsed.email || (parsed.user && parsed.user.email) || localStorage.getItem('heyServiceUser') || '';
                 return { role, fullName, email, session: parsed };
             }
         }
     } catch (e) {}
 
-    // 2. Check Supabase auth tokens in localStorage
-    let hasSupabaseToken = false;
-    let tokenEmail = null;
-    try {
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && ((k.startsWith('sb-') && k.endsWith('-auth-token')) || k === 'supabase.auth.token')) {
-                const val = JSON.parse(localStorage.getItem(k));
-                if (val && (val.access_token || val.currentSession)) {
-                    hasSupabaseToken = true;
-                    if (val.user && val.user.email) tokenEmail = val.user.email;
-                }
-            }
-        }
-    } catch (e) {}
-
-    // 3. Check official stored role keys
-    const storedRole = localStorage.getItem('siim_user_role') || localStorage.getItem('heyServiceRole');
+    // 2. Check official stored role keys
+    const storedRole = (localStorage.getItem('siim_user_role') || localStorage.getItem('heyServiceRole') || '').toLowerCase().trim();
     if (storedRole) {
         const fullName = localStorage.getItem('heyServiceFullName') || (storedRole === 'admin' ? 'John Oyetola Admin' : 'User');
-        const email = localStorage.getItem('heyServiceUser') || tokenEmail || '';
-        return { role: storedRole, fullName: fullName, email: email, hasSupabaseToken: hasSupabaseToken };
-    }
-
-    if (hasSupabaseToken) {
-        const fullName = localStorage.getItem('heyServiceFullName') || 'John Oyetola Admin';
-        const email = localStorage.getItem('heyServiceUser') || tokenEmail || '';
-        return { role: 'admin', fullName: fullName, email: email, hasSupabaseToken: true };
+        const email = localStorage.getItem('heyServiceUser') || '';
+        return { role: storedRole, fullName: fullName, email: email };
     }
 
     return null;
 };
+
+// Route Guard & Session Protection: Strictly Bar role === 'pending' From Entering Protected Portal
+window.protectRoute = function() {
+    const path = window.location.pathname.toLowerCase().replace(/\\/g, '/');
+    const page = path.split('/').filter(Boolean).pop() || 'index.html';
+
+    const protectedPages = [
+        'systems.html',
+        'dashboard.html',
+        'demo-dashboard.html',
+        'custom-site.html',
+        'facility-water.html',
+        'water-dashboard.html',
+        'engineer-portal.html',
+        'east-data-center.html',
+        'north-facility.html',
+        'south-operations.html',
+        'west-generator.html'
+    ];
+
+    if (protectedPages.includes(page)) {
+        if (sessionStorage.getItem('siim_logged_out') === 'true') {
+            window.location.replace('login.html');
+            return false;
+        }
+
+        const session = typeof window.getSIIMSession === 'function' ? window.getSIIMSession() : null;
+        const userRole = ((session && session.role) || localStorage.getItem('siim_user_role') || '').toLowerCase().trim();
+
+        if (userRole === 'pending' || !userRole) {
+            window.location.href = 'pending-approval.html';
+            return false;
+        }
+    }
+    return true;
+};
+window.checkAuth = window.protectRoute;
 
 // Security Gate: Enforce credentials entry on login.html and protect portal views
 (function enforceSecurityGate() {
@@ -179,12 +194,8 @@ window.getSIIMSession = function() {
         if (window.supabaseClient && window.supabaseClient.auth) {
             window.supabaseClient.auth.signOut().catch(() => {});
         }
-    } else if (page === 'systems.html') {
-        // Protected portal view: require active authenticated session
-        const session = typeof window.getSIIMSession === 'function' ? window.getSIIMSession() : null;
-        if (!session || sessionStorage.getItem('siim_logged_out') === 'true') {
-            window.location.replace('login.html');
-        }
+    } else {
+        window.protectRoute();
     }
 })();
 
@@ -765,9 +776,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (response.ok && result.success) {
+                    const resRole = (result.role || '').toLowerCase().trim();
+                    if (resRole === 'pending' || !resRole || (resRole !== 'admin' && resRole !== 'client' && resRole !== 'engineer')) {
+                        window.location.href = 'pending-approval.html';
+                        return;
+                    }
                     sessionStorage.removeItem('siim_logged_out');
-                    localStorage.setItem('siim_user_role', result.role || 'client');
-                    localStorage.setItem('heyServiceRole', result.role || 'client');
+                    localStorage.setItem('siim_user_role', resRole);
+                    localStorage.setItem('heyServiceRole', resRole);
                     localStorage.setItem('heyServiceUser', result.username);
                     localStorage.setItem('heyServiceBrand', result.assigned_brand || 'all');
                     localStorage.setItem('heyServiceCompany', result.company || '');

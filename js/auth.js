@@ -1,6 +1,43 @@
 // js/auth.js — SIIM Pure Supabase Email & Password Auth Gateway & Role Router
 
-// Security Gate: Enforce credentials entry on login.html (no auto-redirects)
+// Route Guard & Session Protection: Strictly Bar role === 'pending' From Entering Protected Portal
+window.protectRoute = function() {
+    const path = window.location.pathname.toLowerCase().replace(/\\/g, '/');
+    const page = path.split('/').filter(Boolean).pop() || 'index.html';
+
+    const protectedPages = [
+        'systems.html',
+        'dashboard.html',
+        'demo-dashboard.html',
+        'custom-site.html',
+        'facility-water.html',
+        'water-dashboard.html',
+        'engineer-portal.html',
+        'east-data-center.html',
+        'north-facility.html',
+        'south-operations.html',
+        'west-generator.html'
+    ];
+
+    if (protectedPages.includes(page)) {
+        if (sessionStorage.getItem('siim_logged_out') === 'true') {
+            window.location.replace('login.html');
+            return false;
+        }
+
+        const session = typeof window.getSIIMSession === 'function' ? window.getSIIMSession() : null;
+        const userRole = ((session && session.role) || localStorage.getItem('siim_user_role') || '').toLowerCase().trim();
+
+        if (userRole === 'pending' || !userRole) {
+            window.location.href = 'pending-approval.html';
+            return false;
+        }
+    }
+    return true;
+};
+window.checkAuth = window.protectRoute;
+
+// Security Gate: Enforce credentials entry on login.html (no auto-redirects) and protect portal views
 (function enforceLoginSecurity() {
     const page = window.location.pathname.toLowerCase().split('/').filter(Boolean).pop() || 'index.html';
     if (page === 'login.html') {
@@ -28,6 +65,8 @@
         if (window.supabaseClient && window.supabaseClient.auth) {
             window.supabaseClient.auth.signOut().catch(() => {});
         }
+    } else {
+        window.protectRoute();
     }
 })();
 
@@ -41,15 +80,28 @@ function getSupabase() {
 
 // 1. Official Role Routing Engine
 window.handleRoleRouting = function(user) {
-    const role = (user && (user.role || user.app_role)) ? (user.role || user.app_role) : (localStorage.getItem('siim_user_role') || 'client');
+    const rawRole = (user && (user.role || user.app_role)) ? (user.role || user.app_role) : localStorage.getItem('siim_user_role');
+    const userRole = (rawRole || '').toLowerCase().trim();
+
+    // Strict validation: if role is pending or absent, redirect to pending-approval
+    if (userRole === 'pending' || !userRole) {
+        window.location.href = 'pending-approval.html';
+        return;
+    }
+
+    if (userRole !== 'admin' && userRole !== 'engineer' && userRole !== 'client') {
+        window.location.href = 'pending-approval.html';
+        return;
+    }
+
     const siteId = (user && (user.site_id || user.siteId)) ? (user.site_id || user.siteId) : (localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds');
     const company = (user && user.company) ? user.company : 'SIIM Client';
     const email = (user && user.email) ? user.email : 'user@theheygroup.net';
     const fullName = (user && (user.full_name || user.name)) ? (user.full_name || user.name) : (email.includes('@') ? email.split('@')[0] : 'User');
 
-    // Persist official session variables
+    // Persist official session variables only for approved roles
     const sessionPayload = {
-        role: role,
+        role: userRole,
         email: email,
         fullName: fullName,
         company: company,
@@ -57,13 +109,13 @@ window.handleRoleRouting = function(user) {
         timestamp: Date.now()
     };
     localStorage.setItem('siim_session', JSON.stringify(sessionPayload));
-    localStorage.setItem('siim_user_role', role);
-    localStorage.setItem('heyServiceRole', role);
+    localStorage.setItem('siim_user_role', userRole);
+    localStorage.setItem('heyServiceRole', userRole);
     localStorage.setItem('heyServiceUser', email);
     localStorage.setItem('heyServiceFullName', fullName);
     localStorage.setItem('heyServiceCompany', company);
     localStorage.setItem('heyServiceSiteId', siteId);
-    localStorage.setItem('heyServiceBrand', role === 'client' ? siteId : 'all');
+    localStorage.setItem('heyServiceBrand', userRole === 'client' ? siteId : 'all');
 
     // Clear logged out flag on successful role routing
     sessionStorage.removeItem('siim_logged_out');
@@ -74,18 +126,11 @@ window.handleRoleRouting = function(user) {
     });
 
     // Route strictly based on the authenticated role:
-    if (role === 'admin') {
-        localStorage.setItem('siim_user_role', 'admin');
+    if (userRole === 'admin') {
         window.location.href = 'systems.html';
-    } else if (role === 'engineer') {
-        localStorage.setItem('siim_user_role', 'engineer');
+    } else if (userRole === 'engineer') {
         window.location.href = 'engineer-portal.html';
-    } else if (role === 'client') {
-        localStorage.setItem('siim_user_role', 'client');
-        const targetSiteId = user.site_id || user.siteId || localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds';
-        window.location.href = `custom-site.html?id=${encodeURIComponent(targetSiteId)}`;
     } else {
-        localStorage.setItem('siim_user_role', 'client');
         const targetSiteId = user.site_id || user.siteId || localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds';
         window.location.href = `custom-site.html?id=${encodeURIComponent(targetSiteId)}`;
     }
@@ -101,51 +146,47 @@ window.signInWithEmail = async function(email, password) {
         throw new Error((authErr && authErr.message) ? authErr.message : 'Invalid login credentials.');
     }
 
-    const userId = authData.user.id;
-    let profile = null;
+    // Query the 'profiles' table for the user's id:
+    const { data: profile, error: profileErr } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', authData.user.id)
+        .maybeSingle();
 
-    // 2. Explicitly query public.profiles using the authenticated user id
-    try {
-        const { data, error } = await supabaseClient
-            .from('profiles')
-            .select('role, status, is_approved, full_name, company, site_id')
-            .eq('id', userId)
-            .single();
-        if (data) profile = data;
-    } catch (e) {}
+    // Perform strict validation on the retrieved profile:
+    const userRole = (profile?.role || '').toLowerCase().trim();
+    const isApproved = profile?.is_approved === true || profile?.status === 'approved';
 
-    // Special bypass for administrative test accounts
-    const isTestAdmin = email.toLowerCase().includes('admin') || email.toLowerCase().includes('john');
-
-    // 3. Strict gate check
-    const isPending = !isTestAdmin && (!profile || profile.status === 'pending' || profile.role === 'pending' || profile.is_approved === false);
-
-    if (isPending) {
-        // Instantly wipe session from Supabase and client storage
-        await supabaseClient.auth.signOut().catch(() => {});
+    // Strict gate: If role is explicitly 'pending', or profile is not approved, block entry immediately!
+    if (userRole === 'pending' || profile?.status === 'pending' || !isApproved) {
+        // Force terminate Supabase session
+        await supabaseClient.auth.signOut();
         localStorage.clear();
         sessionStorage.clear();
-        throw new Error("Access Denied: Your account is currently pending authorization from the Stratton Innovation Intelligent Monitoring (SIIM) team. Please wait for email confirmation before logging in.");
+        sessionStorage.setItem('siim_pending_email', authData.user.email);
+        
+        // Redirect immediately to pending approval page
+        window.location.href = 'pending-approval.html';
+        return;
     }
 
-    const role = (profile && profile.role && profile.role !== 'pending') ? profile.role : (isTestAdmin ? 'admin' : 'client');
-    const fullName = (profile && profile.full_name) ? profile.full_name : (authData.user.user_metadata?.full_name || email.split('@')[0]);
-    const company = (profile && profile.company) ? profile.company : (authData.user.user_metadata?.company || 'SIIM Client');
-    const siteId = (profile && profile.site_id) ? profile.site_id : (localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds');
+    // Only if status is explicitly approved and role is approved ('admin', 'client', 'engineer')
+    if (userRole === 'admin' || userRole === 'engineer' || userRole === 'client') {
+        const fullName = profile?.full_name || authData.user.user_metadata?.full_name || email.split('@')[0];
+        const company = profile?.company || authData.user.user_metadata?.company || 'SIIM Client';
+        const siteId = profile?.site_id || localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds';
 
-    // 4. Only if status is explicitly approved/active, route based on role
-    if (role === 'admin' || role === 'engineer' || role === 'client') {
         const activeUser = {
             email: email,
             full_name: fullName,
-            role: role,
+            role: userRole,
             siteId: siteId,
             site_id: siteId,
             company: company
         };
 
         const sessionPayload = {
-            role: role,
+            role: userRole,
             email: activeUser.email,
             fullName: activeUser.full_name,
             company: activeUser.company,
@@ -153,12 +194,13 @@ window.signInWithEmail = async function(email, password) {
             timestamp: Date.now()
         };
         localStorage.setItem('siim_session', JSON.stringify(sessionPayload));
-        localStorage.setItem('siim_user_role', role);
-        localStorage.setItem('heyServiceRole', role);
+        localStorage.setItem('siim_user_role', userRole);
+        localStorage.setItem('heyServiceRole', userRole);
         localStorage.setItem('heyServiceUser', activeUser.email);
         localStorage.setItem('heyServiceFullName', activeUser.full_name);
         localStorage.setItem('heyServiceCompany', activeUser.company);
         localStorage.setItem('heyServiceSiteId', activeUser.siteId);
+        localStorage.setItem('heyServiceBrand', userRole === 'client' ? siteId : 'all');
 
         sessionStorage.removeItem('siim_logged_out');
 
@@ -168,7 +210,9 @@ window.signInWithEmail = async function(email, password) {
         await supabaseClient.auth.signOut().catch(() => {});
         localStorage.clear();
         sessionStorage.clear();
-        throw new Error("Access Denied: No valid portal role assigned to this account.");
+        sessionStorage.setItem('siim_pending_email', authData.user.email);
+        window.location.href = 'pending-approval.html';
+        return;
     }
 };
 
