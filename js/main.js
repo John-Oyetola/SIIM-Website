@@ -142,7 +142,46 @@ window.renderDynamicNavbar = function() {
         </button>
     `;
 
-    if (currentPage === 'systems.html') {
+    const isAuthPage = currentPage === 'login.html' || 
+                       currentPage === 'signup.html' || 
+                       currentPage === 'pending-approval.html' ||
+                       currentPage.includes('login') ||
+                       currentPage.includes('signup') ||
+                       currentPage.includes('pending-approval');
+
+    if (isAuthPage) {
+        if (logoLink) {
+            logoLink.setAttribute('href', 'index.html');
+        }
+
+        let authCtaLi = '';
+        let drawerCta = '';
+
+        if (currentPage.includes('login')) {
+            authCtaLi = `<li><a href="signup.html" class="btn btn-primary nav-cta-btn" id="navCtaBtn" style="padding: 0.45rem 1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Create Account</a></li>`;
+            drawerCta = `<a href="signup.html" class="drawer-cta drawer-cta-signin">Create Account</a>`;
+        } else {
+            // signup.html, pending-approval.html
+            authCtaLi = `<li><a href="login.html" class="btn btn-outline nav-cta-btn" id="navCtaBtn" style="padding: 0.45rem 1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Sign In</a></li>`;
+            drawerCta = `<a href="login.html" class="drawer-cta drawer-cta-signin">Sign In</a>`;
+        }
+
+        if (navLinksContainer) {
+            navLinksContainer.innerHTML = `
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="support.html" class="nav-link">Support</a></li>
+                ${authCtaLi}
+                <li class="drawer-cta-item">
+                    ${drawerCta}
+                </li>
+            `;
+        }
+
+        if (rightContainer) {
+            rightContainer.innerHTML = themeSwitchHtml;
+        }
+
+    } else if (currentPage === 'systems.html') {
         // Standardized Header Layout on systems.html
         if (typeof window.ensureAdminModalsExist === 'function') {
             window.ensureAdminModalsExist();
@@ -313,66 +352,31 @@ window.renderDynamicNavbar = function() {
         }
 
     } else {
-        // GUEST / NOT LOGGED IN
+        // GUEST / NOT LOGGED IN - Public Pages
         if (logoLink) {
             logoLink.setAttribute('href', 'index.html');
         }
 
-        const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html' || currentPage === 'pending-approval.html';
+        if (navLinksContainer) {
+            navLinksContainer.innerHTML = `
+                <li><a href="index.html" class="nav-link ${currentPage === 'index.html' ? 'active' : ''}">Home</a></li>
+                <li><a href="monitoring.html" class="nav-link ${currentPage === 'monitoring.html' ? 'active' : ''}">Monitoring</a></li>
+                <li><a href="intelligence.html" class="nav-link ${currentPage === 'intelligence.html' ? 'active' : ''}">Intelligence</a></li>
+                <li><a href="network.html" class="nav-link ${currentPage === 'network.html' ? 'active' : ''}">Network</a></li>
+                <li><a href="support.html" class="nav-link ${currentPage === 'support.html' ? 'active' : ''}">Support</a></li>
+                <li class="drawer-cta-item">
+                    <a href="login.html" class="drawer-cta drawer-cta-signin">Sign In</a>
+                </li>
+            `;
+        }
 
-        if (isAuthPage) {
-            // Auth pages: Clean header with Support, Day/Night toggle, and contextual CTA
-            let authCta = '';
-            let drawerCta = '';
-            if (currentPage === 'login.html') {
-                authCta = `<a href="signup.html" class="btn btn-primary nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Create Account</a>`;
-                drawerCta = `<a href="signup.html" class="drawer-cta drawer-cta-signin">Create Account</a>`;
-            } else {
-                authCta = `<a href="login.html" class="btn btn-outline nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Sign In</a>`;
-                drawerCta = `<a href="login.html" class="drawer-cta drawer-cta-signin">Sign In</a>`;
-            }
-
-            if (navLinksContainer) {
-                navLinksContainer.innerHTML = `
-                    <li><a href="support.html" class="nav-link">Support</a></li>
-                    <li class="drawer-cta-item">
-                        ${drawerCta}
-                    </li>
-                `;
-            }
-
-            if (rightContainer) {
-                rightContainer.innerHTML = `
-                    <div class="nav-right-controls-group" style="display: flex; align-items: center; gap: 1rem;">
-                        ${themeSwitchHtml}
-                        ${authCta}
-                    </div>
-                `;
-            }
-
-        } else {
-            // Public pages: Home, Monitoring, Intelligence, Network, Support, Day/Night toggle, Sign In
-            if (navLinksContainer) {
-                navLinksContainer.innerHTML = `
-                    <li><a href="index.html" class="nav-link ${currentPage === 'index.html' ? 'active' : ''}">Home</a></li>
-                    <li><a href="monitoring.html" class="nav-link ${currentPage === 'monitoring.html' ? 'active' : ''}">Monitoring</a></li>
-                    <li><a href="intelligence.html" class="nav-link ${currentPage === 'intelligence.html' ? 'active' : ''}">Intelligence</a></li>
-                    <li><a href="network.html" class="nav-link ${currentPage === 'network.html' ? 'active' : ''}">Network</a></li>
-                    <li><a href="support.html" class="nav-link ${currentPage === 'support.html' ? 'active' : ''}">Support</a></li>
-                    <li class="drawer-cta-item">
-                        <a href="login.html" class="drawer-cta drawer-cta-signin">Sign In</a>
-                    </li>
-                `;
-            }
-
-            if (rightContainer) {
-                rightContainer.innerHTML = `
-                    <div class="nav-right-controls-group" style="display: flex; align-items: center; gap: 1rem;">
-                        ${themeSwitchHtml}
-                        <a href="login.html" class="btn btn-outline nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Sign In</a>
-                    </div>
-                `;
-            }
+        if (rightContainer) {
+            rightContainer.innerHTML = `
+                <div class="nav-right-controls-group" style="display: flex; align-items: center; gap: 1rem;">
+                    ${themeSwitchHtml}
+                    <a href="login.html" class="btn btn-outline nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px;">Sign In</a>
+                </div>
+            `;
         }
     }
 
