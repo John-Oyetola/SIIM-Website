@@ -1,5 +1,16 @@
 // js/auth.js — SIIM Pure Supabase Email & Password Auth Gateway & Role Router
 
+function normalizeUserRole(roleString) {
+    if (!roleString) return '';
+    const clean = String(roleString).toLowerCase().trim();
+    if (clean.startsWith('admin')) return 'admin';
+    if (clean.includes('engineer')) return 'engineer';
+    if (clean.includes('client') || clean.includes('customer') || clean.includes('user')) return 'client';
+    if (clean.startsWith('pending')) return 'pending';
+    return clean;
+}
+window.normalizeUserRole = normalizeUserRole;
+
 // Route Guard & Session Protection: Strictly Bar role === 'pending' From Entering Protected Portal
 window.protectRoute = function() {
     const path = window.location.pathname.toLowerCase().replace(/\\/g, '/');
@@ -26,7 +37,8 @@ window.protectRoute = function() {
         }
 
         const session = typeof window.getSIIMSession === 'function' ? window.getSIIMSession() : null;
-        const userRole = ((session && session.role) || localStorage.getItem('siim_user_role') || '').toLowerCase().trim();
+        const rawRole = (session && session.role) || localStorage.getItem('siim_user_role') || '';
+        const userRole = normalizeUserRole(rawRole);
 
         if (userRole === 'pending' || !userRole) {
             window.location.href = 'pending-approval.html';
@@ -81,7 +93,7 @@ function getSupabase() {
 // 1. Official Role Routing Engine
 window.handleRoleRouting = function(user) {
     const rawRole = (user && (user.role || user.app_role)) ? (user.role || user.app_role) : localStorage.getItem('siim_user_role');
-    const userRole = (rawRole || '').toLowerCase().trim();
+    const userRole = normalizeUserRole(rawRole);
 
     // Strict validation: if role is pending or absent, redirect to pending-approval
     if (userRole === 'pending' || !userRole) {
@@ -146,21 +158,22 @@ window.signInWithEmail = async function(email, password) {
         throw new Error((authErr && authErr.message) ? authErr.message : 'Invalid login credentials.');
     }
 
-    // Query the 'profiles' table for the user's id:
+    // Query profiles for { id, email, role }:
     const { data: profile, error: profileErr } = await supabaseClient
         .from('profiles')
         .select('*')
         .eq('id', authData.user.id)
         .maybeSingle();
 
-    // Perform strict validation on the retrieved profile:
-    const userRole = (profile?.role || '').toLowerCase().trim();
+    // Pass profile.role into normalizeUserRole(profile.role)
+    const normalizedRole = normalizeUserRole(profile?.role);
     const isApproved = profile?.is_approved === true || profile?.status === 'approved';
 
-    // Strict gate: If role is explicitly 'pending', or profile is not approved, block entry immediately!
-    if (userRole === 'pending' || profile?.status === 'pending' || !isApproved) {
+    // If normalized is 'pending' or empty, or profile is not approved:
+    // Sign out, clear storage, and redirect to pending-approval.html.
+    if (normalizedRole === 'pending' || !normalizedRole || profile?.status === 'pending' || !isApproved) {
         // Force terminate Supabase session
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut().catch(() => {});
         localStorage.clear();
         sessionStorage.clear();
         sessionStorage.setItem('siim_pending_email', authData.user.email);
@@ -170,8 +183,9 @@ window.signInWithEmail = async function(email, password) {
         return;
     }
 
-    // Only if status is explicitly approved and role is approved ('admin', 'client', 'engineer')
-    if (userRole === 'admin' || userRole === 'engineer' || userRole === 'client') {
+    // If normalized is 'admin', 'client', or 'engineer':
+    // Store normalizedRole in 'siim_user_role' and grant access to systems.html.
+    if (normalizedRole === 'admin' || normalizedRole === 'engineer' || normalizedRole === 'client') {
         const fullName = profile?.full_name || authData.user.user_metadata?.full_name || email.split('@')[0];
         const company = profile?.company || authData.user.user_metadata?.company || 'SIIM Client';
         const siteId = profile?.site_id || localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds';
@@ -179,14 +193,14 @@ window.signInWithEmail = async function(email, password) {
         const activeUser = {
             email: email,
             full_name: fullName,
-            role: userRole,
+            role: normalizedRole,
             siteId: siteId,
             site_id: siteId,
             company: company
         };
 
         const sessionPayload = {
-            role: userRole,
+            role: normalizedRole,
             email: activeUser.email,
             fullName: activeUser.full_name,
             company: activeUser.company,
@@ -194,13 +208,13 @@ window.signInWithEmail = async function(email, password) {
             timestamp: Date.now()
         };
         localStorage.setItem('siim_session', JSON.stringify(sessionPayload));
-        localStorage.setItem('siim_user_role', userRole);
-        localStorage.setItem('heyServiceRole', userRole);
+        localStorage.setItem('siim_user_role', normalizedRole);
+        localStorage.setItem('heyServiceRole', normalizedRole);
         localStorage.setItem('heyServiceUser', activeUser.email);
         localStorage.setItem('heyServiceFullName', activeUser.full_name);
         localStorage.setItem('heyServiceCompany', activeUser.company);
         localStorage.setItem('heyServiceSiteId', activeUser.siteId);
-        localStorage.setItem('heyServiceBrand', userRole === 'client' ? siteId : 'all');
+        localStorage.setItem('heyServiceBrand', normalizedRole === 'client' ? siteId : 'all');
 
         sessionStorage.removeItem('siim_logged_out');
 

@@ -76,6 +76,18 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// Universal Flexible Role Parsing & Central Normalizer
+function normalizeUserRole(roleString) {
+    if (!roleString) return '';
+    const clean = String(roleString).toLowerCase().trim();
+    if (clean.startsWith('admin')) return 'admin';
+    if (clean.includes('engineer')) return 'engineer';
+    if (clean.includes('client') || clean.includes('customer') || clean.includes('user')) return 'client';
+    if (clean.startsWith('pending')) return 'pending';
+    return clean;
+}
+window.normalizeUserRole = normalizeUserRole;
+
 // Exit Demo Mode function
 window.exitDemo = function(e) {
     if (e) e.preventDefault();
@@ -107,7 +119,8 @@ window.getSIIMSession = function() {
         if (raw) {
             const parsed = JSON.parse(raw);
             if (parsed && (parsed.role || (parsed.user && parsed.user.role))) {
-                const role = ((parsed.role || parsed.user.role) || '').toLowerCase().trim();
+                const rawRole = parsed.role || parsed.user.role;
+                const role = normalizeUserRole(rawRole);
                 const fullName = parsed.fullName || (parsed.user && (parsed.user.full_name || parsed.user.name)) || localStorage.getItem('heyServiceFullName') || 'User';
                 const email = parsed.email || (parsed.user && parsed.user.email) || localStorage.getItem('heyServiceUser') || '';
                 return { role, fullName, email, session: parsed };
@@ -116,7 +129,8 @@ window.getSIIMSession = function() {
     } catch (e) {}
 
     // 2. Check official stored role keys
-    const storedRole = (localStorage.getItem('siim_user_role') || localStorage.getItem('heyServiceRole') || '').toLowerCase().trim();
+    const rawStored = localStorage.getItem('siim_user_role') || localStorage.getItem('heyServiceRole') || '';
+    const storedRole = normalizeUserRole(rawStored);
     if (storedRole) {
         const fullName = localStorage.getItem('heyServiceFullName') || (storedRole === 'admin' ? 'John Oyetola Admin' : 'User');
         const email = localStorage.getItem('heyServiceUser') || '';
@@ -152,7 +166,8 @@ window.protectRoute = function() {
         }
 
         const session = typeof window.getSIIMSession === 'function' ? window.getSIIMSession() : null;
-        const userRole = ((session && session.role) || localStorage.getItem('siim_user_role') || '').toLowerCase().trim();
+        const rawRole = (session && session.role) || localStorage.getItem('siim_user_role') || '';
+        const userRole = normalizeUserRole(rawRole);
 
         if (userRole === 'pending' || !userRole) {
             window.location.href = 'pending-approval.html';
@@ -1505,7 +1520,8 @@ window.switchPendingApprovalsTab = function(tabName) {
 // Live Pending Approvals Counter for Admin Nav Badge
 window.updatePendingApprovalsCount = async function() {
     const session = typeof window.getSIIMSession === 'function' ? window.getSIIMSession() : null;
-    const role = session ? session.role : (localStorage.getItem('siim_user_role') || localStorage.getItem('heyServiceRole'));
+    const rawRole = session ? session.role : (localStorage.getItem('siim_user_role') || localStorage.getItem('heyServiceRole'));
+    const role = normalizeUserRole(rawRole);
 
     const badge = document.getElementById('pendingApprovalsBadge');
     if (!badge) return;
@@ -1650,10 +1666,10 @@ async function renderPendingUserRequests() {
                 </select>
             </td>
             <td style="padding: 0.85rem 0.75rem;">
-                <select id="role_${u.id}" class="approval-role-select" style="background: rgba(11, 15, 25, 0.9); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 0.45rem 0.65rem; border-radius: 6px; font-size: 0.82rem;">
-                    <option value="client" ${u.role === 'client' ? 'selected' : ''}>Client / Facility Manager</option>
-                    <option value="engineer" ${u.role === 'engineer' ? 'selected' : ''}>Field Engineer</option>
-                    <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>System Administrator</option>
+                <select id="assignRoleSelect" class="form-select role-select" style="background: rgba(11, 15, 25, 0.9); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 0.45rem 0.65rem; border-radius: 6px; font-size: 0.82rem;">
+                    <option value="client" ${normalizeUserRole(u.role) === 'client' ? 'selected' : ''}>Client</option>
+                    <option value="engineer" ${normalizeUserRole(u.role) === 'engineer' ? 'selected' : ''}>Engineer</option>
+                    <option value="admin" ${normalizeUserRole(u.role) === 'admin' ? 'selected' : ''}>Administrator</option>
                 </select>
             </td>
             <td style="padding: 0.85rem 0.75rem; text-align: right; white-space: nowrap;">
@@ -1980,13 +1996,19 @@ window.closeBookingModal = function() {
 };
 
 window.approveUserAccess = async function(userId) {
-    const companyInput = document.getElementById(`company_${userId}`);
-    const siteSelect = document.getElementById(`site_${userId}`);
-    const roleSelect = document.getElementById(`role_${userId}`);
+    const row = document.getElementById(`row_user_${userId}`);
+    const companyInput = (row && row.querySelector('.input-table')) || document.getElementById(`company_${userId}`);
+    const siteSelect = (row && row.querySelector('.assign-facility-select')) || document.getElementById(`site_${userId}`);
+    const roleSelect = (row && (row.querySelector('#assignRoleSelect') || row.querySelector('.role-select') || row.querySelector('select.form-select'))) ||
+                       document.getElementById(`assignRoleSelect_${userId}`) ||
+                       document.getElementById(`role_${userId}`) ||
+                       document.getElementById('assignRoleSelect');
 
     const selectedCompany = companyInput ? companyInput.value.trim() : '';
     const selectedSiteId = siteSelect ? siteSelect.value : 'wagamama-leeds';
-    const selectedRole = roleSelect ? roleSelect.value : 'client';
+    const rawRole = roleSelect ? roleSelect.value : 'client';
+    const cleanRole = normalizeUserRole(rawRole);
+    const selectedRole = (cleanRole === 'admin' || cleanRole === 'engineer' || cleanRole === 'client') ? cleanRole : 'client';
 
     let userEmail = 'user@company.com';
     let userName = 'New User';
