@@ -165,14 +165,22 @@ window.protectRoute = function() {
             return false;
         }
 
-        const session = typeof window.getSIIMSession === 'function' ? window.getSIIMSession() : null;
-        const rawRole = (session && session.role) || localStorage.getItem('siim_user_role') || '';
-        const userRole = normalizeUserRole(rawRole);
+        const role = (localStorage.getItem('siim_user_role') || '').toLowerCase().trim();
 
-        if (userRole === 'pending' || !userRole) {
+        // Only redirect to 'pending-approval.html' if role === 'pending'
+        if (role === 'pending') {
             window.location.href = 'pending-approval.html';
             return false;
         }
+
+        // If role === 'admin' || role === 'client' || role === 'engineer', do NOT redirect; allow page to load
+        if (role === 'admin' || role === 'client' || role === 'engineer') {
+            return true;
+        }
+
+        // If no role is present, redirect to 'login.html', NOT 'pending-approval.html'
+        window.location.href = 'login.html';
+        return false;
     }
     return true;
 };

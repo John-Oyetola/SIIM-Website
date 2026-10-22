@@ -36,14 +36,22 @@ window.protectRoute = function() {
             return false;
         }
 
-        const session = typeof window.getSIIMSession === 'function' ? window.getSIIMSession() : null;
-        const rawRole = (session && session.role) || localStorage.getItem('siim_user_role') || '';
-        const userRole = normalizeUserRole(rawRole);
+        const role = (localStorage.getItem('siim_user_role') || '').toLowerCase().trim();
 
-        if (userRole === 'pending' || !userRole) {
+        // Only redirect to 'pending-approval.html' if role === 'pending'
+        if (role === 'pending') {
             window.location.href = 'pending-approval.html';
             return false;
         }
+
+        // If role === 'admin' || role === 'client' || role === 'engineer', do NOT redirect; allow page to load
+        if (role === 'admin' || role === 'client' || role === 'engineer') {
+            return true;
+        }
+
+        // If no role is present, redirect to 'login.html', NOT 'pending-approval.html'
+        window.location.href = 'login.html';
+        return false;
     }
     return true;
 };
@@ -155,79 +163,83 @@ window.signInWithEmail = async function(email, password) {
     // 1. Authenticate credentials
     const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (authErr || !authData || !authData.user) {
-        throw new Error((authErr && authErr.message) ? authErr.message : 'Invalid login credentials.');
+        const errorMsg = (authErr && authErr.message) ? authErr.message : 'Invalid login credentials.';
+        const errBanner = document.getElementById('loginErrorMessage') || document.getElementById('authErrorBanner') || document.querySelector('.protocol-banner');
+        if (errBanner) {
+            errBanner.style.display = 'block';
+            errBanner.className = 'protocol-banner banner-danger';
+            errBanner.textContent = errorMsg;
+        }
+        throw new Error(errorMsg);
     }
 
-    // Query profiles for { id, email, role }:
-    const { data: profile, error: profileErr } = await supabaseClient
+    let userRole = null;
+
+    // Check user_metadata first if present:
+    if (authData.user?.user_metadata?.role) {
+        userRole = authData.user.user_metadata.role;
+    }
+
+    // Query Supabase profiles table:
+    const { data: profile, error: profErr } = await supabaseClient
         .from('profiles')
         .select('*')
         .eq('id', authData.user.id)
         .maybeSingle();
 
-    // Pass profile.role into normalizeUserRole(profile.role)
-    const normalizedRole = normalizeUserRole(profile?.role);
-    const isApproved = profile?.is_approved === true || profile?.status === 'approved';
-
-    // If normalized is 'pending' or empty, or profile is not approved:
-    // Sign out, clear storage, and redirect to pending-approval.html.
-    if (normalizedRole === 'pending' || !normalizedRole || profile?.status === 'pending' || !isApproved) {
-        // Force terminate Supabase session
-        await supabaseClient.auth.signOut().catch(() => {});
-        localStorage.clear();
-        sessionStorage.clear();
-        sessionStorage.setItem('siim_pending_email', authData.user.email);
-        
-        // Redirect immediately to pending approval page
-        window.location.href = 'pending-approval.html';
-        return;
+    if (profErr) {
+        console.error("Supabase Profiles Fetch Error (Check RLS):", profErr);
     }
 
-    // If normalized is 'admin', 'client', or 'engineer':
-    // Store normalizedRole in 'siim_user_role' and grant access to systems.html.
-    if (normalizedRole === 'admin' || normalizedRole === 'engineer' || normalizedRole === 'client') {
-        const fullName = profile?.full_name || authData.user.user_metadata?.full_name || email.split('@')[0];
-        const company = profile?.company || authData.user.user_metadata?.company || 'SIIM Client';
-        const siteId = profile?.site_id || localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds';
+    if (profile && profile.role) {
+        userRole = profile.role;
+    }
 
-        const activeUser = {
-            email: email,
-            full_name: fullName,
-            role: normalizedRole,
-            siteId: siteId,
-            site_id: siteId,
-            company: company
-        };
+    // Normalize role string:
+    const clean = String(userRole || '').toLowerCase().trim();
+    let normalized = '';
+    if (clean.startsWith('admin')) normalized = 'admin';
+    else if (clean.includes('engineer')) normalized = 'engineer';
+    else if (clean.includes('client') || clean.includes('customer')) normalized = 'client';
 
-        const sessionPayload = {
-            role: normalizedRole,
-            email: activeUser.email,
-            fullName: activeUser.full_name,
-            company: activeUser.company,
-            siteId: activeUser.siteId,
-            timestamp: Date.now()
-        };
-        localStorage.setItem('siim_session', JSON.stringify(sessionPayload));
-        localStorage.setItem('siim_user_role', normalizedRole);
-        localStorage.setItem('heyServiceRole', normalizedRole);
-        localStorage.setItem('heyServiceUser', activeUser.email);
-        localStorage.setItem('heyServiceFullName', activeUser.full_name);
-        localStorage.setItem('heyServiceCompany', activeUser.company);
-        localStorage.setItem('heyServiceSiteId', activeUser.siteId);
-        localStorage.setItem('heyServiceBrand', normalizedRole === 'client' ? siteId : 'all');
+    console.log("SIIM Auth Evaluation:", {
+        userId: authData.user.id,
+        email: authData.user.email,
+        rawRole: userRole,
+        normalizedRole: normalized,
+        tableProfile: profile
+    });
 
-        sessionStorage.removeItem('siim_logged_out');
-
-        window.location.href = 'systems.html';
-        return { user: activeUser };
-    } else {
-        await supabaseClient.auth.signOut().catch(() => {});
+    // Check if account is actually pending:
+    if (!normalized || clean.startsWith('pending')) {
+        console.warn("User has no approved role. Redirecting to pending-approval.html");
+        await supabaseClient.auth.signOut();
         localStorage.clear();
         sessionStorage.clear();
         sessionStorage.setItem('siim_pending_email', authData.user.email);
         window.location.href = 'pending-approval.html';
         return;
     }
+
+    // Populate user details for navbar and facilities
+    const fullName = profile?.full_name || authData.user?.user_metadata?.full_name || email.split('@')[0];
+    const company = profile?.company || authData.user?.user_metadata?.company || 'SIIM Client';
+    const siteId = profile?.site_id || localStorage.getItem('heyServiceSiteId') || 'wagamama-leeds';
+    localStorage.setItem('heyServiceUser', authData.user.email);
+    localStorage.setItem('heyServiceFullName', fullName);
+    localStorage.setItem('heyServiceCompany', company);
+    localStorage.setItem('heyServiceSiteId', siteId);
+    localStorage.setItem('heyServiceBrand', normalized === 'client' ? siteId : 'all');
+
+    // Set authenticated state:
+    localStorage.setItem('siim_session', 'active');
+    localStorage.setItem('siim_user_role', normalized);
+    localStorage.setItem('heyServiceRole', normalized);
+    sessionStorage.removeItem('siim_logged_out');
+
+    // Proceed directly to portal hub:
+    window.location.href = 'systems.html';
+    return { user: authData.user, role: normalized };
 };
 
 // 3. Supabase Email Registration (Step 1: Create Account)
