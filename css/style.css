@@ -19,6 +19,9 @@
     /* Stratton Orange */
     --color-secondary-light: #ff7733;
     --primary-orange: #FF5A00;
+    --accent-orange: #ff5e14;
+    --text-primary: var(--text-main, #00111F);
+    --border-color: #CBD5E1;
 
     --color-danger: #c62828;
     /* Red */
@@ -176,6 +179,7 @@ body.dashboard-theme {
     /* Slate Light */
     --text-main: #00111F;
     /* Deep Onyx text */
+    --text-primary: #00111F;
     --text-muted: #4D4D4D;
     /* Charcoal text */
     --border-color: #CBD5E1;
@@ -189,6 +193,7 @@ body.dashboard-theme.dark-theme {
     /* Deep Onyx */
     --text-main: #FFFFFF;
     /* Pure White text */
+    --text-primary: #FFFFFF;
     --text-muted: #E1E7EC;
     /* Slate Light for secondary text */
     --border-color: #4D4D4D;
@@ -1311,9 +1316,6 @@ footer, .footer-container, .main-footer {
 .social-icon:hover {
     color: #FF5A00;
     transform: translateY(-2px);
-}
-    color: #fff;
-    transition: opacity 0.3s;
 }
 
 /* Login Page Arrow Back */
@@ -5628,4 +5630,181 @@ body.dark-theme .alert-card-ui {
 .theme-toggle-switch *,
 .btn-theme-toggle * {
     pointer-events: none; /* Passes click directly to the parent button */
+}
+
+/* ==========================================================================
+   Historical Telemetry Date Bar UI & Responsive Controls
+   ========================================================================== */
+
+.telemetry-history-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0.85rem 1.25rem;
+    background: var(--bg-card, #00111F);
+    border: 1px solid var(--border-color, #4D4D4D);
+    border-radius: 8px;
+    margin-bottom: 1.75rem;
+    box-sizing: border-box;
+    width: 100%;
+    color: var(--text-primary, #ffffff);
+}
+
+.range-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+    color: var(--text-primary, #ffffff);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.range-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--accent-orange, #ff5e14);
+}
+
+.range-btn.active {
+    background: var(--accent-orange, #ff5e14) !important;
+    border-color: var(--accent-orange, #ff5e14) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(255, 94, 20, 0.35);
+}
+
+.date-picker-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+    color: var(--text-primary, #ffffff);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    color-scheme: dark;
+}
+
+body:not(.dark-theme) .date-picker-input {
+    color-scheme: light;
+}
+
+.date-picker-input:focus {
+    border-color: var(--accent-orange, #ff5e14);
+    box-shadow: 0 0 0 2px rgba(255, 94, 20, 0.25);
+}
+
+.stream-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.stream-badge::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.stream-badge.live {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: #22c55e;
+}
+
+.stream-badge.live::before {
+    background: #22c55e;
+    box-shadow: 0 0 8px #22c55e;
+    animation: telemetryPulse 2s infinite ease-in-out;
+}
+
+.stream-badge.sim {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #f59e0b;
+}
+
+.stream-badge.sim::before {
+    background: #f59e0b;
+    box-shadow: 0 0 8px #f59e0b;
+}
+
+.stream-badge.historical {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    color: #60a5fa;
+}
+
+.stream-badge.historical::before {
+    background: #3b82f6;
+    box-shadow: 0 0 8px #3b82f6;
+}
+
+.return-live-btn {
+    background: transparent;
+    border: 1px solid var(--accent-orange, #ff5e14);
+    color: var(--accent-orange, #ff5e14);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.return-live-btn:hover {
+    background: var(--accent-orange, #ff5e14);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(255, 94, 20, 0.35);
+}
+
+@keyframes telemetryPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.4;
+        transform: scale(0.85);
+    }
+}
+
+@media (max-width: 768px) {
+    .telemetry-history-bar {
+        padding: 0.75rem;
+        gap: 8px;
+    }
+
+    .telemetry-history-bar .stream-badge {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .range-btn,
+    .date-picker-input,
+    .return-live-btn {
+        flex: 1 1 auto;
+        text-align: center;
+    }
 }

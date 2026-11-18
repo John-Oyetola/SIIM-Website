@@ -46,6 +46,18 @@
             </p>
         </div>
 
+        <!-- Historical Telemetry Control Bar -->
+        <div class="telemetry-history-bar">
+            <button class="range-btn active" data-range="live">Live</button>
+            <button class="range-btn" data-range="yesterday">Yesterday</button>
+            <button class="range-btn" data-range="7d">Last 7 Days</button>
+            <button class="range-btn" data-range="30d">Last 30 Days</button>
+            <button class="range-btn" data-range="90d">Last 3 Months</button>
+            <input type="date" id="historicalDatePicker" class="date-picker-input" aria-label="Select historical date">
+            <span id="telemetryStreamBadge" class="stream-badge live">LIVE DATABASE</span>
+            <button id="returnToLiveBtn" class="return-live-btn" style="display:none;">Return to Live</button>
+        </div>
+
         <!-- 7-Metric Executive Status Bar -->
         <div class="stats-overview-bar">
             <div class="stat-card active" data-filter="all">
