@@ -401,9 +401,119 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // Telemetry Ingestion (initMqttStream / Simulator)
     // ==========================================
+    window.processSiteTelemetry = processTelemetry;
+
+    window.renderHistoricalPoints = function(points, metadata) {
+        if (!airflowCanvas || !canvasCtx) return;
+        const width = airflowCanvas.width = airflowCanvas.parentElement?.clientWidth || 800;
+        const height = airflowCanvas.height = 220;
+
+        if (!points || points.length === 0) {
+            canvasCtx.clearRect(0, 0, width, height);
+            canvasCtx.fillStyle = 'rgba(11, 15, 25, 0.95)';
+            canvasCtx.fillRect(0, 0, width, height);
+            canvasCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            for (let y = 30; y < height; y += 40) {
+                canvasCtx.beginPath(); canvasCtx.moveTo(0, y); canvasCtx.lineTo(width, y); canvasCtx.stroke();
+            }
+            canvasCtx.font = '600 16px Montserrat, sans-serif';
+            canvasCtx.fillStyle = '#94a3b8';
+            canvasCtx.textAlign = 'center';
+            canvasCtx.textBaseline = 'middle';
+            canvasCtx.fillText('No telemetry recorded for this date', width / 2, height / 2 - 10);
+            canvasCtx.font = '400 12px Montserrat, sans-serif';
+            canvasCtx.fillStyle = '#64748b';
+            canvasCtx.fillText('Select another historical range or click Return to Live', width / 2, height / 2 + 16);
+            return;
+        }
+
+        canvasCtx.clearRect(0, 0, width, height);
+
+        // Grid lines
+        canvasCtx.strokeStyle = 'rgba(0, 229, 255, 0.08)';
+        canvasCtx.lineWidth = 1;
+        for (let y = 30; y < height; y += 40) {
+            canvasCtx.beginPath(); canvasCtx.moveTo(0, y); canvasCtx.lineTo(width, y); canvasCtx.stroke();
+        }
+        for (let x = 0; x < width; x += 60) {
+            canvasCtx.beginPath(); canvasCtx.moveTo(x, 0); canvasCtx.lineTo(x, height); canvasCtx.stroke();
+        }
+
+        const minVal = Math.min(...points) * 0.85 || 0.5;
+        const maxVal = Math.max(...points) * 1.15 || 2.0;
+        const step = width / Math.max(1, points.length - 1);
+
+        canvasCtx.beginPath();
+        points.forEach((val, idx) => {
+            const x = idx * step;
+            const norm = (val - minVal) / ((maxVal - minVal) || 1);
+            const y = height - (norm * (height - 60) + 30);
+            if (idx === 0) canvasCtx.moveTo(x, y);
+            else canvasCtx.lineTo(x, y);
+        });
+
+        const gradient = canvasCtx.createLinearGradient(0, 0, 0, height);
+        gradient.addColorStop(0, 'rgba(0, 229, 255, 0.35)');
+        gradient.addColorStop(1, 'rgba(0, 229, 255, 0.0)');
+
+        canvasCtx.lineTo((points.length - 1) * step, height);
+        canvasCtx.lineTo(0, height);
+        canvasCtx.closePath();
+        canvasCtx.fillStyle = gradient;
+        canvasCtx.fill();
+
+        canvasCtx.beginPath();
+        points.forEach((val, idx) => {
+            const x = idx * step;
+            const norm = (val - minVal) / ((maxVal - minVal) || 1);
+            const y = height - (norm * (height - 60) + 30);
+            if (idx === 0) canvasCtx.moveTo(x, y);
+            else canvasCtx.lineTo(x, y);
+        });
+        canvasCtx.strokeStyle = '#00e5ff';
+        canvasCtx.lineWidth = 2.5;
+        canvasCtx.shadowColor = '#00e5ff';
+        canvasCtx.shadowBlur = 8;
+        canvasCtx.stroke();
+        canvasCtx.shadowBlur = 0;
+
+        const lastIdx = points.length - 1;
+        const lastX = lastIdx * step;
+        const lastNorm = (points[lastIdx] - minVal) / ((maxVal - minVal) || 1);
+        const lastY = height - (lastNorm * (height - 60) + 30);
+
+        canvasCtx.beginPath();
+        canvasCtx.arc(lastX, lastY, 5, 0, Math.PI * 2);
+        canvasCtx.fillStyle = '#ffffff';
+        canvasCtx.fill();
+        canvasCtx.strokeStyle = '#00e5ff';
+        canvasCtx.lineWidth = 2;
+        canvasCtx.stroke();
+    };
+
+    window.startTelemetrySimulation = function() {
+        if (window.activeTelemetrySimulationInterval) return;
+        window.activeTelemetrySimulationInterval = setInterval(() => {
+            if (window.currentTelemetryMode && window.currentTelemetryMode !== 'live') return;
+            const noiseA0 = Math.sin(Date.now() / 3000) * 4 + (Math.random() * 4 - 2);
+            const noiseA1 = Math.cos(Date.now() / 2500) * 3 + (Math.random() * 4 - 2);
+            const A0 = 280 + noiseA0;
+            const A1 = 275 + noiseA1;
+            processTelemetry(A0, A1);
+        }, 1200);
+    };
+
+    window.pauseTelemetrySimulation = function() {
+        if (window.activeTelemetrySimulationInterval) {
+            clearInterval(window.activeTelemetrySimulationInterval);
+            window.activeTelemetrySimulationInterval = null;
+        }
+    };
+
     window.initMqttStream = function(onDataCallback) {
         if (window.mqttClient && typeof window.mqttClient.on === 'function') {
             window.mqttClient.on('message', (topic, payload) => {
+                if (window.currentTelemetryMode && window.currentTelemetryMode !== 'live') return;
                 try {
                     const data = JSON.parse(payload.toString());
                     if (data.A0 && data.A1) {
@@ -414,14 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         } else {
-            // Fallback Auto-Simulator Interval (A0: ~280, A1: ~275, Ratio: ~0.98)
-            setInterval(() => {
-                const noiseA0 = Math.sin(Date.now() / 3000) * 4 + (Math.random() * 4 - 2);
-                const noiseA1 = Math.cos(Date.now() / 2500) * 3 + (Math.random() * 4 - 2);
-                const A0 = 280 + noiseA0;
-                const A1 = 275 + noiseA1;
-                onDataCallback(A0, A1);
-            }, 1200);
+            window.startTelemetrySimulation();
         }
     };
 

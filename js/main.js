@@ -2248,3 +2248,523 @@ document.addEventListener('keydown', (e) => {
         });
     }
 });
+
+/* ==========================================================================
+   Historical Telemetry Date Engine, Supabase Queries & Simulation Fallback
+   ========================================================================== */
+
+window.currentTelemetryDataset = [];
+window.currentTelemetryLabel = 'Live';
+window.currentTelemetryMode = 'live';
+window.telemetryRealtimeChannel = null;
+
+function detectSystemType() {
+    const path = (window.location.pathname || '').toLowerCase();
+    if (path.includes('water') || path.includes('drainage') || path.includes('facility-water')) {
+        return 'drainage';
+    }
+    return 'ventilation';
+}
+
+function updateTelemetryBadge(type, text) {
+    const badge = document.getElementById('telemetryStreamBadge');
+    if (!badge) return;
+    badge.textContent = text;
+    badge.classList.remove('live', 'sim', 'historical');
+    if (type) badge.classList.add(type);
+}
+
+function downsampleTelemetryRows(rows, targetCount = 200) {
+    if (!rows || rows.length <= targetCount) return rows || [];
+    const step = (rows.length - 1) / (targetCount - 1);
+    const downsampled = [];
+    for (let i = 0; i < targetCount; i++) {
+        downsampled.push(rows[Math.round(i * step)]);
+    }
+    return downsampled;
+}
+
+function drawNoDataOnCanvas(canvas, message) {
+    if (!canvas || !canvas.getContext) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const w = canvas.width = canvas.parentElement?.clientWidth || 800;
+    const h = canvas.height = 220;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(11, 15, 25, 0.95)';
+    ctx.fillRect(0, 0, w, h);
+
+    // Subtle dark grid
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.lineWidth = 1;
+    for (let y = 30; y < h; y += 40) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+    for (let x = 0; x < w; x += 60) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+
+    // Centered status text
+    ctx.font = '600 16px Montserrat, -apple-system, sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(message || 'No telemetry recorded for this date', w / 2, h / 2 - 10);
+
+    ctx.font = '400 12px Montserrat, -apple-system, sans-serif';
+    ctx.fillStyle = '#64748b';
+    ctx.fillText('Select another historical range or click Return to Live', w / 2, h / 2 + 16);
+}
+
+function renderTelemetryCanvasChart(canvas, points, strokeColor = '#00e5ff') {
+    if (!canvas || !canvas.getContext || !points || points.length === 0) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const w = canvas.width = canvas.parentElement?.clientWidth || 800;
+    const h = canvas.height = 220;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(0, 229, 255, 0.08)';
+    ctx.lineWidth = 1;
+    for (let y = 30; y < h; y += 40) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+    for (let x = 0; x < w; x += 60) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+
+    const minVal = Math.min(...points) * 0.85 || 0.5;
+    const maxVal = Math.max(...points) * 1.15 || 2.0;
+    const step = w / Math.max(1, points.length - 1);
+
+    // Fill path
+    ctx.beginPath();
+    points.forEach((val, idx) => {
+        const x = idx * step;
+        const norm = (val - minVal) / ((maxVal - minVal) || 1);
+        const y = h - (norm * (h - 60) + 30);
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, h);
+    gradient.addColorStop(0, 'rgba(0, 229, 255, 0.35)');
+    gradient.addColorStop(1, 'rgba(0, 229, 255, 0.0)');
+
+    ctx.lineTo((points.length - 1) * step, h);
+    ctx.lineTo(0, h);
+    ctx.closePath();
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // Stroke line
+    ctx.beginPath();
+    points.forEach((val, idx) => {
+        const x = idx * step;
+        const norm = (val - minVal) / ((maxVal - minVal) || 1);
+        const y = h - (norm * (h - 60) + 30);
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 2.5;
+    ctx.shadowColor = strokeColor;
+    ctx.shadowBlur = 8;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Pulse dot at latest point
+    const lastIdx = points.length - 1;
+    const lastX = lastIdx * step;
+    const lastNorm = (points[lastIdx] - minVal) / ((maxVal - minVal) || 1);
+    const lastY = h - (lastNorm * (h - 60) + 30);
+
+    ctx.beginPath();
+    ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+function updateTelemetryKpiCards(rows, mode, systemType) {
+    const isWater = (systemType === 'drainage');
+
+    if (!isWater) {
+        const speeds = rows.map(r => {
+            const v = r.airflow_speed ?? r.airflow ?? r.speed ?? r.reading ?? r.value;
+            return v !== undefined && v !== null ? Number(v) : NaN;
+        }).filter(n => !isNaN(n));
+
+        const greases = rows.map(r => {
+            const v = r.grease_mm ?? r.grease_level ?? r.grease;
+            return v !== undefined && v !== null ? Number(v) : NaN;
+        }).filter(n => !isNaN(n));
+
+        const temps = rows.map(r => {
+            const v = r.temperature ?? r.temp ?? r.fluid_temp;
+            return v !== undefined && v !== null ? Number(v) : NaN;
+        }).filter(n => !isNaN(n));
+
+        const latestSpeed = speeds.length ? speeds[speeds.length - 1] : 1.15;
+        const peakSpeed = speeds.length ? Math.max(...speeds) : latestSpeed;
+        const avgSpeed = speeds.length ? (speeds.reduce((a, b) => a + b, 0) / speeds.length) : latestSpeed;
+
+        const latestGrease = greases.length ? greases[greases.length - 1] : 0.21;
+        const peakGrease = greases.length ? Math.max(...greases) : latestGrease;
+        const avgGrease = greases.length ? (greases.reduce((a, b) => a + b, 0) / greases.length) : latestGrease;
+
+        const latestTemp = temps.length ? temps[temps.length - 1] : 28;
+        const peakTemp = temps.length ? Math.max(...temps) : latestTemp;
+
+        const maxGreaseEl = document.getElementById('maxGreaseMmVal');
+        if (maxGreaseEl) {
+            maxGreaseEl.textContent = `${peakGrease.toFixed(2)} mm / ${Math.round(peakGrease * 1000)} µm`;
+        }
+
+        const growthRateEl = document.getElementById('growthRateVal');
+        if (growthRateEl) {
+            growthRateEl.textContent = `${Math.round(avgGrease * 220)} µm/wk`;
+        }
+
+        const maxTempEl = document.getElementById('maxTempVal');
+        if (maxTempEl) {
+            maxTempEl.textContent = `${Math.round(peakTemp)}°C`;
+        }
+
+        const daysToCleanEl = document.getElementById('daysToCleanVal');
+        if (daysToCleanEl) {
+            daysToCleanEl.textContent = peakGrease >= 1.0 ? '0 Days (Urgent)' : (peakGrease >= 0.5 ? '21 Days' : '180 Days');
+        }
+
+        const tr19El = document.getElementById('tr19Val') || document.getElementById('tr19StatusVal');
+        if (tr19El) {
+            tr19El.textContent = `${Math.max(10, Math.min(100, Math.round(100 - (peakGrease / 1.0) * 40)))}%`;
+        }
+
+        const fireRiskEl = document.getElementById('fireRiskVal') || document.getElementById('estCleanCostVal');
+        if (fireRiskEl) {
+            const riskText = peakGrease >= 1.0 ? 'High Risk' : (peakGrease >= 0.5 ? 'Moderate' : 'Compliant');
+            fireRiskEl.textContent = riskText;
+            fireRiskEl.style.color = peakGrease >= 1.0 ? '#ef5350' : (peakGrease >= 0.5 ? '#ff9800' : '#4caf50');
+        }
+
+        const needle = document.getElementById('gaugeNeedle');
+        const gaugeVal = document.getElementById('gaugeValue') || document.getElementById('gaugeVal');
+        const pct = Math.round(Math.min(100, peakGrease * 50));
+        if (needle) needle.style.transform = `rotate(${(pct * 1.8) - 90}deg)`;
+        if (gaugeVal) {
+            gaugeVal.textContent = `${pct}%`;
+            gaugeVal.style.color = peakGrease >= 1.0 ? '#ef5350' : (peakGrease >= 0.5 ? '#ff9800' : '#4caf50');
+        }
+
+        const streamRateEl = document.getElementById('airflowStreamRate');
+        if (streamRateEl) {
+            streamRateEl.textContent = mode === 'live'
+                ? `STREAM: ${latestSpeed.toFixed(2)} m/s`
+                : `HISTORICAL: ${avgSpeed.toFixed(2)} m/s (Avg) | Peak: ${peakSpeed.toFixed(2)} m/s`;
+        }
+
+        const airflowCanvas = document.getElementById('liveAirflowChart');
+        if (airflowCanvas) {
+            const chartPoints = speeds.length >= 2 ? speeds : [1.15, 1.2, 1.18, 1.25, 1.15, 1.22];
+            if (typeof window.renderHistoricalPoints === 'function') {
+                window.renderHistoricalPoints(chartPoints, { avg: avgSpeed, peak: peakSpeed });
+            } else {
+                renderTelemetryCanvasChart(airflowCanvas, chartPoints, '#00e5ff');
+            }
+        }
+
+        const compliancePctEl = document.getElementById('statCompliancePct');
+        if (compliancePctEl && greases.length > 0) {
+            const compliantRatio = greases.filter(g => g < 0.5).length / greases.length;
+            compliancePctEl.textContent = `${(compliantRatio * 100).toFixed(1)}%`;
+        }
+    } else {
+        const flows = rows.map(r => Number(r.flow_rate ?? r.flow ?? r.reading ?? 28)).filter(n => !isNaN(n));
+        const pressures = rows.map(r => Number(r.pressure ?? r.system_pressure ?? 3.2)).filter(n => !isNaN(n));
+        const ratios = rows.map(r => Number(r.transmission_ratio ?? r.ratio ?? 0.95)).filter(n => !isNaN(n));
+
+        const latestFlow = flows.length ? flows[flows.length - 1] : 28;
+        const peakFlow = flows.length ? Math.max(...flows) : latestFlow;
+        const avgFlow = flows.length ? (flows.reduce((a, b) => a + b, 0) / flows.length) : latestFlow;
+
+        const latestPressure = pressures.length ? pressures[pressures.length - 1] : 3.2;
+        const latestRatio = ratios.length ? ratios[ratios.length - 1] : 0.95;
+
+        const flowRateEl = document.getElementById('flowRateVal');
+        if (flowRateEl) flowRateEl.textContent = `${avgFlow.toFixed(1)} L/min (Avg)`;
+
+        const pipeCapEl = document.getElementById('pipeCapacityVal');
+        if (pipeCapEl) {
+            const cap = Math.round(Math.min(100, Math.max(10, (1 - latestRatio) * 100)));
+            pipeCapEl.textContent = `${cap}%`;
+        }
+
+        const ratioEl = document.getElementById('transmissionRatioVal');
+        if (ratioEl) ratioEl.textContent = `${latestRatio.toFixed(3)}`;
+
+        const waterCanvas = document.getElementById('liveWaterAcousticChart');
+        if (waterCanvas) {
+            const chartPoints = flows.length >= 2 ? flows : [25, 28, 27, 30, 28, 29];
+            renderTelemetryCanvasChart(waterCanvas, chartPoints, '#06b6d4');
+        }
+
+        const compliancePctEl = document.getElementById('statCompliancePct');
+        if (compliancePctEl && ratios.length > 0) {
+            const compliantRatio = ratios.filter(r => r > 0.8).length / ratios.length;
+            compliancePctEl.textContent = `${(compliantRatio * 100).toFixed(1)}%`;
+        }
+    }
+}
+
+function resetTelemetryKpisToEmpty(systemType) {
+    const kpiIds = [
+        'maxGreaseMmVal', 'growthRateVal', 'maxTempVal', 'daysToCleanVal',
+        'tr19StatusVal', 'tr19Val', 'estCleanCostVal', 'fireRiskVal',
+        'gaugeValue', 'gaugeVal', 'pipeCapacityVal', 'flowRateVal',
+        'transmissionRatioVal', 'daysToDescaleVal', 'drainHealthVal',
+        'impedanceRiskVal', 'statCompliancePct', 'statCompliant',
+        'statMonitor', 'statActionDue', 'statHighRisk', 'statOffline'
+    ];
+
+    kpiIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '--';
+    });
+
+    const needle = document.getElementById('gaugeNeedle') || document.getElementById('waterGaugeNeedle');
+    if (needle) needle.style.transform = 'rotate(-90deg)';
+
+    const streamRateEl = document.getElementById('airflowStreamRate') || document.getElementById('acousticStreamBadge');
+    if (streamRateEl) streamRateEl.textContent = 'NO TELEMETRY RECORDED';
+
+    const canvas = document.getElementById('liveAirflowChart') ||
+                   document.getElementById('liveWaterAcousticChart') ||
+                   document.querySelector('canvas');
+    if (canvas) {
+        drawNoDataOnCanvas(canvas, 'No telemetry recorded for this date');
+    }
+}
+
+async function loadTelemetryData(mode = 'live', customDate = null) {
+    const systemType = detectSystemType();
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    const datePicker = document.getElementById('historicalDatePicker');
+    if (datePicker) {
+        datePicker.max = todayStr;
+    }
+
+    const returnBtn = document.getElementById('returnToLiveBtn');
+    window.currentTelemetryMode = mode;
+
+    if (mode === 'live') {
+        if (returnBtn) returnBtn.style.display = 'none';
+
+        if (!window.supabaseClient) {
+            console.warn('Supabase client not loaded, falling back to simulation.');
+            if (typeof window.startTelemetrySimulation === 'function') window.startTelemetrySimulation();
+            if (typeof window.startWaterTelemetrySimulation === 'function') window.startWaterTelemetrySimulation();
+            updateTelemetryBadge('sim', 'SIMULATION MODE');
+            return;
+        }
+
+        try {
+            const { data: rows, error } = await window.supabaseClient
+                .from('telemetry_readings')
+                .select('*')
+                .eq('system_type', systemType)
+                .order('created_at', { ascending: false })
+                .limit(50);
+
+            if (error) throw error;
+
+            if (rows && rows.length > 0) {
+                const chronological = [...rows].reverse();
+                window.currentTelemetryDataset = chronological;
+                window.currentTelemetryLabel = 'Live';
+
+                if (typeof window.pauseTelemetrySimulation === 'function') window.pauseTelemetrySimulation();
+                if (typeof window.pauseWaterTelemetrySimulation === 'function') window.pauseWaterTelemetrySimulation();
+
+                updateTelemetryKpiCards(chronological, 'live', systemType);
+                updateTelemetryBadge('live', 'LIVE DATABASE');
+
+                // Subscribe to Realtime INSERT events
+                if (window.telemetryRealtimeChannel) {
+                    try { window.supabaseClient.removeChannel(window.telemetryRealtimeChannel); } catch (e) {}
+                }
+                window.telemetryRealtimeChannel = window.supabaseClient.channel('telemetry_readings_live')
+                    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'telemetry_readings' }, (payload) => {
+                        if (window.currentTelemetryMode !== 'live') return;
+                        const newRow = payload.new;
+                        if (newRow && (!newRow.system_type || newRow.system_type === systemType)) {
+                            window.currentTelemetryDataset.push(newRow);
+                            if (window.currentTelemetryDataset.length > 100) {
+                                window.currentTelemetryDataset.shift();
+                            }
+                            updateTelemetryKpiCards(window.currentTelemetryDataset, 'live', systemType);
+                        }
+                    })
+                    .subscribe();
+            } else {
+                // 0 rows returned: simulation fallback
+                if (typeof window.startTelemetrySimulation === 'function') window.startTelemetrySimulation();
+                if (typeof window.startWaterTelemetrySimulation === 'function') window.startWaterTelemetrySimulation();
+                updateTelemetryBadge('sim', 'SIMULATION MODE');
+            }
+        } catch (err) {
+            console.warn('Live telemetry query failed, falling back to simulation:', err);
+            if (typeof window.startTelemetrySimulation === 'function') window.startTelemetrySimulation();
+            if (typeof window.startWaterTelemetrySimulation === 'function') window.startWaterTelemetrySimulation();
+            updateTelemetryBadge('sim', 'SIMULATION MODE');
+        }
+    } else {
+        // Historical query: mode !== 'live'
+        // Pause any active simulation intervals and ignore Realtime
+        if (typeof window.pauseTelemetrySimulation === 'function') window.pauseTelemetrySimulation();
+        if (typeof window.pauseWaterTelemetrySimulation === 'function') window.pauseWaterTelemetrySimulation();
+        if (window.activeTelemetrySimulationInterval) {
+            clearInterval(window.activeTelemetrySimulationInterval);
+            window.activeTelemetrySimulationInterval = null;
+        }
+
+        let startISO = '';
+        let endISO = '';
+        let badgeLabel = 'Historical';
+
+        if (mode === 'custom' && customDate) {
+            startISO = new Date(`${customDate}T00:00:00.000Z`).toISOString();
+            endISO = new Date(`${customDate}T23:59:59.999Z`).toISOString();
+            badgeLabel = customDate;
+        } else if (mode === 'yesterday') {
+            const d = new Date();
+            d.setUTCDate(d.getUTCDate() - 1);
+            const yStr = d.toISOString().split('T')[0];
+            startISO = new Date(`${yStr}T00:00:00.000Z`).toISOString();
+            endISO = new Date(`${yStr}T23:59:59.999Z`).toISOString();
+            badgeLabel = `Yesterday (${yStr})`;
+        } else if (mode === '7d') {
+            const now = new Date();
+            const past = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            startISO = past.toISOString();
+            endISO = now.toISOString();
+            badgeLabel = 'Last 7 Days';
+        } else if (mode === '30d') {
+            const now = new Date();
+            const past = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            startISO = past.toISOString();
+            endISO = now.toISOString();
+            badgeLabel = 'Last 30 Days';
+        } else if (mode === '90d') {
+            const now = new Date();
+            const past = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+            startISO = past.toISOString();
+            endISO = now.toISOString();
+            badgeLabel = 'Last 3 Months';
+        }
+
+        if (returnBtn) returnBtn.style.display = 'inline-block';
+        updateTelemetryBadge('historical', `HISTORICAL VIEW: ${badgeLabel}`);
+        window.currentTelemetryLabel = badgeLabel;
+
+        if (!window.supabaseClient) {
+            window.currentTelemetryDataset = [];
+            resetTelemetryKpisToEmpty(systemType);
+            return;
+        }
+
+        try {
+            const { data: rows, error } = await window.supabaseClient
+                .from('telemetry_readings')
+                .select('*')
+                .eq('system_type', systemType)
+                .gte('created_at', startISO)
+                .lte('created_at', endISO)
+                .order('created_at', { ascending: true })
+                .limit(2000);
+
+            if (error) throw error;
+
+            if (rows && rows.length > 0) {
+                const sampled = rows.length > 300 ? downsampleTelemetryRows(rows, 200) : rows;
+                window.currentTelemetryDataset = sampled;
+                updateTelemetryKpiCards(sampled, 'historical', systemType);
+            } else {
+                window.currentTelemetryDataset = [];
+                resetTelemetryKpisToEmpty(systemType);
+            }
+        } catch (err) {
+            console.warn('Historical telemetry query failed:', err);
+            window.currentTelemetryDataset = [];
+            resetTelemetryKpisToEmpty(systemType);
+        }
+    }
+}
+
+window.loadTelemetryData = loadTelemetryData;
+
+function bindTelemetryUIEvents() {
+    // 1. Preset range buttons
+    document.querySelectorAll('.telemetry-history-bar .range-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.telemetry-history-bar .range-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const picker = document.getElementById('historicalDatePicker');
+            if (picker) picker.value = '';
+            const range = btn.getAttribute('data-range') || 'live';
+            loadTelemetryData(range);
+        });
+    });
+
+    // 2. Date picker input
+    const datePicker = document.getElementById('historicalDatePicker');
+    if (datePicker) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        datePicker.max = todayStr;
+        datePicker.addEventListener('change', () => {
+            if (!datePicker.value) return;
+            document.querySelectorAll('.telemetry-history-bar .range-btn').forEach(b => b.classList.remove('active'));
+            loadTelemetryData('custom', datePicker.value);
+        });
+    }
+
+    // 3. Return to live button
+    const returnBtn = document.getElementById('returnToLiveBtn');
+    if (returnBtn) {
+        returnBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (datePicker) datePicker.value = '';
+            document.querySelectorAll('.telemetry-history-bar .range-btn').forEach(b => {
+                if (b.getAttribute('data-range') === 'live') {
+                    b.classList.add('active');
+                } else {
+                    b.classList.remove('active');
+                }
+            });
+            loadTelemetryData('live');
+        });
+    }
+}
+
+// Auto-initialize when bar is present
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (document.querySelector('.telemetry-history-bar')) {
+            bindTelemetryUIEvents();
+            loadTelemetryData('live');
+        }
+    });
+} else {
+    if (document.querySelector('.telemetry-history-bar')) {
+        bindTelemetryUIEvents();
+        loadTelemetryData('live');
+    }
+}
+

@@ -468,14 +468,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Telemetry Stream Pulse Simulator
-    window.initMqttStream = function(onDataCallback) {
-        setInterval(() => {
+    window.startWaterTelemetrySimulation = function() {
+        if (window.activeWaterSimulationInterval) return;
+        window.activeWaterSimulationInterval = setInterval(() => {
+            if (window.currentTelemetryMode && window.currentTelemetryMode !== 'live') return;
             const noiseA0 = (Math.random() * 3 - 1.5) + Math.sin(Date.now() / 4000) * 3;
             const noiseA1 = (Math.random() * 3 - 1.5) + Math.cos(Date.now() / 3500) * 2;
             const A0 = baseA0 + noiseA0;
             const A1 = baseA1 + noiseA1;
-            onDataCallback(A0, A1);
+            updateLiveAcousticStream(A0, A1);
         }, 3000);
+    };
+
+    window.pauseWaterTelemetrySimulation = function() {
+        if (window.activeWaterSimulationInterval) {
+            clearInterval(window.activeWaterSimulationInterval);
+            window.activeWaterSimulationInterval = null;
+        }
+    };
+
+    window.initMqttStream = function(onDataCallback) {
+        window.startWaterTelemetrySimulation();
     };
 
     window.initMqttStream(updateLiveAcousticStream);
