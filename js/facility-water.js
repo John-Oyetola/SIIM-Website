@@ -502,6 +502,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadWaterCsvBtn = document.getElementById('downloadWaterCsvBtn');
     if (downloadWaterCsvBtn) {
         downloadWaterCsvBtn.addEventListener('click', () => {
+            if (typeof window.exportActiveTelemetryCsv === 'function' && window.currentTelemetryDataset && window.currentTelemetryDataset.length > 0) {
+                window.exportActiveTelemetryCsv();
+                return;
+            }
+
             const timestamp = new Date().toISOString();
             const siteName = site.brand;
             const loc = site.location;

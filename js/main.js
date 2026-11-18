@@ -678,6 +678,10 @@ window.closeMacroAnalyticsModal = function() {
 };
 
 window.exportFleetAuditCsv = function() {
+    if (typeof window.exportActiveTelemetryCsv === 'function' && window.currentTelemetryDataset && window.currentTelemetryDataset.length > 0) {
+        window.exportActiveTelemetryCsv();
+        return;
+    }
     const sites = typeof SITE_DATA !== 'undefined' ? SITE_DATA : [];
     
     let csvRows = [];
@@ -2767,4 +2771,138 @@ if (document.readyState === 'loading') {
         loadTelemetryData('live');
     }
 }
+
+/* ==========================================================================
+   Telemetry Dataset CSV Export Handler & Dynamic Filename Synchronization
+   ========================================================================== */
+
+function getTelemetryExportFilename() {
+    let rawLabel = (window.currentTelemetryLabel || 'Live').trim();
+    const cleanLabel = rawLabel.replace(/[^\w\d-_]+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+    return `SIIM-Telemetry-${cleanLabel || 'Live'}.csv`;
+}
+
+window.exportActiveTelemetryCsv = function() {
+    const dataset = window.currentTelemetryDataset;
+    if (!dataset || !Array.isArray(dataset) || dataset.length === 0) return false;
+
+    const headers = [
+        'timestamp',
+        'facility_name',
+        'system_type',
+        'grease_thickness_mm',
+        'duct_temp_c',
+        'airflow_velocity',
+        'ph_level',
+        'flow_rate_lpm',
+        'water_temp_c',
+        'pipe_capacity_pct',
+        'risk_index',
+        'status'
+    ];
+
+    const sysType = typeof detectSystemType === 'function' ? detectSystemType() : 'ventilation';
+    const siteTitleEl = document.getElementById('siteTitle') || document.getElementById('waterSiteTitle');
+    const defaultFacility = siteTitleEl ? siteTitleEl.textContent.trim() : 'SIIM Monitored Facility';
+
+    const csvRows = [headers.join(',')];
+
+    dataset.forEach(row => {
+        const timestamp = row.created_at || row.timestamp || new Date().toISOString();
+        const facility_name = row.facility_name || row.site_name || row.brand || row.facility || defaultFacility;
+        const system_type = row.system_type || sysType;
+
+        const grease_thickness_mm = row.grease_thickness_mm !== undefined ? row.grease_thickness_mm
+            : (row.grease_mm !== undefined ? row.grease_mm
+            : (row.grease !== undefined ? (Number(row.grease) * 0.021).toFixed(2) : '--'));
+
+        const duct_temp_c = row.duct_temp_c !== undefined ? row.duct_temp_c
+            : (row.temperature !== undefined ? row.temperature
+            : (row.temp !== undefined ? row.temp : '--'));
+
+        const airflow_velocity = row.airflow_velocity !== undefined ? row.airflow_velocity
+            : (row.airflow_speed !== undefined ? row.airflow_speed
+            : (row.airflow !== undefined ? row.airflow
+            : (row.speed !== undefined ? row.speed : '--')));
+
+        const ph_level = row.ph_level !== undefined ? row.ph_level
+            : (row.ph !== undefined ? row.ph : '--');
+
+        const flow_rate_lpm = row.flow_rate_lpm !== undefined ? row.flow_rate_lpm
+            : (row.flow_rate !== undefined ? row.flow_rate
+            : (row.flow !== undefined ? row.flow : '--'));
+
+        const water_temp_c = row.water_temp_c !== undefined ? row.water_temp_c
+            : (row.fluid_temp !== undefined ? row.fluid_temp
+            : (row.water_temp !== undefined ? row.water_temp : '--'));
+
+        const pipe_capacity_pct = row.pipe_capacity_pct !== undefined ? row.pipe_capacity_pct
+            : (row.capacity !== undefined ? row.capacity
+            : (row.pipe_capacity !== undefined ? row.pipe_capacity : '--'));
+
+        const risk_index = row.risk_index !== undefined ? row.risk_index
+            : (row.fire_risk !== undefined ? row.fire_risk
+            : (row.impedance_risk !== undefined ? row.impedance_risk
+            : (row.risk !== undefined ? row.risk : '--')));
+
+        const status = row.status !== undefined ? row.status
+            : (grease_thickness_mm !== '--' && Number(grease_thickness_mm) >= 1.0 ? 'Action Due'
+            : (grease_thickness_mm !== '--' && Number(grease_thickness_mm) >= 0.5 ? 'Monitor' : 'Compliant'));
+
+        const rowValues = [
+            timestamp,
+            facility_name,
+            system_type,
+            grease_thickness_mm,
+            duct_temp_c,
+            airflow_velocity,
+            ph_level,
+            flow_rate_lpm,
+            water_temp_c,
+            pipe_capacity_pct,
+            risk_index,
+            status
+        ].map(val => {
+            const strVal = String(val ?? '');
+            if (strVal.includes(',') || strVal.includes('"') || strVal.includes('\n')) {
+                return `"${strVal.replace(/"/g, '""')}"`;
+            }
+            return strVal;
+        });
+
+        csvRows.push(rowValues.join(','));
+    });
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    const filename = getTelemetryExportFilename();
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    if (typeof window.showToast === 'function') {
+        window.showToast(`📄 Exported ${filename} (${dataset.length} records)`);
+    }
+    return true;
+};
+
+// Global click capture to sync Export / Download CSV buttons with active dataset
+document.addEventListener('click', (e) => {
+    const exportBtn = e.target.closest('#downloadCsvBtn, #downloadWaterCsvBtn, .btn-export-telemetry-csv, #exportFleetAuditBtn, [data-action="export-telemetry-csv"]');
+    if (exportBtn) {
+        if (window.currentTelemetryDataset && Array.isArray(window.currentTelemetryDataset) && window.currentTelemetryDataset.length > 0) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            window.exportActiveTelemetryCsv();
+        }
+        // If window.currentTelemetryDataset is empty, allows event to proceed to existing simulation fallback
+    }
+}, true);
+
 
